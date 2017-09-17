@@ -1,0 +1,174 @@
+\usepackage{color}
+\usepackage{xcolor}
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{pred}{rgb}{0.9,0,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+%-------------------------------------------------------------------------------
+\usepackage{url}
+\usepackage{babel}
+%\usepackage[gen]{eurosym}
+\usepackage{times}
+%-------------------------------------------------------------------------------
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+\usepackage{graphics}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\PassOptionsToPackage{normalem}{ulem}
+\usepackage{ulem}
+\usepackage[numbers]{natbib} 
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+%\DeclareMathOperator*{\cdf}{cdf}
+%\DeclareMathOperator*{\quantile}{quantile}
+\makeatother
+%-------------------------------------------------------------------------------
+\usepackage{algpseudocode,algorithm,algorithmicx}
+%-------------------------------------------------------------------------------
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=false,bookmarksopen=true,bookmarksopenlevel=1,
+ breaklinks=false,pdfborder={0 0 0},backref=false,colorlinks=true]{hyperref}
+\hypersetup{unicode=true,
+colorlinks=true,
+pdfpagemode=UseOutlines,
+pdfpagelayout=OneColumn,
+pdfstartview=Fit,
+linkcolor=MidnightBlue,
+urlcolor=Mahogany,
+citecolor=OliveGreen}
+\makeatletter
+%-------------------------------------------------------------------------------
+\usepackage{datetime}
+\renewcommand{\dateseparator}{-}
+\renewcommand{\today}{
+\the\year \dateseparator \twodigit\month \dateseparator \twodigit\day}
+%-------------------------------------------------------------------------------
+\setlength{\parskip}{3pt}
+\setlength{\parindent}{0pt}
+\usepackage[parfill]{parskip}
+\usepackage{fancyhdr}
+\fancypagestyle{plain}{
+\fancyhead{} % clear all header fields 
+\fancyfoot{} % clear all foot fields
+\fancyfoot[RO,LE]{\thepage} 
+\fancyfoot[RE,LO]{Draft of \today}
+\renewcommand{\headrulewidth}{0.0pt}
+\renewcommand{\footrulewidth}{0.1pt}}
+\pagestyle{plain}
+%-------------------------------------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage{inconsolata}
+\usepackage{xeCJK}
+\setCJKmainfont{SimHei}
+\setCJKsansfont{SimHei}
+\setCJKmonofont{Lucida Sans Typewriter}
+\usepackage{fontspec}
+%\setmainfont{Baskerville Old Face}
+%\setmainfont{Centaur}
+%\setmainfont{Garamond}
+%\setmainfont{Georgia}
+%\setmainfont{Perpetua}
+%\setmainfont{Poor Richard}
+\setsansfont{Gill Sans MT} 
+\newfontfamily\headingfont[]{Gill Sans MT}
+%\newfontfamily\headingfont[]{Perpetua Titling MT}
+%-------------------------------------------------------------------------------
+\usepackage{listings}
+\lstset{language=Java,
+  %backgroundcolor={\color{GhostWhite}},
+  showspaces=false,
+  showtabs=false,
+  %breaklines=true,
+  breaklines=false,
+  %showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{pgreen},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pred},
+  basicstyle=\ttfamily,
+  %basicstyle={\ttfamily\small},
+  captionpos=b,
+  frame=tblr,
+  moredelim=[il][\textcolor{pgrey}]{$$},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+%\renewcommand{\lstlistingname}{Listing}
+%-------------------------------------------------------------------------------
+\providecommand{\algorithmname}{Algorithm}
+\providecommand{\exercisename}{Exercise}
+\providecommand{\theoremname}{Theorem}
+%-------------------------------------------------------------------------------
+\usepackage{enumitem}
+\setlist[description]{font=\sffamily\normalsize\mdseries,style=unboxed,leftmargin=0cm}
+\setlist[itemize]{style=unboxed,itemindent=0cm}
+\setlist[enumerate]{style=unboxed,itemindent=0cm}
+%-------------------------------------------------------------------------------
+\usepackage{titling}
+\renewcommand{\maketitlehooka}{\headingfont}
+\pretitle{\begin{flushright}\Large\sffamily\bfseries}
+\posttitle{\par\end{flushright}\vskip 0.25em}
+\preauthor{\begin{flushright}}
+\postauthor{\par\end{flushright}}
+\predate{\begin{flushright}}
+\postdate{\par\end{flushright}}
+\setlength{\droptitle}{-80pt}
+%-------------------------------------------------------------------------------
+\usepackage[sf,small,compact]{titlesec}
+\setcounter{secnumdepth}{5} 
+% \expandafter, etc, to get rid of texlipse warnings about \section
+% without arg
+\expandafter\titleformat\expandafter{\csname section\endcsname}[hang]
+  {\Large\headingfont\bfseries}
+  %{\S\thesection}
+  {\thesection}
+  {0.5em}
+  {}
+\renewcommand\thesection{\arabic{section}}
+
+\expandafter\titleformat\expandafter{\csname
+subsection\endcsname}[hang] {\large\headingfont\bfseries}
+  %{\S\thesubsection}
+  {\thesubsection}
+  {0.5em}
+  {}
+\renewcommand\thesubsection{\arabic{section}.\arabic{subsection}}
+
+\expandafter\titleformat\expandafter{\csname subsubsection\endcsname}[hang]
+  {\normalsize\headingfont\bfseries}
+  %{\S\thesubsubsection}
+  {\thesubsubsection}
+  {0.5em}
+  {}
+\renewcommand\thesubsubsection{\arabic{section}.\arabic{subsection}.\arabic{subsubsection}}
+
+\expandafter\titleformat\expandafter{\csname
+paragraph\endcsname}[runin] {\normalsize\headingfont\bfseries}
+  %{\S\theparagraph}
+  {\theparagraph}
+  {0.5em}
+  {}[\hspace{1em}]
+\renewcommand\theparagraph{}
+%\renewcommand\theparagraph{\arabic{section}.\arabic{subsection}.\arabic{subsubsection}.\arabic{paragraph}}
+
+\expandafter\titleformat\expandafter{\csname
+subparagraph\endcsname}[runin] {\normalsize\headingfont\mdseries}
+  %{\S\thesubparagraph}
+  {\thesubparagraph}
+  {0.5em}
+  {}[\hspace{1em}]
+\renewcommand\thesubparagraph{}
+%\renewcommand\thesubparagraph{\arabic{section}.\arabic{subsection}.\arabic{subsubsection}.\arabic{paragraph}.\arabic{subparagraph}}
+
+%\titleformat{\section}[hang]{\thesection}
+%\titleformat{\subsection}[hang]{\large\headingfont\mdseries}{\thesubsection}{0.5em}{}
+%\titleformat{\subsubsection}[hang]{\large\headingfont\mdseries}{\thesubsubsection}{0.5em}{}
+%\titleformat{\paragraph}[runin]{\normalsize\headingfont\mdseries}{\theparagraph}{0.5em}{}[\hspace{1em}]
+%\titleformat{\subparagraph}[runin]{\small\headingfont}{\thesubparagraph}{0.5em}{}[\hspace{1em}]
+% \titlespacing\section{0pt}{4pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt} 
+% \titlespacing\subsection{0pt}{4pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt} 
+% \titlespacing\subsubsection{0pt}{4pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+%-------------------------------------------------------------------------------

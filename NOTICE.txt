@@ -1,0 +1,7 @@
+Contributed by Amazon.com as open source under the Apache 2.0 license, 2017-09-16.
+
+Initial commit: 
+https://github.com/wahpenayo/taiga/commit/xxxxxxxxxx
+Copyright 2017 Amazon.com, Inc. or its affiliates. 
+
+Subsequent modifications copyrighted by their contributors.
