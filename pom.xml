@@ -20,7 +20,7 @@
   <maven-release-plugin-version>2.5.3</maven-release-plugin-version>
   <maven-scm-plugin-version>1.9.5</maven-scm-plugin-version>
   <maven-site-version>3.6</maven-site-version>
-  <github-url>scm:git:https://github.com/palisades-lakes/benchtools.git</github-url>
+  <github-url>scm:git:https://github.com/wahpenayo/taiga.git</github-url>
   <!-- github-url>scm:git:file://.</github-url -->
   <timestamp>${maven.build.timestamp}</timestamp>
   <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
