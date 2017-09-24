@@ -239,8 +239,8 @@
     <version>${maven-javadoc-version}</version>
     <configuration>
      <additionalparam>-Xdoclint:none</additionalparam>
-     <outputDirectory>${project.build.directory}/javadoc</outputDirectory>
-     <reportOutputDirectory>${project.reporting.outputDirectory}/javadoc</reportOutputDirectory>
+     <outputDirectory>${project.basedir}c</outputDirectory>
+     <reportOutputDirectory>${project.basedir}</reportOutputDirectory>
      <destDir>docs/api</destDir>
      <overview>src/main/java/overview.html</overview>
      <showPackage>true</showPackage>
@@ -342,6 +342,9 @@
     <configuration>
      <!-- <destDir>target/site/docs/</destDir> -->
      <additionalparam>-Xdoclint:none</additionalparam>
+     <outputDirectory>${project.basedir}c</outputDirectory>
+     <reportOutputDirectory>${project.basedir}</reportOutputDirectory>
+     <destDir>docs/api</destDir>
      <overview>src/main/java/overview.html</overview>
      <showPackage>true</showPackage>
      <showProtected>true</showProtected>
