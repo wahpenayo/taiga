@@ -241,7 +241,7 @@
      <additionalparam>-Xdoclint:none</additionalparam>
      <outputDirectory>${project.basedir}c</outputDirectory>
      <reportOutputDirectory>${project.basedir}</reportOutputDirectory>
-     <destDir>docs/api</destDir>
+     <destDir>docs/javadoc</destDir>
      <overview>src/main/java/overview.html</overview>
      <showPackage>true</showPackage>
      <showProtected>true</showProtected>
@@ -344,7 +344,7 @@
      <additionalparam>-Xdoclint:none</additionalparam>
      <outputDirectory>${project.basedir}c</outputDirectory>
      <reportOutputDirectory>${project.basedir}</reportOutputDirectory>
-     <destDir>docs/api</destDir>
+     <destDir>docs/javadoc</destDir>
      <overview>src/main/java/overview.html</overview>
      <showPackage>true</showPackage>
      <showProtected>true</showProtected>
