@@ -14,7 +14,7 @@ import clojure.lang.IFn.OD;
  * TODO: Verify the sorting code here handles the partial ordering correctly.
  * 
  * @author John Alan McDonald
- * @since 2016-12-21
+ * @since 2017-10-21
  */
 @SuppressWarnings("unchecked") 
 public final class XYW {
@@ -26,10 +26,10 @@ public final class XYW {
   //----------------------------------------------------------------------------
   // construction
   //----------------------------------------------------------------------------
-  private XYW (final double x, final double y, final double w) {
-    this.x = x;
-    this.y = y;
-    this.w = w; }
+  private XYW (final double xx, final double yy, final double ww) {
+    this.x = xx;
+    this.y = yy;
+    this.w = ww; }
   //----------------------------------------------------------------------------
   // sorting
   //----------------------------------------------------------------------------

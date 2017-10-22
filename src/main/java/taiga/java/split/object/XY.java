@@ -15,7 +15,7 @@ import clojure.lang.IFn.OD;
  * TODO: Verify the sorting code here handles the partial ordering correctly.
  * 
  * @author John Alan McDonald
- * @since 2017-01-03
+ * @since 2017-10-21
  */
 @SuppressWarnings("unchecked") 
 public final class XY {
@@ -25,9 +25,9 @@ public final class XY {
   //----------------------------------------------------------------------------
   // construction
   //----------------------------------------------------------------------------
-  public XY (final double x, final Object y) {
-    this.x = x;
-    this.y = y; }
+  public XY (final double xx, final Object yy) {
+    this.x = xx;
+    this.y = yy; }
   //----------------------------------------------------------------------------
   // sorting
   //----------------------------------------------------------------------------
