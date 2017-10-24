@@ -1,4 +1,4 @@
-# Metric functions
+# metric functions
 
 <code>(metric model attributes data)</code>
 
@@ -25,7 +25,7 @@ and must include key-value pairs for every predictor attribute used by
 model.
 <br>
 Attribute function calls in training, prediction, and metrics look like 
-<code>((:height attrributes) datum)</code>.
+<code>((:height attributes) datum)</code>.
 <br>
 The map provides indirection used in serializing models and in computing 
 permutation-based importance statistics.

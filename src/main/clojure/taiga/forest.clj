@@ -1,6 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* false) ;; cheshire has boxed math warnings.
-(ns ^{:author "John Alan McDonald, Kristina Lisa Klinkner" :date "2017-01-04"
+(ns ^{:author "John Alan McDonald, Kristina Lisa Klinkner" 
+      :date "2017-01-04"
       :doc "Random and other forests." }
     
     taiga.forest
@@ -317,8 +318,8 @@
          :maxdepth (or (:maxdepth options) Integer/MAX_VALUE)
          :mincount (classification-mincount options)
          :mtry (classification-mtry options)
-         :leaf-learner  (double-leaf/majority-vote-learner 
-                          (:ground-truth (:attributes options)) (:weight options))
+         :leaf-learner (double-leaf/majority-vote-learner 
+                         (:ground-truth (:attributes options)) (:weight options))
          :cost-factory (if (weighted? options)
                          z/weighted-gini-accumulator 
                          z/gini-accumulator)

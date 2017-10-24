@@ -1,4 +1,4 @@
-# Overview
+# overview
 
 Taiga \cite{taiga-2015} is a machine learning library written in
 Clojure. 
