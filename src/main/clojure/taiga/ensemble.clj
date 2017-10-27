@@ -1,13 +1,16 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
-(ns ^{:author "John Alan McDonald, Kristina Lisa Klinkner" :date "2017-01-13"
+(ns ^{:author "John Alan McDonald, Kristina Lisa Klinkner" 
+      :since "2017-01-13"
+      :date "2017-10-27"
       :doc "Ensemble (Reducer) model classes." }
     
     taiga.ensemble
   
-  (:require [zana.api :as z]))
+  (:require [zana.api :as z])
+  (:import [clojure.lang IFn IFn$OOD]))
 ;;------------------------------------------------------------------------------
-;; TODO: move to Java so we can inherit clojure.lang.IFn$OOD
+;; TODO: move to Java so we can inherit IFn$OOD
 ;; TODO: have a single EnsembleModel class, parameterized by an
 ;; Accumulator factory. Issue: serialization of factory function 
 ;; Accumulator instances to edn.
@@ -33,18 +36,18 @@
   (parameters [this] params)
   (terms [this] terms)
   (nterms [this] (z/count terms))
-  clojure.lang.IFn$OOD
+  IFn$OOD
   (invokePrim ^double [this predictors datum]
     ;; not strictly right -- nil might be a valid input
     (assert (not (nil? datum)))
     (assert (instance? java.util.Map predictors))
     (let [m (z/mean-accumulator)]
       (z/mapc 
-        (fn [^clojure.lang.IFn$OOD term] 
+        (fn [^IFn$OOD term] 
           (.add m (.invokePrim term predictors datum)))
         terms)
       (.doubleValue m)))
-  clojure.lang.IFn
+  IFn
   (invoke [this predictors datum] (.invokePrim this predictors datum)))
 ;;------------------------------------------------------------------------------
 ;; TODO: copy terms for safety?
@@ -61,13 +64,13 @@
   (parameters [this] params)
   (terms [this] terms)
   (nterms [this] (z/count terms))
-  clojure.lang.IFn
+  IFn
   (invoke [this predictors datum]
     ;; not strictly right -- nil might be a valid input
     (assert (not (nil? datum)))
     (assert (instance? java.util.Map predictors))
     (let [^zana.java.accumulator.Accumulator m (z/vector-mean-accumulator codimension)]
-      (z/mapc (fn [^clojure.lang.IFn term] 
+      (z/mapc (fn [^IFn term] 
                 (let [yhat (term predictors datum)
                       aclass (class (double-array 0))]
                   (assert (instance? aclass yhat) 
@@ -93,7 +96,7 @@
   (parameters [this] params)
   (terms [this] terms)
   (nterms [this] (z/count terms))
-  clojure.lang.IFn$OOD
+  IFn$OOD
   (invokePrim ^double [this predictors datum]
     (assert (instance? java.util.Map predictors))
     ;; not strictly right -- nil might be a valid input
@@ -102,12 +105,12 @@
           (z/minimum-expected-cost-class-accumulator false-positive-cost)
           ;; for speed?
           p (java.util.IdentityHashMap. ^java.util.Map predictors)]
-      (z/mapc (fn [^clojure.lang.IFn$OOD term]
+      (z/mapc (fn [^IFn$OOD term]
                 (let [yhati (.invokePrim term p datum)]
                   (.add m yhati)))
               terms)
       (.doubleValue m)))
-  clojure.lang.IFn
+  IFn
   (invoke [this predictors datum] (.invokePrim this predictors datum)))
 ;;------------------------------------------------------------------------------
 ;; TODO: copy terms for safety?
@@ -135,7 +138,7 @@
   (parameters [this] params)
   (terms [this] terms)
   (nterms [this] (z/count terms))
-  clojure.lang.IFn$OOD
+  IFn$OOD
   (invokePrim ^double [this predictors datum]
     (assert (instance? java.util.Map predictors))
     ;; not strictly right -- nil might be a valid input
@@ -144,12 +147,12 @@
           ;; for speed?
           p (java.util.IdentityHashMap. ^java.util.Map predictors)]
       (z/mapc
-        (fn [^clojure.lang.IFn$OOD term]
+        (fn [^IFn$OOD term]
           (let [yhati (.invokePrim term p datum)]
             (.add m yhati)))
         terms)
       (.doubleValue m)))
-  clojure.lang.IFn
+  IFn
   (invoke [this predictors datum] (.invokePrim this predictors datum)))
 ;;------------------------------------------------------------------------------
 ;; TODO: copy terms for safety?
@@ -177,6 +180,32 @@
             (instance? MeanModel model)
             (mean-model (parameters model) terms)))))
 ;;------------------------------------------------------------------------------
+;; Predicted value is a RealProbabilityMeasure
+(defrecord RealProbabilityMeasureModel [^java.util.Map params
+                                        ^java.util.List terms]
+  EnsembleModel
+  (parameters [this] params)
+  (terms [this] terms)
+  (nterms [this] (z/count terms))
+  IFn
+  (invoke [this predictors datum]
+    ;; not strictly right -- nil might be a valid input
+    (assert (not (nil? datum)))
+    (assert (instance? java.util.Map predictors))
+    ;; NOTE: assuming rpms are all WEPDFs
+    (let [rpms (z/map (fn [^IFn term] (term predictors datum))
+                      terms)]
+      (apply z/average-wepdfs rpms))))
+;;------------------------------------------------------------------------------
+;; TODO: copy terms for safety?
+(defn probability-measure-model
+  (^taiga.ensemble.RealProbabilityMeasureModel 
+   [^java.util.Map params ^java.util.List terms]
+    (RealProbabilityMeasureModel. params terms))
+  (^taiga.ensemble.RealProbabilityMeasureModel 
+   [^java.util.List terms]
+    (probability-measure-model {} terms)))
+;;------------------------------------------------------------------------------
 (z/add-edn-readers!
   {'taiga.ensemble.PositiveFractionModel 
    map->PositiveFractionModel
@@ -188,5 +217,8 @@
    map->MeanVectorModel
    
    'taiga.ensemble.MeanModel 
-   map->MeanModel})
+   map->MeanModel
+   
+   'taiga.ensemble.RealProbabilityMeasureModel 
+   map->RealProbabilityMeasureModel})
 ;;------------------------------------------------------------------------------
