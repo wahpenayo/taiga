@@ -2,9 +2,9 @@
 (set! *unchecked-math* :warn-on-boxed) 
 (ns ^{:author ["John Alan McDonald" 
                "Kristina Lisa Klinkner"
-               "palisades dot lakes at gmail dot com"]
+               "wahpenayo at gmail dot com"]
       :since "2016-11-11"
-      :date "2017-10-30"
+      :date "2017-10-31"
       :doc "deftype/clojure.zipper representation of decision trees." }
     
     taiga.tree.node

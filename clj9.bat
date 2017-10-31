@@ -1,6 +1,6 @@
 @echo off
-:: palisades.lakes (at) gmail (dot) com
-:: 2017-10-09
+:: wahpenayo (at) gmail (dot) com
+:: 2017-10-31
 
 ::set GC=-XX:+AggressiveHeap -XX:+UseStringDeduplication 
 set GC=

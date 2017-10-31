@@ -1,6 +1,8 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* false) ;; cheshire has boxed math warnings.
-(ns ^{:author "John Alan McDonald, Kristina Lisa Klinkner" 
+(ns ^{:author ["wahpenayo at gmail dot com"
+               "John Alan McDonald" 
+               "Kristina Lisa Klinkner"] 
       :date "2017-01-04"
       :doc "Random and other forests." }
     

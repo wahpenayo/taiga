@@ -47,7 +47,7 @@ dependencies.
     In a git bash window:
     ```
     rm -rf target/doc && mkdir -p target/doc
-    git clone https://github.com/palisades-lakes/faster-multimethods.git target/doc
+    git clone https://github.com/wahpenayo/taiga.git target/doc
     cd target/doc
     git symbolic-ref HEAD refs/heads/gh-pages
     rm .git/index
@@ -57,7 +57,7 @@ dependencies.
     ```
     Run 
     ```
-    clj src\scripts\clojure\palisades\lakes\multimethods\codox.clj
+    clj src\scripts\clojure\taiga\scripts\doc\codox.clj
     ```
     and 
     ```
@@ -72,4 +72,4 @@ dependencies.
     cd ../..
     ```
     
-[documentation](https://palisades-lakes.github.io/faster-multimethods)
+[documentation](https://wahpenayo.github.io/taiga)

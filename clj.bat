@@ -1,5 +1,5 @@
 @echo off
-:: palisades dot lakes at gmail dot com
+:: wahpenayo at gmail dot com
 :: 2017-10-24
 
 ::set GC=-XX:-UseParallelGC -XX:+UseSerialGC

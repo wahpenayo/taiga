@@ -1,6 +1,6 @@
 @echo off
-:: palisades dot lakes at gmail dot com
-:: 2017-10-24
+:: wahpenayo at gmail dot com
+:: 2017-10-31
 
 ::set GC=-XX:-UseParallelGC -XX:+UseSerialGC
 set GC=-XX:+AggressiveHeap -XX:NewRatio=2
