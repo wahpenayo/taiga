@@ -192,9 +192,14 @@
     ;; not strictly right -- nil might be a valid input
     (assert (not (nil? datum)))
     (assert (instance? java.util.Map predictors))
-    ;; NOTE: assuming rpms are all WEPDFs
-    (let [rpms (z/map (fn [^IFn term] (term predictors datum))
-                      terms)]
+    ;; NOTE: assuming rpms are all WEPDF
+    ;; NOTE: handle the case of no training data ending up
+    ;; in a leaf in a forest model by returning nil from that
+    ;; ensemble term (a tree) and ignoring nils when averaging the
+    ;; rpms.
+    (let [rpms (z/keep-map ;; drops nils
+                 (fn [^IFn term] (term predictors datum))
+                 terms)]
       (apply z/average-wepdfs rpms))))
 ;;------------------------------------------------------------------------------
 ;; TODO: copy terms for safety?

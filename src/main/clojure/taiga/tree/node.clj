@@ -113,20 +113,21 @@
   "Return a map from leaf node to double[], where
    the list contains the ground truth values for the data that
    ends up in that leaf.
-   Only for double-valued ground truth for now." 
+   Only for double-valued <code>ground-truth</code> for now." 
   
   ^java.util.Map [^Node root 
+                  ^IFn$OD ground-truth
                   ^Map predictors 
                   ^Iterable data]
-  (let [^Map leaf-to-data (HashMap. (z/count data))
-        ^IFn$OD y (:ground-truth predictors)]
-    (assert (not (nil? y)))
-    (z/mapc (fn update-map [datum]
-              (let [^Node l (leaf root predictors datum)
-                    _(assert (not (nil? l)))
-                    ^DoubleArrayList ldata (.getOrDefault leaf-to-data l (DoubleArrayList.))]
-                (.add ldata (.invokePrim y datum))
-                (.put leaf-to-data l ldata)))
+  (let [^Map leaf-to-data (HashMap. (z/count data))]
+    (assert (not (nil? ground-truth)))
+    (z/mapc 
+      (fn update-map [datum]
+        (let [^Node l (leaf root predictors datum)
+              _(assert (not (nil? l)))
+              ^DoubleArrayList ldata (.getOrDefault leaf-to-data l (DoubleArrayList.))]
+          (.add ldata (.invokePrim ground-truth datum))
+          (.put leaf-to-data l ldata)))
             data)
     (z/mapc (fn list-to-array [^Node l]
               (let [^DoubleArrayList ldata (.get leaf-to-data l)]

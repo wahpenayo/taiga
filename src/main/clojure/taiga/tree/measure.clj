@@ -2,7 +2,7 @@
 (set! *unchecked-math* :warn-on-boxed) 
 (ns ^{:author "wahpenayo at gmail dot com" 
       :since "2017-10-30"
-      :date "2017-10-30"
+      :date "2017-10-31"
       :doc "probability measure prediction." }
     
     taiga.tree.measure
@@ -11,7 +11,7 @@
             [taiga.tree.node :as node])
   
   (:import [java.util HashMap Map]
-           [clojure.lang IFn]
+           [clojure.lang IFn IFn$OD]
            [zana.prob.measure RealProbabilityMeasure]
            [taiga.tree.node Node]
            [taiga.tree.leaf.double Leaf]))
@@ -48,13 +48,17 @@
    </dl>.
    The returned probability measure will be estimated from the
    <code>training-data</code> that ends up in the same leaf as the
-  later <code>datum</code> argument."
+   later <code>datum</code> argument.<br>
+   <b>NOTE:</b> if a leaf gets no empirical distribution training 
+   data, the map will return <code>nil</code>."
   
   ^clojure.lang.IFn [^Node root 
+                     ^IFn$OD ground-truth
                      ^Map predictors 
                      ^Iterable training-data]
   (let [leaf-ground-truth (node/leaf-ground-truth 
-                            root predictors training-data)
+                            root ground-truth predictors 
+                            training-data)
         leaf-to-measure (HashMap.)]
   (z/mapc (fn collect-measures [^Node l]
               (let [^doubles ldata (.get leaf-ground-truth l)]

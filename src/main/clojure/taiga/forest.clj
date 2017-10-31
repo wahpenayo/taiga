@@ -3,7 +3,8 @@
 (ns ^{:author ["wahpenayo at gmail dot com"
                "John Alan McDonald" 
                "Kristina Lisa Klinkner"] 
-      :date "2017-01-04"
+      :since "2017-01-04"
+      :date "2017-10-31"
       :doc "Random and other forests." }
     
     taiga.forest
@@ -18,31 +19,32 @@
             [taiga.split.api :as split]
             [taiga.tree.leaf.double :as double-leaf]
             [taiga.tree.leaf.doubles :as doubles-leaf]
-            [taiga.tree.grow :as grow]))
+            [taiga.tree.grow :as grow]
+            [taiga.tree.measure :as measure]))
 (set! *unchecked-math* :warn-on-boxed)
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; training options
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn- classification-mtry ^long [options]
   (let [predictors (dissoc (:attributes options) :ground-truth :prediction)]
     (long (:mtry options (Math/floor (Math/sqrt (z/count predictors)))))))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn- regression-mtry ^long [options]
   (let [predictors (dissoc (:attributes options) :ground-truth :prediction)]
     (long (:mtry options (Math/floor (/ (z/count predictors) 3.0))))))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn- classification-mincount ^long [options] (long (:mincount options 5)))
 (defn- regression-mincount ^long [options] (long (:mincount options 5)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn- mincount-tester [options]
   (let [mincount (long (:mincount options))]
     (fn mincount-split? 
       ([a b] (split/mincount-split? mincount a b))
       ([a] (split/mincount-split? mincount a)))))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn- weighted? [options]
   (and (:weight options) (not= z/constantly-1d (:weight options))))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn- check [options]
   (assert (not (z/empty? (:data options)))
           (print-str "no :data in" (z/pprint-map-str options)))
@@ -65,9 +67,9 @@
           (str ":maxdepth must be positive:"(z/pprint-map-str options)))
   (assert (< 0 (int (:mtry options))) 
           (str ":mtry must be positive:"(z/pprint-map-str options))))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; generic training
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn- random-forest-splitter [options prng]
   (assert (integer? (:mtry options)))
   (let [mtry (long (:mtry options))]
@@ -77,7 +79,7 @@
           (split/best-split (assoc options 
                                    :predictors predictors 
                                    :data data)))))))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn random-forest 
   
   "Train a random forest.
@@ -233,9 +235,9 @@
                         data))
                    splitters)]
     (bag/bagging options bagging-prng learners)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; (scalar) regression
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn mean-regression-options [options]
   "Fill in options map with standard defaults for simple L2 regression."
   (assoc 
@@ -253,7 +255,7 @@
              (z/make-calculator z/weighted-mean-accumulator)
              (z/make-calculator z/mean-accumulator))
     :combine ensemble/mean-model))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn mean-regression 
   
   "Train a standard (Breiman) regression random forest, optimizing for L2 cost 
@@ -272,9 +274,107 @@
   
   ^taiga.ensemble.MeanModel [options]
   (random-forest (mean-regression-options options)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
+;; real probability measure 'regression'
+;;----------------------------------------------------------------
+;; TODO: determine if there larger default :mincount, etc, are 
+;; better here.
+(defn real-probability-measure-options [options]
+  "Fill in options map with standard defaults for 
+   real probability measure regression.<br>
+   Defaults to mean L2 regression options passed to the
+   inner model.<br>
+   If <code>:empirical-distribution-data</code> is not provided, 
+   the mean regression training <code>:data</code> is reused."
+  (assoc (mean-regression-options options)
+         :empirical-distribution-data 
+         (:empirical-distribution-data 
+           options (:data options))))
+;;----------------------------------------------------------------
+;; TODO: what some leaf gets no records from 
+;; :empirical-distribution-data? Ignore that leaf for now. 
+(defn real-probability-measure 
+  
+  "Train a [[taiga.ensemble.RealProbabilityMeasureModel]], which
+   maps a domain element <code>x</code> to a probability measure
+   on <b>R</b>. This is done using 2 training data sets,
+   <code>:data</code> and <code>:empirical-distribution-data</code>.
+   The first, <code>:data</code> is used to train a 
+   [[mean-regression]] forest. The second,
+   <code>:empirical-distribution-data</code> is passed down every
+   tree in the forest, creating an empirical distribution of the
+   <code>:ground-truth</code> values that end up in each leaf.
+   The predicted [[taiga.ensemble.RealProbabilityMeasureModel]]
+   is the mean of the empirical distributions of the leaves 
+   the domain element <code>x</code> is mapped to.<br>
+   'Mean' here implies that each empirical distribution gets the
+   same weight, not each observation in all the distributions.
+   In other words, if leaf <code>i</code> gets <code>ni</code>
+   training elements, then each of those gets relative weight 
+   <code>1/ni</code> in the averaged measure.<br>
+   If no <code>:empirical-distribution-data</code> is supplied,
+   the <code>:data/code> is reused.<br>
+   <b>Note:</b> This is essentially 
+   <a href=\"http://www.jmlr.org/papers/volume7/meinshausen06a/meinshausen06a.pdf\">
+   Meinshausen's</a> approach to quantile regression forests.
+   Two differences:
+   <ol>
+   <li> Here we return a probability measure, which can then be 
+   queried for quantiles, moments, cdf values, etc.
+   <li> Meinshausen uses the bootstrap sample to estimate the
+   empirical distribution in each leaf. Here all the data is used,
+   with the option of a different data set for the inner
+   regression model and the outer empirical distribution models.
+   (<i>TODO:</i> determine if using bagging on the 
+   <code>:empirical-distribution-data</code> improves accuracy.
+   </ol>
+   Arguments:
+   <dl>
+   <dt><code>^clojure.lang.IPersistentMap options</code></dt>
+   <dd>
+   See [[mean-regression]].<br>
+   One additional option <code>:empirical-distribution-data</code>
+   permits using different data sets for the inner mean regression
+   and the outer empirical distribution estimation.
+   Overrides <code>:combine</code>, <code>:cost-factory</code>, 
+   <code>:feasible</code>, <code>:leaf-learner</code>, and
+   <code>:score</code> with the right choices for L2 regression 
+   (so the values in <code>options</code> will be silently ignored.
+   Provides defaults for <code>:mincount</code> and 
+   <code>:mtry</code>.
+   </dd>
+   </dl>
+   <i>Future work:</i> 
+   <ul>
+   <li> Extend to any double-valued inner model.
+   <li> More compact representations of probability measures.
+   <li> Option of some parametric families of probability 
+   distributions.
+   <li> Extend to vector valued and discrete (general Enum valued)
+    models.
+   </ul>"
+  
+  ^taiga.ensemble.RealProbabilityMeasureModel [options]
+  (let [options (real-probability-measure-options options)
+        forest (random-forest options)
+        ;; TODO: allow different ground truth for measures vs
+        ;; regression?
+        ground-truth (:ground-truth (:attributes options))
+        ;; TODO: empirical distribution could allow probability
+        ;; of missing?
+        data (z/drop-missing 
+               ground-truth
+               (:empirical-distribution-data options))
+        predictors (dissoc (:attributes options) 
+                           :ground-truth :prediction)
+        ;; TODO: :probability-measure-learner option
+        learner (fn learner [root]
+                  (measure/train root ground-truth predictors data))
+        terms (z/map learner (ensemble/terms forest))]
+    (ensemble/probability-measure-model terms)))
+;;----------------------------------------------------------------
 ;; vector-valued regression
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; TODO: better way to get dimension of output vector space ---
 ;; need dimension of codomain of ground-truth
 
@@ -293,7 +393,7 @@
     :cost-factory #(z/vector-mssn-accumulator (:codimension options))
     :feasible? (mincount-tester options)
     :combine #(ensemble/mean-vector-model (:codimension options) %)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn mean-vector-regression 
   
   "Train a standard (Breiman) regression random forest, optimizing for L2 cost 
@@ -312,9 +412,9 @@
   
   ^taiga.ensemble.MeanModel [options]
   (random-forest (mean-vector-regression-options options)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; classification
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn binary-classification-options [options]
   (assoc options
          :maxdepth (or (:maxdepth options) Integer/MAX_VALUE)
@@ -329,7 +429,7 @@
          :score (if (weighted? options)
                   (z/make-calculator z/weighted-positive-fraction-accumulator)
                   (z/make-calculator z/positive-fraction-accumulator))))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn majority-vote-classifier
   
   "Train a standard (Breiman) binary classification random forest, using the 
@@ -351,7 +451,7 @@
   
   (random-forest (assoc (binary-classification-options options)
                         :combine ensemble/majority-model)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn majority-vote-probability 
   
   "Train a standard (Breiman) binary classification random forest, using the 
@@ -373,13 +473,13 @@
   ^taiga.ensemble.PositiveFractionModel [options]
   (random-forest (assoc (binary-classification-options options)
                         :combine ensemble/positive-fraction-model)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn positive-fraction-probability-options [options]
   (assoc (binary-classification-options options)
          :leaf-learner (double-leaf/positive-fraction-learner 
                          (:ground-truth (:attributes options)) (:weight options))
          :combine ensemble/mean-model))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn positive-fraction-probability 
   
   "Train a standard (Breiman) binary classification random forest, using the 
@@ -401,7 +501,7 @@
   ^taiga.ensemble.MeanModel [options]
   
   (random-forest (positive-fraction-probability-options options)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; TODO: weighted gini factory
 #_(defn minimum-cost-classifier 
     
@@ -419,14 +519,14 @@
                      (ensemble/minimum-cost-class-model terms false-positive-cost))]
       (random-forest (assoc (binary-classification-options options)
                             :combine combiner))))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; io
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn pprint-forest [forest file]
   (with-open [w (z/print-writer file)]
     (binding [*out* w] 
       (pp/pprint (z/clojurize forest)))))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; TODO: don't really need these function. Just here to ensure needed readers
 ;; and classes are loaded.
 
@@ -445,7 +545,7 @@
   
   [file]
   (z/read-edn file))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; requires cheshire 5.6.x, not in brazil 2016-08-25
 #_(defn write-json [forest file]
     (let [pretty (cheshire/create-pretty-printer
@@ -466,4 +566,4 @@
    No <code>read-json</code> yet, and may never be." 
   [forest file]
   (with-open [w (z/writer file)] (cheshire/encode-stream forest w)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
