@@ -8,8 +8,8 @@
   (:require [clojure.test :as test]
             [zana.api :as z]
             [taiga.tree.node :as node]
-            [taiga.test.data.record :as record]
-            [taiga.test.data.defs :as defs]))
+            [taiga.test.classify.data.record :as record]
+            [taiga.test.classify.data.defs :as defs]))
 ;;  mvn -Dtest=taiga.test.leaves clojure:test
 ;;------------------------------------------------------------------------------
 (defn check-mincount 

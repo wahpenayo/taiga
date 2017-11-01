@@ -9,8 +9,8 @@
             [clojure.test :as test]
             [zana.api :as z]
             [taiga.api :as taiga]
-            [taiga.test.data.record :as record]
-            [taiga.test.data.defs :as defs]))
+            [taiga.test.classify.data.record :as record]
+            [taiga.test.classify.data.defs :as defs]))
 ;; mvn -Dmaven.test.skip=true clean install
 ;; mvn -Dtest=taiga.test.bagging clojure:test
 ;;------------------------------------------------------------------------------

@@ -6,9 +6,9 @@
     taiga.scripts.profile.spikes
   
   (:require [clojure.test :as test]
-            [taiga.test.spikes.majority-vote-probability]
-            [taiga.test.spikes.positive-fraction-probability]))
+            [taiga.test.classify.spikes.majority-vote-probability]
+            [taiga.test.classify.spikes.positive-fraction-probability]))
 ;;------------------------------------------------------------------------------
-(test/run-tests 'taiga.test.spikes.majority-vote-probability)
-(test/run-tests 'taiga.test.spikes.positive-fraction-probability)
+(test/run-tests 'taiga.test.classify.spikes.majority-vote-probability)
+(test/run-tests 'taiga.test.classify.spikes.positive-fraction-probability)
 ;;------------------------------------------------------------------------------
