@@ -64,6 +64,5 @@
               (let [^doubles ldata (.get leaf-ground-truth l)]
                 (.put leaf-to-measure l (z/make-wepdf ldata))))
             (.keySet leaf-ground-truth))
-    leaf-to-measure))
-
+  (prediction-function root leaf-to-measure)))
 ;;----------------------------------------------------------------

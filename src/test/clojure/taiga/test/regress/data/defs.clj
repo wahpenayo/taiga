@@ -88,7 +88,7 @@
 ;;----------------------------------------------------------------
 (defn write-predictions [nss options prefix model predictions]
   (record/write-tsv-file predictions (prediction-file nss options prefix model)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn print-residual-summary [^IFn$OD y ^IFn$OD yhat data]
   (let [rmad (z/mean-absolute-difference y yhat data)
         ^IFn$OD residual (fn residual ^double [datum] 

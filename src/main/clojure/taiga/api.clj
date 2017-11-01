@@ -35,6 +35,7 @@
                 f/pprint-forest
                 f/random-forest
                 f/read-edn
+                f/real-probability-measure
                 f/write-edn
                 f/write-json
                 node/count-children
