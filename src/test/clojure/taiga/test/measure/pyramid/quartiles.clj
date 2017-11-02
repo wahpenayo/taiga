@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "John Alan McDonald" 
-      :date "2017-10-31"
+      :date "2017-11-01"
       :doc "Pyramid function quantile regression forest example."}
     
     taiga.test.measure.pyramid.quartiles
@@ -14,7 +14,7 @@
             [taiga.test.measure.data.record :as record]
             [taiga.test.measure.data.defs :as defs])
   
-  (:import [zana.prob.measure RealProbabilityMeasure]))
+  (:import [zana.java.prob RealProbabilityMeasure]))
 ;; mvn -Dtest=taiga.test.measure.pyramid.quartiles clojure:test > tests.txt
 ;;------------------------------------------------------------------------------
 (def nss (str *ns*))

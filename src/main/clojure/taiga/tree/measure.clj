@@ -2,7 +2,7 @@
 (set! *unchecked-math* :warn-on-boxed) 
 (ns ^{:author "wahpenayo at gmail dot com" 
       :since "2017-10-30"
-      :date "2017-10-31"
+      :date "2017-11-01"
       :doc "probability measure prediction." }
     
     taiga.tree.measure
@@ -12,7 +12,7 @@
   
   (:import [java.util HashMap Map]
            [clojure.lang IFn IFn$OD]
-           [zana.prob.measure RealProbabilityMeasure]
+           [zana.java.prob RealProbabilityMeasure]
            [taiga.tree.node Node]
            [taiga.tree.leaf.double Leaf]))
 ;;----------------------------------------------------------------
@@ -21,8 +21,8 @@
   "assumes <code>measures</code> is a map from <code>Leaf</code>
    to <code>RealProbabilityMeasure</code> and has a value
    for every leaf under <code>root</code>."
-  (fn ^zana.prob.measure.RealProbabilityMeasure [^Map predictors
-                                                 ^Object datum]
+  (fn ^RealProbabilityMeasure [^Map predictors
+                               ^Object datum]
     (let [^Leaf leaf (node/leaf root predictors datum)
           ^RealProbabilityMeasure rpm (.get measures leaf)]
       (assert (not (nil? rpm)))
@@ -35,7 +35,7 @@
   
   "Wrap a decision tree with a prediction function, whose values 
    will be probability measures (instances of 
-   <code>zana.prob.measure.RealProbabilityMeasure</code>).
+   <code>RealProbabilityMeasure</code>).
    Arguments to the prediction function will be:
    <dl>
    <dt><code>predictors</code></dt>
