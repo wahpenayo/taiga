@@ -2,19 +2,19 @@
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "John Alan McDonald, Kristina Lisa Klinkner" 
       :since "2017-01-13"
-      :date "2017-10-27"
+      :date "2017-11-02"
       :doc "Ensemble (Reducer) model classes." }
     
     taiga.ensemble
   
   (:require [zana.api :as z])
   (:import [clojure.lang IFn IFn$OOD]))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; TODO: move to Java so we can inherit IFn$OOD
 ;; TODO: have a single EnsembleModel class, parameterized by an
 ;; Accumulator factory. Issue: serialization of factory function 
 ;; Accumulator instances to edn.
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (definterface EnsembleModel
   (^java.util.Map parameters [])
   (^java.util.List terms [])
@@ -23,13 +23,13 @@
   "Return a  map of the parameters input used in training."
   ^java.util.Map [^EnsembleModel model] (.parameters model))
 (defn terms 
-  "Return an <code>Iterable</code> over the terms of the ensemble model, 
-   each a model function itself."
+  "Return an <code>Iterable</code> over the terms of the ensemble 
+   model, each a model function itself."
   ^java.util.List [^EnsembleModel model] (.terms model))
 (defn nterms 
   "How many terms in the ensemble model?"
   ^long [^EnsembleModel model] (.nterms model))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defrecord MeanModel [^java.util.Map params
                       ^java.util.List terms]
   EnsembleModel
@@ -49,14 +49,14 @@
       (.doubleValue m)))
   IFn
   (invoke [this predictors datum] (.invokePrim this predictors datum)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; TODO: copy terms for safety?
 (defn mean-model
   (^taiga.ensemble.MeanModel [^java.util.Map params ^java.util.List terms]
     (MeanModel. params terms))
   (^taiga.ensemble.MeanModel [^java.util.List terms]
     (mean-model {} terms)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defrecord MeanVectorModel [^java.util.Map params
                             ^long codimension
                             ^java.util.List terms]
@@ -78,7 +78,7 @@
                   (.add m ^Object yhat)))
               terms)
       (.value m))))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; TODO: copy terms for safety?
 (defn mean-vector-model
   (^taiga.ensemble.MeanModel [^java.util.Map params 
@@ -88,7 +88,7 @@
   (^taiga.ensemble.MeanModel [codimension 
                               ^java.util.List terms]
     (mean-vector-model {} codimension terms)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defrecord MinimumCostClassModel [^java.util.Map params
                                   ^java.util.List terms
                                   ^double false-positive-cost]
@@ -112,7 +112,7 @@
       (.doubleValue m)))
   IFn
   (invoke [this predictors datum] (.invokePrim this predictors datum)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; TODO: copy terms for safety?
 (defn minimum-cost-class-model
   (^taiga.ensemble.MinimumCostClassModel [^java.util.Map params
@@ -123,7 +123,7 @@
   (^taiga.ensemble.MinimumCostClassModel [^java.util.List terms
                                           ^double false-positive-cost]
     (minimum-cost-class-model {} terms false-positive-cost)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; TODO: copy terms for safety?
 (defn majority-model
   (^taiga.ensemble.MinimumCostClassModel [^java.util.Map params
@@ -131,7 +131,7 @@
     (minimum-cost-class-model params terms 0.5))
   (^taiga.ensemble.MinimumCostClassModel [^java.util.List terms]
     (majority-model {} terms)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defrecord PositiveFractionModel [^java.util.Map params
                                   ^java.util.List terms]
   EnsembleModel
@@ -154,7 +154,7 @@
       (.doubleValue m)))
   IFn
   (invoke [this predictors datum] (.invokePrim this predictors datum)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; TODO: copy terms for safety?
 (defn positive-fraction-model
   (^taiga.ensemble.PositiveFractionModel [^java.util.Map params
@@ -162,7 +162,7 @@
     (PositiveFractionModel. params terms))
   (^taiga.ensemble.PositiveFractionModel [^java.util.List terms]
     (positive-fraction-model {} terms)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; TODO: add as method to interface or as generic function
 (defn take-terms 
   "Return a model using just the first <code>n</code> from this ensemble model.
@@ -179,10 +179,10 @@
             (minimum-cost-class-model (parameters model) terms)
             (instance? MeanModel model)
             (mean-model (parameters model) terms)))))
-;;------------------------------------------------------------------------------
-;; Predicted value is a RealProbabilityMeasure
-(defrecord RealProbabilityMeasureModel [^java.util.Map params
-                                        ^java.util.List terms]
+;;----------------------------------------------------------------
+;; Predicted value is a RealDistribution
+(defrecord RealDistributionModel [^java.util.Map params
+                                  ^java.util.List terms]
   EnsembleModel
   (parameters [this] params)
   (terms [this] terms)
@@ -198,19 +198,20 @@
     ;; ensemble term (a tree) and ignoring nils when averaging the
     ;; rpms.
     (let [rpms (z/keep-map ;; drops nils
-                 (fn [^IFn term] (term predictors datum))
-                 terms)]
+                           (fn [^IFn term] (term predictors datum))
+                           terms)]
       (apply z/average-wepdfs rpms))))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; TODO: copy terms for safety?
+;; TODO: add :arglists to metadata
 (defn probability-measure-model
-  (^taiga.ensemble.RealProbabilityMeasureModel 
+  (^taiga.ensemble.RealDistributionModel 
    [^java.util.Map params ^java.util.List terms]
-    (RealProbabilityMeasureModel. params terms))
-  (^taiga.ensemble.RealProbabilityMeasureModel 
+    (RealDistributionModel. params terms))
+  (^taiga.ensemble.RealDistributionModel 
    [^java.util.List terms]
     (probability-measure-model {} terms)))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (z/add-edn-readers!
   {'taiga.ensemble.PositiveFractionModel 
    map->PositiveFractionModel
@@ -224,6 +225,6 @@
    'taiga.ensemble.MeanModel 
    map->MeanModel
    
-   'taiga.ensemble.RealProbabilityMeasureModel 
-   map->RealProbabilityMeasureModel})
-;;------------------------------------------------------------------------------
+   'taiga.ensemble.RealDistributionModel 
+   map->RealDistributionModel})
+;;----------------------------------------------------------------

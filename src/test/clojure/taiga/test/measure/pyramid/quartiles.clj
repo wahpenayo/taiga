@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "John Alan McDonald" 
-      :date "2017-11-01"
+      :date "2017-11-02"
       :doc "Pyramid function quantile regression forest example."}
     
     taiga.test.measure.pyramid.quartiles
@@ -14,7 +14,7 @@
             [taiga.test.measure.data.record :as record]
             [taiga.test.measure.data.defs :as defs])
   
-  (:import [zana.java.prob RealProbabilityMeasure]))
+  (:import [org.apache.commons.math3.distribution RealDistribution]))
 ;; mvn -Dtest=taiga.test.measure.pyramid.quartiles clojure:test > tests.txt
 ;;------------------------------------------------------------------------------
 (def nss (str *ns*))
@@ -28,12 +28,11 @@
           model (taiga/real-probability-measure options)
           #_(defs/serialization-test nss options model)
           quarts (fn quarts [datum] 
-                   (let [^RealProbabilityMeasure mu
-                         (model predictors datum)]
+                   (let [^RealDistribution mu (model predictors datum)]
                      (assoc datum
-                            :q25hat (.quantile mu 0.25)
-                            :q50hat (.quantile mu 0.50)
-                            :q75hat (.quantile mu 0.75))))
+                            :q25hat (z/quantile mu 0.25)
+                            :q50hat (z/quantile mu 0.50)
+                            :q75hat (z/quantile mu 0.75))))
           ;          y (:ground-truth record/attributes)
           ;          q25 (:q25 record/attributes)
           ;          q50 (:q50 record/attributes)

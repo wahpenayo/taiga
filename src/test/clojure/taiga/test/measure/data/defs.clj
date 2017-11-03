@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com" 
-      :date "2017-11-01"
+      :date "2017-11-02"
       :doc "Common definitions for unit tests." }
     
     taiga.test.measure.data.defs
@@ -14,8 +14,7 @@
             [taiga.api :as taiga]
             [taiga.test.measure.data.record :as record])
   
-  (:import [clojure.lang IFn$OD]
-           [zana.java.prob RealProbabilityMeasure]))
+  (:import [clojure.lang IFn$OD]))
 ;;----------------------------------------------------------------
 (defn options 
   ([^clojure.lang.IFn$OD median ^long n]

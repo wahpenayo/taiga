@@ -4,7 +4,7 @@
                "John Alan McDonald" 
                "Kristina Lisa Klinkner"] 
       :since "2017-01-04"
-      :date "2017-10-31"
+      :date "2017-11-02"
       :doc "Random and other forests." }
     
     taiga.forest
@@ -295,7 +295,7 @@
 ;; :empirical-distribution-data? Ignore that leaf for now. 
 (defn real-probability-measure 
   
-  "Train a [[taiga.ensemble.RealProbabilityMeasureModel]], which
+  "Train a [[taiga.ensemble.RealDistributionModel]], which
    maps a domain element <code>x</code> to a probability measure
    on <b>R</b>. This is done using 2 training data sets,
    <code>:data</code> and <code>:empirical-distribution-data</code>.
@@ -304,7 +304,7 @@
    <code>:empirical-distribution-data</code> is passed down every
    tree in the forest, creating an empirical distribution of the
    <code>:ground-truth</code> values that end up in each leaf.
-   The predicted [[taiga.ensemble.RealProbabilityMeasureModel]]
+   The predicted [[taiga.ensemble.RealDistributionModel]]
    is the mean of the empirical distributions of the leaves 
    the domain element <code>x</code> is mapped to.<br>
    'Mean' here implies that each empirical distribution gets the
@@ -354,7 +354,7 @@
     models.
    </ul>"
   
-  ^taiga.ensemble.RealProbabilityMeasureModel [options]
+  ^taiga.ensemble.RealDistributionModel [options]
   (let [options (real-probability-measure-options options)
         forest (random-forest options)
         ;; TODO: allow different ground truth for measures vs

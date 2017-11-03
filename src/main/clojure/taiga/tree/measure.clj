@@ -2,7 +2,7 @@
 (set! *unchecked-math* :warn-on-boxed) 
 (ns ^{:author "wahpenayo at gmail dot com" 
       :since "2017-10-30"
-      :date "2017-11-01"
+      :date "2017-11-02"
       :doc "probability measure prediction." }
     
     taiga.tree.measure
@@ -12,19 +12,20 @@
   
   (:import [java.util HashMap Map]
            [clojure.lang IFn IFn$OD]
-           [zana.java.prob RealProbabilityMeasure]
+           [org.apache.commons.math3.distribution 
+            RealDistribution]
            [taiga.tree.node Node]
            [taiga.tree.leaf.double Leaf]))
 ;;----------------------------------------------------------------
 (defn- prediction-function [^Node root 
                             ^Map measures]
   "assumes <code>measures</code> is a map from <code>Leaf</code>
-   to <code>RealProbabilityMeasure</code> and has a value
+   to <code>RealDistribution</code> and has a value
    for every leaf under <code>root</code>."
-  (fn ^RealProbabilityMeasure [^Map predictors
-                               ^Object datum]
+  (fn ^RealDistribution [^Map predictors
+                         ^Object datum]
     (let [^Leaf leaf (node/leaf root predictors datum)
-          ^RealProbabilityMeasure rpm (.get measures leaf)]
+          ^RealDistribution rpm (.get measures leaf)]
       (assert (not (nil? rpm)))
       rpm)))
 ;;----------------------------------------------------------------
@@ -35,7 +36,7 @@
   
   "Wrap a decision tree with a prediction function, whose values 
    will be probability measures (instances of 
-   <code>RealProbabilityMeasure</code>).
+   <code>RealDistribution</code>).
    Arguments to the prediction function will be:
    <dl>
    <dt><code>predictors</code></dt>
@@ -60,9 +61,9 @@
                             root ground-truth predictors 
                             training-data)
         leaf-to-measure (HashMap.)]
-  (z/mapc (fn collect-measures [^Node l]
+    (z/mapc (fn collect-measures [^Node l]
               (let [^doubles ldata (.get leaf-ground-truth l)]
                 (.put leaf-to-measure l (z/make-wepdf ldata))))
             (.keySet leaf-ground-truth))
-  (prediction-function root leaf-to-measure)))
+    (prediction-function root leaf-to-measure)))
 ;;----------------------------------------------------------------
