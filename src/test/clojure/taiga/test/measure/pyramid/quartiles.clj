@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
-(ns ^{:author "John Alan McDonald" 
-      :date "2017-11-02"
+(ns ^{:author "wahpenayo at gmail dot com" 
+      :date "2017-11-05"
       :doc "Pyramid function quantile regression forest example."}
     
     taiga.test.measure.pyramid.quartiles
@@ -15,16 +15,17 @@
             [taiga.test.measure.data.defs :as defs])
   
   (:import [org.apache.commons.math3.distribution RealDistribution]))
-;; mvn -Dtest=taiga.test.measure.pyramid.quartiles clojure:test > tests.txt
+;; mvn -Dtest=taiga.test.measure.pyramid.quartiles clojure:test
 ;;------------------------------------------------------------------------------
 (def nss (str *ns*))
-(test/deftest pyramid-mean-regression
+(test/deftest pyramid-measure-regression
   (z/seconds 
     nss
     (z/reset-mersenne-twister-seeds)
     (let [options (defs/options (record/make-pyramid-function 10.0))
           predictors (into (sorted-map)
-                           (dissoc record/attributes :ground-truth))
+                           (dissoc record/attributes 
+                                   :ground-truth :prediction))
           model (taiga/real-probability-measure options)
           #_(defs/serialization-test nss options model)
           quarts (fn quarts [datum] 

@@ -1,9 +1,10 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2017-10-31"
+      :since "2017-10-27"
+      :date "2017-11-05"
       :doc "Artificial data for random forest unit tests.
-            uniform(-1,1) around simple regression function." }
+            around simple regression function." }
     
     taiga.test.measure.data.record
   
@@ -13,7 +14,12 @@
             [zana.api :as z]
             [taiga.test.measure.data.kolor :as kolor]
             [taiga.test.measure.data.primate :as primate])
-  (:import [taiga.test.java.data Kolor]))
+  (:import [org.apache.commons.math3.random 
+            RandomGenerator Well44497b]
+           [org.apache.commons.math3.distribution 
+            NormalDistribution RealDistribution 
+            UniformRealDistribution]
+           [taiga.test.java.data Kolor]))
 ;; mvn -Dtest=taiga.test.measure.data.record clojure:test
 ;;----------------------------------------------------------------
 (z/define-datum Record
@@ -29,13 +35,14 @@
    ^double q25
    ^double q50
    ^double q75
+   ^double yhat
    ^double q25hat
    ^double q50hat
    ^double q75hat])
 ;;----------------------------------------------------------------
 (def attributes {:x0 x0 :x1 x1 :x2 x2 :x3 x3 :x4 x4 :x5 x5 
                  :kolor kolor :primate primate
-                 :ground-truth y})
+                 :ground-truth y :prediction yhat})
 ;;----------------------------------------------------------------
 (defn make-pyramid-function [^double scale]
   (fn median ^double [^Record datum]
@@ -62,7 +69,14 @@
         ^clojure.lang.IFn$D generate-x5 (z/continuous-uniform-generator -1.0 1.0 seed5)
         generate-kolor (kolor/generator seed6)
         generate-primate (primate/generator seed7)
-        ^clojure.lang.IFn$D generate-dy (z/continuous-uniform-generator -1.0 1.0 seed8)]
+        ^ints well44497b-seed (z/seed "seeds/Well44497b-2017-11-05-00.edn")
+        ^RandomGenerator prng (Well44497b. well44497b-seed)
+        ;;^RealDistribution dymu (NormalDistribution. prng 0.0 1.0)
+        ^RealDistribution dymu (UniformRealDistribution. prng -1.0 1.0)
+        ^clojure.lang.IFn$D dy (fn dy ^double [] (.sample dymu))]
+    ;; TODO: create a generating y distribution at every sample.
+    ;; and serialize that, rather than quantiles.
+    ;; Would want to have an interface for transforming distributions...
     (fn random-record ^Record [_]
       (let [x0 (.invokePrim generate-x0)
             x1 (.invokePrim generate-x1)
@@ -72,11 +86,14 @@
             x5 #_(- x0 x1) (.invokePrim generate-x5)
             kolor (generate-kolor)
             primate (generate-primate)
-            datum (Record. x0 x1 x2 x3 x4 x5 kolor primate 
-                           Double/NaN 
-                           Double/NaN Double/NaN Double/NaN 
-                           Double/NaN Double/NaN Double/NaN)
+            datum (Record. 
+                    x0 x1 x2 x3 x4 x5 kolor primate 
+                    Double/NaN Double/NaN Double/NaN Double/NaN
+                    Double/NaN Double/NaN Double/NaN Double/NaN)
             m (.invokePrim median datum)
-            y  (+ m (.invokePrim generate-dy))]
-        (assoc datum :y y :q25 (- y 0.5) :q50 m :q75  (+ y 0.5))))))
+            y  (+ m (.invokePrim dy))
+            q25 (+ m (z/quantile dymu 0.25))
+            q50 (+ m (z/quantile dymu 0.50))
+            q75 (+ m (z/quantile dymu 0.75))]
+        (assoc datum :y y :q25 q25 :q50 q50 :q75 q75)))))
 ;;----------------------------------------------------------------

@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com" 
-      :date "2017-11-02"
+      :date "2017-11-05"
       :doc "Common definitions for unit tests." }
     
     taiga.test.measure.data.defs
@@ -22,7 +22,7 @@
   (let [data (z/map (record/generator median) (range (* 3 n))) 
         [train emp test] (z/partition n data)
         _ (test/is (== n (z/count train) (z/count emp) (z/count test)))
-        predictors (dissoc record/attributes :ground-truth :quartile)
+        predictors (dissoc record/attributes :ground-truth :prediction)
         m (int (z/count predictors))
         _ (test/is (== 8 (z/count predictors)))
         mtry (Math/min m (int (Math/round (Math/sqrt m))))
@@ -35,7 +35,7 @@
                  :nterms nterms 
                  :mincount mincount 
                  :mtry mtry}]
-    _ (test/is (== 9 (count (:attributes options))))
+    _ (test/is (== 10 (count (:attributes options))))
     _ (test/is (== 3 (:mtry options)))
     options))
   ([^clojure.lang.IFn$OD median] (options median (* 32 1024))))
