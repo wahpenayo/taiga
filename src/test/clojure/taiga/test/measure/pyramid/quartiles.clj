@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com" 
-      :date "2017-11-05"
+      :date "2017-11-06"
       :doc "Pyramid function quantile regression forest example."}
     
     taiga.test.measure.pyramid.quartiles
@@ -16,18 +16,19 @@
   
   (:import [org.apache.commons.math3.distribution RealDistribution]))
 ;; mvn -Dtest=taiga.test.measure.pyramid.quartiles clojure:test
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (def nss (str *ns*))
 (test/deftest pyramid-measure-regression
   (z/seconds 
     nss
     (z/reset-mersenne-twister-seeds)
-    (let [options (defs/options (record/make-pyramid-function 10.0))
+    (let [options (defs/options (record/make-pyramid-function 10.0)
+                                256)
           predictors (into (sorted-map)
                            (dissoc record/attributes 
                                    :ground-truth :prediction))
           model (taiga/real-probability-measure options)
-          #_(defs/serialization-test nss options model)
+          _ (defs/serialization-test nss options model)
           quarts (fn quarts [datum] 
                    (let [^RealDistribution mu (model predictors datum)]
                      (assoc datum
@@ -60,4 +61,4 @@
                     [197 202 198 197 195 197 200 196 195 199 201 198 196 198 194 197 197 194 194 201 196 197 197 198 198 199 196 200 198 194 196 199 193 195 194 197 199 200 192 199 192 198 202 202 200 193 197 192 198 193 201 199 198 193 195 194 195 200 194 192 198 197 194 194 194 197 199 196 195 203 197 202 198 199 198 193 195 196 194 197 192 184 196 197 201 200 193 194 197 202 197 199 197 194 197 199 191 197 204 199 195 199 199 197 198 193 199 201 201 201 199 197 196 195 195 201 197 199 191 193 198 193 195 198 197 196 199 197]  ))
       #_(test/is (= [12118 3989 4146 12515] train-summary))
       #_(test/is (= [12009 3923 4296 12540] test-summary)))))
-;------------------------------------------------------------------------------
+;;----------------------------------------------------------------

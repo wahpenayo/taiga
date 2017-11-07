@@ -1,6 +1,10 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* false) ;; warnings in cheshire.generate
-(ns ^{:author "John Alan McDonald, Kristina Lisa Klinkner" :date "2016-11-29"
+(ns ^{:author ["wahpenayo at gmail dot com"
+               "John Alan McDonald" 
+               "Kristina Lisa Klinkner"]
+      :since "2016-11-29"
+      :date "2017-11-06"
       :doc "A general object-valued decision tree leaf." }
     
     taiga.tree.leaf.object
@@ -35,6 +39,9 @@
   (invoke [this predictors datum] value)
   
   Object 
+  (hashCode [_] 
+    (unchecked-add-int (unchecked-multiply-int 17 31)
+                       (.hashCode value)))
   (equals [this that] 
     (and 
       (instance? Leaf that) 

@@ -69,8 +69,7 @@
         ^clojure.lang.IFn$D generate-x5 (z/continuous-uniform-generator -1.0 1.0 seed5)
         generate-kolor (kolor/generator seed6)
         generate-primate (primate/generator seed7)
-        ^ints well44497b-seed (z/seed "seeds/Well44497b-2017-11-05-00.edn")
-        ^RandomGenerator prng (Well44497b. well44497b-seed)
+        ^RandomGenerator prng (z/well44497b "seeds/Well44497b-2017-11-05-00.edn")
         ;;^RealDistribution dymu (NormalDistribution. prng 0.0 1.0)
         ^RealDistribution dymu (UniformRealDistribution. prng -1.0 1.0)
         ^clojure.lang.IFn$D dy (fn dy ^double [] (.sample dymu))]

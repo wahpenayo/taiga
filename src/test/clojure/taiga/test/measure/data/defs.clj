@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com" 
-      :date "2017-11-05"
+      :date "2017-11-06"
       :doc "Common definitions for unit tests." }
     
     taiga.test.measure.data.defs

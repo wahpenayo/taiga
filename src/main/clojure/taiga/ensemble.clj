@@ -2,13 +2,14 @@
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "John Alan McDonald, Kristina Lisa Klinkner" 
       :since "2017-01-13"
-      :date "2017-11-02"
+      :date "2017-11-06"
       :doc "Ensemble (Reducer) model classes." }
     
     taiga.ensemble
   
   (:require [zana.api :as z])
-  (:import [clojure.lang IFn IFn$OOD]))
+  (:import [java.util IdentityHashMap List Map]
+           [clojure.lang IFn IFn$OOD]))
 ;;----------------------------------------------------------------
 ;; TODO: move to Java so we can inherit IFn$OOD
 ;; TODO: have a single EnsembleModel class, parameterized by an
@@ -16,22 +17,22 @@
 ;; Accumulator instances to edn.
 ;;----------------------------------------------------------------
 (definterface EnsembleModel
-  (^java.util.Map parameters [])
-  (^java.util.List terms [])
+  (^Map parameters [])
+  (^List terms [])
   (^long nterms []))
 (defn parameters 
   "Return a  map of the parameters input used in training."
-  ^java.util.Map [^EnsembleModel model] (.parameters model))
+  ^Map [^EnsembleModel model] (.parameters model))
 (defn terms 
   "Return an <code>Iterable</code> over the terms of the ensemble 
    model, each a model function itself."
-  ^java.util.List [^EnsembleModel model] (.terms model))
+  ^List [^EnsembleModel model] (.terms model))
 (defn nterms 
   "How many terms in the ensemble model?"
   ^long [^EnsembleModel model] (.nterms model))
 ;;----------------------------------------------------------------
-(defrecord MeanModel [^java.util.Map params
-                      ^java.util.List terms]
+(defrecord MeanModel [^Map params
+                      ^List terms]
   EnsembleModel
   (parameters [this] params)
   (terms [this] terms)
@@ -40,7 +41,7 @@
   (invokePrim ^double [this predictors datum]
     ;; not strictly right -- nil might be a valid input
     (assert (not (nil? datum)))
-    (assert (instance? java.util.Map predictors))
+    (assert (instance? Map predictors))
     (let [m (z/mean-accumulator)]
       (z/mapc 
         (fn [^IFn$OOD term] 
@@ -52,14 +53,14 @@
 ;;----------------------------------------------------------------
 ;; TODO: copy terms for safety?
 (defn mean-model
-  (^taiga.ensemble.MeanModel [^java.util.Map params ^java.util.List terms]
+  (^taiga.ensemble.MeanModel [^Map params ^List terms]
     (MeanModel. params terms))
-  (^taiga.ensemble.MeanModel [^java.util.List terms]
+  (^taiga.ensemble.MeanModel [^List terms]
     (mean-model {} terms)))
 ;;----------------------------------------------------------------
-(defrecord MeanVectorModel [^java.util.Map params
+(defrecord MeanVectorModel [^Map params
                             ^long codimension
-                            ^java.util.List terms]
+                            ^List terms]
   EnsembleModel
   (parameters [this] params)
   (terms [this] terms)
@@ -68,7 +69,7 @@
   (invoke [this predictors datum]
     ;; not strictly right -- nil might be a valid input
     (assert (not (nil? datum)))
-    (assert (instance? java.util.Map predictors))
+    (assert (instance? Map predictors))
     (let [^zana.java.accumulator.Accumulator m (z/vector-mean-accumulator codimension)]
       (z/mapc (fn [^IFn term] 
                 (let [yhat (term predictors datum)
@@ -81,16 +82,16 @@
 ;;----------------------------------------------------------------
 ;; TODO: copy terms for safety?
 (defn mean-vector-model
-  (^taiga.ensemble.MeanModel [^java.util.Map params 
+  (^taiga.ensemble.MeanModel [^Map params 
                               codimension 
-                              ^java.util.List terms]
+                              ^List terms]
     (MeanVectorModel. params codimension terms))
   (^taiga.ensemble.MeanModel [codimension 
-                              ^java.util.List terms]
+                              ^List terms]
     (mean-vector-model {} codimension terms)))
 ;;----------------------------------------------------------------
-(defrecord MinimumCostClassModel [^java.util.Map params
-                                  ^java.util.List terms
+(defrecord MinimumCostClassModel [^Map params
+                                  ^List terms
                                   ^double false-positive-cost]
   EnsembleModel
   (parameters [this] params)
@@ -98,13 +99,13 @@
   (nterms [this] (z/count terms))
   IFn$OOD
   (invokePrim ^double [this predictors datum]
-    (assert (instance? java.util.Map predictors))
+    (assert (instance? Map predictors))
     ;; not strictly right -- nil might be a valid input
     (assert (not (nil? datum)))
     (let [^zana.java.accumulator.Accumulator m 
           (z/minimum-expected-cost-class-accumulator false-positive-cost)
           ;; for speed?
-          p (java.util.IdentityHashMap. ^java.util.Map predictors)]
+          p (IdentityHashMap. ^Map predictors)]
       (z/mapc (fn [^IFn$OOD term]
                 (let [yhati (.invokePrim term p datum)]
                   (.add m yhati)))
@@ -115,37 +116,37 @@
 ;;----------------------------------------------------------------
 ;; TODO: copy terms for safety?
 (defn minimum-cost-class-model
-  (^taiga.ensemble.MinimumCostClassModel [^java.util.Map params
-                                          ^java.util.List terms
+  (^taiga.ensemble.MinimumCostClassModel [^Map params
+                                          ^List terms
                                           ^double false-positive-cost]
     (assert (< 0.0 false-positive-cost 1.0))
     (MinimumCostClassModel. params terms false-positive-cost))
-  (^taiga.ensemble.MinimumCostClassModel [^java.util.List terms
+  (^taiga.ensemble.MinimumCostClassModel [^List terms
                                           ^double false-positive-cost]
     (minimum-cost-class-model {} terms false-positive-cost)))
 ;;----------------------------------------------------------------
 ;; TODO: copy terms for safety?
 (defn majority-model
-  (^taiga.ensemble.MinimumCostClassModel [^java.util.Map params
-                                          ^java.util.List terms]
+  (^taiga.ensemble.MinimumCostClassModel [^Map params
+                                          ^List terms]
     (minimum-cost-class-model params terms 0.5))
-  (^taiga.ensemble.MinimumCostClassModel [^java.util.List terms]
+  (^taiga.ensemble.MinimumCostClassModel [^List terms]
     (majority-model {} terms)))
 ;;----------------------------------------------------------------
-(defrecord PositiveFractionModel [^java.util.Map params
-                                  ^java.util.List terms]
+(defrecord PositiveFractionModel [^Map params
+                                  ^List terms]
   EnsembleModel
   (parameters [this] params)
   (terms [this] terms)
   (nterms [this] (z/count terms))
   IFn$OOD
   (invokePrim ^double [this predictors datum]
-    (assert (instance? java.util.Map predictors))
+    (assert (instance? Map predictors))
     ;; not strictly right -- nil might be a valid input
     (assert (not (nil? datum)))
     (let [m (z/positive-fraction-accumulator)
           ;; for speed?
-          p (java.util.IdentityHashMap. ^java.util.Map predictors)]
+          p (IdentityHashMap. ^Map predictors)]
       (z/mapc
         (fn [^IFn$OOD term]
           (let [yhati (.invokePrim term p datum)]
@@ -157,10 +158,10 @@
 ;;----------------------------------------------------------------
 ;; TODO: copy terms for safety?
 (defn positive-fraction-model
-  (^taiga.ensemble.PositiveFractionModel [^java.util.Map params
-                                          ^java.util.List terms]
+  (^taiga.ensemble.PositiveFractionModel [^Map params
+                                          ^List terms]
     (PositiveFractionModel. params terms))
-  (^taiga.ensemble.PositiveFractionModel [^java.util.List terms]
+  (^taiga.ensemble.PositiveFractionModel [^List terms]
     (positive-fraction-model {} terms)))
 ;;----------------------------------------------------------------
 ;; TODO: add as method to interface or as generic function
@@ -181,8 +182,8 @@
             (mean-model (parameters model) terms)))))
 ;;----------------------------------------------------------------
 ;; Predicted value is a RealDistribution
-(defrecord RealDistributionModel [^java.util.Map params
-                                  ^java.util.List terms]
+(defrecord RealDistributionModel [^Map params
+                                  ^List terms]
   EnsembleModel
   (parameters [this] params)
   (terms [this] terms)
@@ -191,7 +192,7 @@
   (invoke [this predictors datum]
     ;; not strictly right -- nil might be a valid input
     (assert (not (nil? datum)))
-    (assert (instance? java.util.Map predictors))
+    (assert (instance? Map predictors))
     ;; NOTE: assuming rpms are all WEPDF
     ;; NOTE: handle the case of no training data ending up
     ;; in a leaf in a forest model by returning nil from that
@@ -206,10 +207,10 @@
 ;; TODO: add :arglists to metadata
 (defn probability-measure-model
   (^taiga.ensemble.RealDistributionModel 
-   [^java.util.Map params ^java.util.List terms]
+   [^Map params ^List terms]
     (RealDistributionModel. params terms))
   (^taiga.ensemble.RealDistributionModel 
-   [^java.util.List terms]
+   [^List terms]
     (probability-measure-model {} terms)))
 ;;----------------------------------------------------------------
 (z/add-edn-readers!
