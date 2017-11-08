@@ -4,7 +4,7 @@
                "John Alan McDonald" 
                "Kristina Lisa Klinkner"]
       :since "2016-11-29"
-      :date "2017-11-06"
+      :date "2017-11-07"
       :doc "A general object-valued decision tree leaf." }
     
     taiga.tree.leaf.object
@@ -16,7 +16,7 @@
   (:import [taiga.tree.bud Bud]
            [taiga.tree.node Node]))
 (set! *unchecked-math* :warn-on-boxed)
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; leaf for multi-class classification regression.
 ;; TODO: Enum version
 ;; TODO: keep count of training records that end up in this leaf.
@@ -48,7 +48,9 @@
       (let [v1 (.value ^Leaf that)]
         (or (identical? value v1)
             (= value v1))))))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
+(defn make ^Leaf [value] (Leaf. value)) 
+;;----------------------------------------------------------------
 (defn map->Leaf [m] (Leaf. (:value m)))
 
 (defn map<-Leaf [^Leaf l] {:class :leaf :value (.value l)})
@@ -59,17 +61,17 @@
   (if *print-readably*
     (do
       (.write w " #taiga.tree.leaf.object.Leaf{:value ")
-      (.write w (print-str (.value this)))
+      (.write w (pr-str (.value this)))
       (.write w "} "))
     (.write w (print-str (map<-Leaf this)))))
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 ;; EDN input (output just works)
-;;------------------------------------------------------------------------------
-(z/add-edn-readers! {'taiga.tree.leaf.double.Leaf map->Leaf})
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
+(z/add-edn-readers! {'taiga.tree.leaf.object.Leaf map->Leaf})
+;;----------------------------------------------------------------
 ;; JSON output (input not supported)
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------
 (defn- leaf-encoder [^Leaf l json-generator]
   (cheshire.generate/encode-map (map<-Leaf l) json-generator))
 (cheshire.generate/add-encoder Leaf leaf-encoder)
-;;------------------------------------------------------------------------------
+;;----------------------------------------------------------------

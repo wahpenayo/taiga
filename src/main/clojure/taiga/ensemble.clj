@@ -2,7 +2,7 @@
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "John Alan McDonald, Kristina Lisa Klinkner" 
       :since "2017-01-13"
-      :date "2017-11-06"
+      :date "2017-11-07"
       :doc "Ensemble (Reducer) model classes." }
     
     taiga.ensemble
@@ -17,12 +17,14 @@
 ;; Accumulator instances to edn.
 ;;----------------------------------------------------------------
 (definterface EnsembleModel
-  (^Map parameters [])
-  (^List terms [])
+  (^java.util.Map parameters [])
+  (^java.util.List terms [])
   (^long nterms []))
+
 (defn parameters 
   "Return a  map of the parameters input used in training."
   ^Map [^EnsembleModel model] (.parameters model))
+
 (defn terms 
   "Return an <code>Iterable</code> over the terms of the ensemble 
    model, each a model function itself."
