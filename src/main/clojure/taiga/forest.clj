@@ -317,6 +317,7 @@
    If <code>:empirical-distribution-data</code> is not provided, 
    the mean regression training <code>:data</code> is reused."
   (assoc (mean-regression-options options)
+         :mincount (:mincount options 128)
          :empirical-distribution-data 
          (:empirical-distribution-data 
            options (:data options))))

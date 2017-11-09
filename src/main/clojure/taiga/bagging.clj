@@ -1,6 +1,8 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
-(ns ^{:author "John Alan McDonald" :date "2017-01-18"
+(ns ^{:author "wahpenayo at gmail dot com" 
+      :since "2017-01-18"
+      :date "2017-11-08"
       :doc "Bootstrap aggregation." }
 
     taiga.bagging
@@ -31,7 +33,8 @@
                            ^clojure.lang.IFn sampler
                            ^long i] 
                   (let [term (learner (sampler))]
-                    (when (zero? (rem (inc i) period)) (println "bags:" (inc i)))
+                    (when (zero? (rem (inc i) period)) 
+                      (println (format "bags: %4d" (inc i))))
                     term))
                 (z/take nterms learners)
                 (z/repeatedly nterms #(lazy-bootstrap-sampler data))

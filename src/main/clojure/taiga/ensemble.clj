@@ -2,14 +2,15 @@
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "John Alan McDonald, Kristina Lisa Klinkner" 
       :since "2017-01-13"
-      :date "2017-11-07"
+      :date "2017-11-08"
       :doc "Ensemble (Reducer) model classes." }
     
     taiga.ensemble
   
   (:require [zana.api :as z])
   (:import [java.util IdentityHashMap List Map]
-           [clojure.lang IFn IFn$OOD]))
+           [clojure.lang IFn IFn$OOD]
+           [zana.java.prob WEPDF]))
 ;;----------------------------------------------------------------
 ;; TODO: move to Java so we can inherit IFn$OOD
 ;; TODO: have a single EnsembleModel class, parameterized by an
@@ -203,7 +204,7 @@
     (let [rpms (z/keep-map ;; drops nils
                            (fn [^IFn term] (term predictors datum))
                            terms)]
-      (apply z/average-wepdfs rpms))))
+      (WEPDF/average rpms))))
 ;;----------------------------------------------------------------
 ;; TODO: copy terms for safety?
 ;; TODO: add :arglists to metadata

@@ -2,7 +2,7 @@
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
       :since "2017-10-27"
-      :date "2017-11-05"
+      :date "2017-11-08"
       :doc "Artificial data for random forest unit tests.
             around simple regression function." }
     
@@ -19,6 +19,7 @@
            [org.apache.commons.math3.distribution 
             NormalDistribution RealDistribution 
             UniformRealDistribution]
+           [zana.java.prob TranslatedRealDistribution]
            [taiga.test.java.data Kolor]))
 ;; mvn -Dtest=taiga.test.measure.data.record clojure:test
 ;;----------------------------------------------------------------
@@ -31,21 +32,47 @@
    ^double x5
    ^taiga.test.java.data.Kolor kolor
    ^clojure.lang.Keyword primate
-   ^double y
-   ^double q25
-   ^double q50
-   ^double q75
-   ^double yhat
-   ^double q25hat
-   ^double q50hat
-   ^double q75hat])
+   ^RealDistribution ymu
+   ^double y ;; a sample from ymu
+   ^double yhat ;; mean regression prediction
+   ^RealDistribution ymuhat ;; measure regression prediction
+   ])
+;;----------------------------------------------------------------
+(defn mean ^double [^Record datum]
+  (.getNumericalMean (ymu datum)))
+(defn variance ^double [^Record datum]
+  (.getNumericalVariance (ymu datum)))
+(defn std ^double [^Record datum]
+  (Math/sqrt (variance datum)))
+(defn meanhat ^double [^Record datum]
+  (.getNumericalMean (ymuhat datum)))
+(defn variancehat ^double [^Record datum]
+  (.getNumericalVariance (ymuhat datum)))
+(defn stdhat ^double [^Record datum]
+  (Math/sqrt (variancehat datum)))
+(defn quantile ^double [^Record datum ^double p]
+  (.inverseCumulativeProbability (ymu datum) p))
+(defn q25 ^double [^Record datum] (quantile datum 0.25))
+(defn q50 ^double [^Record datum] (quantile datum 0.50))
+(defn q75 ^double [^Record datum] (quantile datum 0.75))
+(defn qhat ^double [^Record datum ^double p]
+  (.inverseCumulativeProbability (ymuhat datum) p))
+(defn q25hat ^double [^Record datum] (qhat datum 0.25))
+(defn q50hat ^double [^Record datum] (qhat datum 0.50))
+(defn q75hat ^double [^Record datum] (qhat datum 0.75))
 ;;----------------------------------------------------------------
 (def attributes {:x0 x0 :x1 x1 :x2 x2 :x3 x3 :x4 x4 :x5 x5 
                  :kolor kolor :primate primate
                  :ground-truth y :prediction yhat})
+(def tsv-attributes 
+  (assoc attributes
+         :mean mean :std std
+         :meanhat meanhat :stdhat stdhat
+         :q25 q25 :q50 q50 :q75 q75
+         :q25hat q25hat :q50hat q50hat :q75hat q75hat))
 ;;----------------------------------------------------------------
 (defn make-pyramid-function [^double scale]
-  (fn median ^double [^Record datum]
+  (fn dz ^double [^Record datum]
     (let [m (* scale 
                (+ (Math/abs (x0 datum)) (Math/abs (x1 datum))))]
       (if (kolor/primary? (kolor datum)) m (- m)))))
@@ -60,7 +87,7 @@
 (def ^:private seed7 "607920A177E59A652A95AB868A4EE77B")
 (def ^:private seed8 "97C4E9B1671CFEC7FCC9EADA50A1E5A8")
 ;;----------------------------------------------------------------
-(defn generator [^clojure.lang.IFn$OD median]
+(defn generator [^clojure.lang.IFn$OD center]
   (let [^clojure.lang.IFn$D generate-x0 (z/continuous-uniform-generator -1.0 1.0 seed0)
         ^clojure.lang.IFn$D generate-x1 (z/continuous-uniform-generator -1.0 1.0 seed1)
         ^clojure.lang.IFn$D generate-x2 (z/continuous-uniform-generator -1.0 1.0 seed2)
@@ -70,9 +97,9 @@
         generate-kolor (kolor/generator seed6)
         generate-primate (primate/generator seed7)
         ^RandomGenerator prng (z/well44497b "seeds/Well44497b-2017-11-05-00.edn")
-        ;;^RealDistribution dymu (NormalDistribution. prng 0.0 1.0)
-        ^RealDistribution dymu (UniformRealDistribution. prng -1.0 1.0)
-        ^clojure.lang.IFn$D dy (fn dy ^double [] (.sample dymu))]
+        ;;^RealDistribution mu (NormalDistribution. prng 0.0 1.0)
+        ^RealDistribution mu (UniformRealDistribution. prng -1.0 1.0)]
+    
     ;; TODO: create a generating y distribution at every sample.
     ;; and serialize that, rather than quantiles.
     ;; Would want to have an interface for transforming distributions...
@@ -86,13 +113,11 @@
             kolor (generate-kolor)
             primate (generate-primate)
             datum (Record. 
-                    x0 x1 x2 x3 x4 x5 kolor primate 
-                    Double/NaN Double/NaN Double/NaN Double/NaN
-                    Double/NaN Double/NaN Double/NaN Double/NaN)
-            m (.invokePrim median datum)
-            y  (+ m (.invokePrim dy))
-            q25 (+ m (z/quantile dymu 0.25))
-            q50 (+ m (z/quantile dymu 0.50))
-            q75 (+ m (z/quantile dymu 0.75))]
-        (assoc datum :y y :q25 q25 :q50 q50 :q75 q75)))))
+                    x0 x1 x2 x3 x4 x5 kolor primate
+                    nil Double/NaN Double/NaN nil)
+            dy (.invokePrim center datum)
+            ^RealDistribution ymu (TranslatedRealDistribution/shift
+                                    mu dy)
+            y  (.sample ymu)]
+        (assoc datum :ymu ymu :y y)))))
 ;;----------------------------------------------------------------
