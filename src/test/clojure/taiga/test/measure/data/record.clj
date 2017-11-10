@@ -2,7 +2,7 @@
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
       :since "2017-10-27"
-      :date "2017-11-08"
+      :date "2017-11-09"
       :doc "Artificial data for random forest unit tests.
             around simple regression function." }
     
@@ -10,21 +10,25 @@
   
   (:require [clojure.string :as s]
             [clojure.test :as test]
-            [clojure.repl :as repl]
+            #_[clojure.repl :as repl]
             [zana.api :as z]
             [taiga.test.measure.data.kolor :as kolor]
-            [taiga.test.measure.data.primate :as primate])
-  (:import [org.apache.commons.math3.random 
+            [taiga.test.measure.data.primate :as primate]
+            [taiga.test.measure.data.deciles :as deciles])
+  (:import [clojure.lang IFn$ODD]
+           [org.apache.commons.math3.random 
             RandomGenerator Well44497b]
            [org.apache.commons.math3.distribution 
             NormalDistribution RealDistribution 
             UniformRealDistribution]
            [zana.java.prob TranslatedRealDistribution]
-           [taiga.test.java.data Kolor]))
+           [taiga.test.java.data Kolor]
+           [taiga.test.measure.data.deciles Deciles]))
 ;; mvn -Dtest=taiga.test.measure.data.record clojure:test
 ;;----------------------------------------------------------------
 (z/define-datum Record
-  [^double x0
+  [;; predictors
+   ^double x0
    ^double x1
    ^double x2
    ^double x3
@@ -32,44 +36,58 @@
    ^double x5
    ^taiga.test.java.data.Kolor kolor
    ^clojure.lang.Keyword primate
+   ;; ground truth
    ^RealDistribution ymu
    ^double y ;; a sample from ymu
-   ^double yhat ;; mean regression prediction
-   ^RealDistribution ymuhat ;; measure regression prediction
+   ;; predictions 
+   ;; predicted empirical distributions too large to keep
+   ;; could change with a more compact approximation
+   ^Deciles qhat ;; measure regression prediction
    ])
 ;;----------------------------------------------------------------
-(defn mean ^double [^Record datum]
-  (.getNumericalMean (ymu datum)))
-(defn variance ^double [^Record datum]
-  (.getNumericalVariance (ymu datum)))
-(defn std ^double [^Record datum]
-  (Math/sqrt (variance datum)))
-(defn meanhat ^double [^Record datum]
-  (.getNumericalMean (ymuhat datum)))
-(defn variancehat ^double [^Record datum]
-  (.getNumericalVariance (ymuhat datum)))
-(defn stdhat ^double [^Record datum]
-  (Math/sqrt (variancehat datum)))
+;(defn mean ^double [^Record datum]
+;  (.getNumericalMean (ymu datum)))
+;(defn variance ^double [^Record datum]
+;  (.getNumericalVariance (ymu datum)))
+;(defn std ^double [^Record datum]
+;  (Math/sqrt (variance datum)))
+;(defn quantile ^double [^Record datum ^double p]
+;  (.inverseCumulativeProbability (ymu datum) p))
 (defn quantile ^double [^Record datum ^double p]
-  (.inverseCumulativeProbability (ymu datum) p))
-(defn q25 ^double [^Record datum] (quantile datum 0.25))
+  (z/quantile (ymu datum) p))
+(defn q10 ^double [^Record datum] (quantile datum 0.10))
+(defn q20 ^double [^Record datum] (quantile datum 0.20))
+(defn q30 ^double [^Record datum] (quantile datum 0.30))
+(defn q40 ^double [^Record datum] (quantile datum 0.40))
 (defn q50 ^double [^Record datum] (quantile datum 0.50))
-(defn q75 ^double [^Record datum] (quantile datum 0.75))
-(defn qhat ^double [^Record datum ^double p]
-  (.inverseCumulativeProbability (ymuhat datum) p))
-(defn q25hat ^double [^Record datum] (qhat datum 0.25))
-(defn q50hat ^double [^Record datum] (qhat datum 0.50))
-(defn q75hat ^double [^Record datum] (qhat datum 0.75))
+(defn q60 ^double [^Record datum] (quantile datum 0.60))
+(defn q70 ^double [^Record datum] (quantile datum 0.70))
+(defn q80 ^double [^Record datum] (quantile datum 0.80))
+(defn q90 ^double [^Record datum] (quantile datum 0.90))
+(defn q10hat ^double [^Record datum] (deciles/q10 (qhat datum)))
+(defn q20hat ^double [^Record datum] (deciles/q20 (qhat datum)))
+(defn q30hat ^double [^Record datum] (deciles/q30 (qhat datum)))
+(defn q40hat ^double [^Record datum] (deciles/q40 (qhat datum)))
+(defn q50hat ^double [^Record datum] (deciles/q50 (qhat datum)))
+(defn q60hat ^double [^Record datum] (deciles/q60 (qhat datum)))
+(defn q70hat ^double [^Record datum] (deciles/q70 (qhat datum)))
+(defn q80hat ^double [^Record datum] (deciles/q80 (qhat datum)))
+(defn q90hat ^double [^Record datum] (deciles/q90 (qhat datum)))
 ;;----------------------------------------------------------------
 (def attributes {:x0 x0 :x1 x1 :x2 x2 :x3 x3 :x4 x4 :x5 x5 
                  :kolor kolor :primate primate
-                 :ground-truth y :prediction yhat})
+                 :ground-truth y :prediction q50hat})
 (def tsv-attributes 
-  (assoc attributes
-         :mean mean :std std
-         :meanhat meanhat :stdhat stdhat
-         :q25 q25 :q50 q50 :q75 q75
-         :q25hat q25hat :q50hat q50hat :q75hat q75hat))
+  (assoc 
+    attributes
+    ;; :mean mean :std std
+    ;; :meanhat meanhat :stdhat stdhat
+    :q10 q10 :q20 q20 :q30 q30 
+    :q40 q40 :q50 q50 :q60 q60
+    :q70 q70 :q80 q80 :q90 q90
+    :q10hat q10hat :q20hat q20hat :q30hat q30hat 
+    :q40hat q40hat :q50hat q50hat :q60hat q60hat
+    :q70hat q70hat :q80hat q80hat :q90hat q90hat))
 ;;----------------------------------------------------------------
 (defn make-pyramid-function [^double scale]
   (fn dz ^double [^Record datum]
@@ -114,7 +132,7 @@
             primate (generate-primate)
             datum (Record. 
                     x0 x1 x2 x3 x4 x5 kolor primate
-                    nil Double/NaN Double/NaN nil)
+                    nil Double/NaN nil)
             dy (.invokePrim center datum)
             ^RealDistribution ymu (TranslatedRealDistribution/shift
                                     mu dy)

@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com" 
-      :date "2017-11-08"
+      :date "2017-11-09"
       :doc "Common definitions for unit tests." }
     
     taiga.test.measure.data.defs
@@ -15,28 +15,6 @@
             [taiga.test.measure.data.record :as record])
   
   (:import [clojure.lang IFn$OD]))
-;;----------------------------------------------------------------
-(defn- qcost ^double [^double y ^double q ^double p]
-  (let [y-q (- y q)]
-    (if (<= 0.0 y-q)
-      (* 0.5 (/ y-q (- 1 p)))
-      (* 0.5 (/ y-q (- p))))))
-
-(defn quartile-cost [^IFn$OD y ^IFn$OD q25 ^IFn$OD q50 ^IFn$OD q75 
-                     ^Iterable data]
-  (let [it (z/iterator data)]
-    (loop [sum (double 0.0)]
-      (if (.hasNext it)
-        (let [datum (.next it)
-              yi (.invokePrim y datum)
-              q25i (.invokePrim q25 datum)
-              q50i (.invokePrim q50 datum)
-              q75i (.invokePrim q75 datum)]
-          (recur (+ sum
-                    (qcost yi q25i 0.25)
-                    (qcost yi q50i 0.50)
-                    (qcost yi q75i 0.75))))
-        sum))))
 ;;----------------------------------------------------------------
 (defn options 
   ([^clojure.lang.IFn$OD median ^long n]

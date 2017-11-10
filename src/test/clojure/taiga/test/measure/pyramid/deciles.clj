@@ -1,36 +1,54 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com" 
-      :date "2017-11-08"
+      :since "2017-11-09"
+      :date "2017-11-09"
       :doc "Pyramid function quantile regression forest example."}
     
-    taiga.test.measure.pyramid.quartiles
+    taiga.test.measure.pyramid.deciles
   
   (:require [clojure.java.io :as io]
             [clojure.test :as test]
             [zana.api :as z]
             [taiga.api :as taiga]
             [taiga.test.tree :as tree]
+            [taiga.test.measure.data.deciles :as deciles]
             [taiga.test.measure.data.record :as record]
             [taiga.test.measure.data.defs :as defs])
   
-  (:import [org.apache.commons.math3.distribution RealDistribution]))
-;; mvn -Dtest=taiga.test.measure.pyramid.quartiles clojure:test
+  (:import [clojure.lang IFn IFn$OD]
+           [org.apache.commons.math3.distribution
+            RealDistribution]
+           [taiga.test.measure.data.deciles Deciles]))
+;; mvn -Dtest=taiga.test.measure.pyramid.deciles clojure:test > test.txt
+;;----------------------------------------------------------------
+(defn cost ^double [^IFn$OD y ^IFn deciles ^Iterable data]
+  (let [it (z/iterator data)]
+    (loop [sum (double 0.0)]
+      (if (.hasNext it)
+        (let [datum (.next it)
+              yi (.invokePrim y datum)
+              qi (deciles datum)]
+          (recur (+ sum (deciles/cost yi qi))))
+        sum))))
 ;;----------------------------------------------------------------
 (def nss (str *ns*))
 (test/deftest pyramid-measure-regression
   (z/seconds 
     nss
     (z/reset-mersenne-twister-seeds)
-    (let [options (defs/options (record/make-pyramid-function 10.0)
-                                (* 64 1024))
+    (let [options (defs/options (record/make-pyramid-function 16.0)
+                                (* 8 8 8 4 1024))
           predictors (into (sorted-map)
                            (dissoc record/attributes 
                                    :ground-truth :prediction))
           model (taiga/real-probability-measure options)
           _ (defs/serialization-test nss options model)
-          predict (fn predict [datum] 
-                    (assoc datum :ymuhat (model predictors datum)))
+          predict (fn predict [datum]
+                    (assoc datum 
+                           :qhat (deciles/make 
+                                   z/quantile 
+                                   (model predictors datum))))
           train-predictions  (z/seconds 
                                "train predictions"
                                (z/map predict (:data options)))
@@ -39,52 +57,33 @@
                             (z/map predict (:empirical-distribution-data options)))
           test-predictions (z/seconds 
                              "test  predictions"
-                             (z/map predict (:test-data options)))]
+                             (z/map predict (:test-data options)))
+          train-true-cost (z/seconds "true: " (cost record/y record/ymu train-predictions))
+          train-pred-cost (z/seconds "pred: " (cost record/y record/qhat train-predictions))
+          _(println "train:"
+                    (float train-true-cost) 
+                    (float train-pred-cost)
+                    (float (/ train-pred-cost train-true-cost)))
+          emp-true-cost (z/seconds "true: " (cost record/y record/ymu emp-predictions))
+          emp-pred-cost (z/seconds "pred: " (cost record/y record/qhat emp-predictions))
+          _(println "emp"
+                    (float emp-true-cost) 
+                    (float emp-pred-cost)
+                    (float (/ emp-pred-cost emp-true-cost)))    test-true-cost (z/seconds "true: " (cost record/y record/ymu test-predictions))
+          test-pred-cost (z/seconds "pred: " (cost record/y record/qhat test-predictions))
+          _(println "test"
+                    (float test-true-cost) 
+                    (float test-pred-cost)
+                    (float (/ test-pred-cost test-true-cost)))]
       (z/seconds
-        "train"
-        (defs/write-predictions 
-          nss options "train" model train-predictions))
+        "train" (defs/write-predictions 
+                  nss options "train" model train-predictions))
       (z/seconds
-        "emp"
-        (defs/write-predictions
-          nss options "emp" model emp-predictions))
+        "emp" (defs/write-predictions
+                nss options "emp" model emp-predictions))
       (z/seconds
-        "test"
-        (defs/write-predictions
-          nss options "test" model test-predictions))
-      (println "train mean")
-      (println 
-        "true: "      
-        (defs/quartile-cost 
-          record/y record/q25 record/q50 record/q75 
-          train-predictions))
-      (println 
-        "pred: " 
-        (defs/quartile-cost 
-          record/y record/q25hat record/q50hat record/q75hat 
-          train-predictions))
-      (println "train empirical")
-      (println 
-        "true: " 
-        (defs/quartile-cost 
-          record/y record/q25 record/q50 record/q75 
-          emp-predictions))
-      (println 
-        "pred: " 
-        (defs/quartile-cost 
-          record/y record/q25hat record/q50hat record/q75hat 
-          emp-predictions))
-      (println "test")
-      (println 
-        "true: " 
-        (defs/quartile-cost 
-          record/y record/q25 record/q50 record/q75 
-          test-predictions))
-      (println 
-        "pred: " 
-        (defs/quartile-cost 
-          record/y record/q25hat record/q50hat record/q75hat 
-          test-predictions))
+        "test"(defs/write-predictions
+                nss options "test" model test-predictions))
       #_(test/is (= (mapv taiga/node-height (taiga/terms forest))
                     [16 17 17 18 16 16 14 18 17 15 17 18 19 16 15 21 19 16 19 15 17 17 18 16 15 16 16 18 17 18 14 18 17 18 18 17 14 17 18 16 16 16 15 17 16 15 15 18 19 16 17 14 16 17 17 14 19 16 15 18 16 14 18 18 16 15 14 17 17 16 16 19 18 17 15 16 17 15 15 18 17 15 15 18 15 16 19 15 15 18 15 17 20 15 17 14 16 18 20 16 17 15 16 17 19 14 18 16 18 16 15 17 17 15 17 15 17 18 14 14 16 19 19 18 17 21 18 15]))
       #_(test/is (= (mapv taiga/count-children (taiga/terms forest))
