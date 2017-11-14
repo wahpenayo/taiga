@@ -1,20 +1,20 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :since "2017-10-27"
-      :date "2017-11-09"
+      :since "2017-11-10"
+      :date "2017-11-10"
       :doc "Artificial data for random forest unit tests.
             around simple regression function." }
     
-    taiga.test.measure.data.record
+    taiga.scripts.quantiles.record
   
   (:require [clojure.string :as s]
             [clojure.test :as test]
             #_[clojure.repl :as repl]
             [zana.api :as z]
-            [taiga.test.measure.data.kolor :as kolor]
-            [taiga.test.measure.data.primate :as primate]
-            [taiga.test.measure.data.deciles :as deciles])
+            [taiga.scripts.quantiles.kolor :as kolor]
+            [taiga.scripts.quantiles.primate :as primate]
+            [taiga.scripts.quantiles.deciles :as deciles])
   (:import [clojure.lang IFn$ODD]
            [org.apache.commons.math3.random 
             RandomGenerator Well44497b]
@@ -23,8 +23,8 @@
             UniformRealDistribution]
            [zana.java.prob TranslatedRealDistribution]
            [taiga.test.java.data Kolor]
-           [taiga.test.measure.data.deciles Deciles]))
-;; mvn -Dtest=taiga.test.measure.data.record clojure:test
+           [taiga.scripts.quantiles.deciles Deciles]))
+;; mvn -Dtest=taiga.scripts.quantiles.record clojure:test
 ;;----------------------------------------------------------------
 (z/define-datum Record
   [;; predictors
@@ -37,7 +37,7 @@
    ^taiga.test.java.data.Kolor kolor
    ^clojure.lang.Keyword primate
    ;; ground truth
-   ^RealDistribution ymu
+   [^RealDistribution ymu 
    ^double y ;; a sample from ymu
    ;; predictions 
    ;; predicted empirical distributions too large to keep
@@ -82,7 +82,6 @@
     attributes
     ;; :mean mean :std std
     ;; :meanhat meanhat :stdhat stdhat
-    :ymu ymu
     :q10 q10 :q20 q20 :q30 q30 
     :q40 q40 :q50 q50 :q60 q60
     :q70 q70 :q80 q80 :q90 q90

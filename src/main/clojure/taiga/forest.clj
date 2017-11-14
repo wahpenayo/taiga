@@ -4,7 +4,7 @@
                "John Alan McDonald" 
                "Kristina Lisa Klinkner"] 
       :since "2017-01-04"
-      :date "2017-11-07"
+      :date "2017-11-10"
       :doc "Random and other forests." }
     
     taiga.forest
@@ -20,7 +20,8 @@
             [taiga.tree.leaf.double :as double-leaf]
             [taiga.tree.leaf.doubles :as doubles-leaf]
             [taiga.tree.grow :as grow]
-            [taiga.tree.measure :as measure]))
+            [taiga.tree.measure :as measure])
+  (:import [taiga.ensemble RealDistributionModel]))
 (set! *unchecked-math* :warn-on-boxed)
 ;;----------------------------------------------------------------
 ;; training options
@@ -386,9 +387,11 @@
     models.
    </ul>"
   
-  ^taiga.ensemble.RealDistributionModel [options]
+  ^RealDistributionModel [options]
   (let [options (real-probability-measure-options options)
-        forest (random-forest options)
+        ;; allow precomputed scalar valued forest as an option
+        forest (:mean-regression-forest options
+                                        (random-forest options))
         ;; TODO: allow different ground truth for measures vs
         ;; regression?
         ground-truth (:ground-truth (:attributes options))

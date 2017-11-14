@@ -1,26 +1,26 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com" 
-      :since "2017-11-09"
-      :date "2017-11-09"
-      :doc "Pyramid function quantile regression forest example."}
+      :since "2017-11-10"
+      :date "2017-11-10"
+      :doc "Train a probability measure regression forest,
+            given a mean regression forest."}
     
-    taiga.test.measure.pyramid.deciles
+    taiga.scripts.quantiles.measure
   
   (:require [clojure.java.io :as io]
             [clojure.test :as test]
             [zana.api :as z]
             [taiga.api :as taiga]
             [taiga.test.tree :as tree]
-            [taiga.test.measure.data.deciles :as deciles]
-            [taiga.test.measure.data.record :as record]
-            [taiga.test.measure.data.defs :as defs])
+            [taiga.scripts.quantiles.deciles :as deciles]
+            [taiga.scripts.quantiles.record :as record]
+            [taiga.scripts.quantiles.defs :as defs])
   
   (:import [clojure.lang IFn IFn$OD]
            [org.apache.commons.math3.distribution
             RealDistribution]
-           [taiga.test.measure.data.deciles Deciles]))
-;; mvn -Dtest=taiga.test.measure.pyramid.deciles clojure:test > test.txt
+           [taiga.scripts.quantiles.deciles Deciles]))
 ;;----------------------------------------------------------------
 (defn cost ^double [^IFn$OD y ^IFn deciles ^Iterable data]
   (let [it (z/iterator data)]
@@ -38,7 +38,7 @@
     nss
     (z/reset-mersenne-twister-seeds)
     (let [options (defs/options (record/make-pyramid-function 16.0)
-                                (* 1 1 1 8 1024))
+                                (* 8 8 8 4 1024))
           predictors (into (sorted-map)
                            (dissoc record/attributes 
                                    :ground-truth :prediction))
