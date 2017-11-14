@@ -2,7 +2,7 @@
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com" 
       :since "2017-11-10"
-      :date "2017-11-10"
+      :date "2017-11-13"
       :doc "Train a mean regression forest."}
     
     taiga.scripts.quantiles.mean
@@ -25,7 +25,7 @@
 (z/seconds 
   nss
   (let [options (defs/options (record/make-pyramid-function 16.0)
-                              (* 8 8 8 4 1024))
+                              (* 1 1 1 4 1024))
         predictors (into (sorted-map)
                          (dissoc record/attributes 
                                  :ground-truth :prediction))

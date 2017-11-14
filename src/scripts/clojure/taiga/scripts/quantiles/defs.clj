@@ -18,32 +18,39 @@
   (:import [clojure.lang IFn$OD]))
 ;;----------------------------------------------------------------
 (defn options 
-  ([^clojure.lang.IFn$OD median ^long n]
-    ;; Note: record/generator resets seed each time it's called
-  (let [data (z/map (record/generator median) (range (* 3 n))) 
-        [train emp test] (z/partition n data)
-        _ (test/is (== n (z/count train) (z/count emp) (z/count test)))
-        predictors (dissoc record/attributes :ground-truth :prediction)
+  ([^clojure.lang.Keyword data-key ^Iterable data]
+  (let [predictors (dissoc record/attributes :ground-truth :prediction)
         m (int (z/count predictors))
         _ (test/is (== 8 (z/count predictors)))
         mtry (Math/min m (int (Math/round (Math/sqrt m))))
         nterms 128
         mincount 127
-        options {:data train 
-                 :empirical-distribution-data emp
-                 :test-data test 
+        options {data-key data
                  :attributes record/attributes
                  :nterms nterms 
                  :mincount mincount 
                  :mtry mtry}]
     _ (test/is (== 10 (count (:attributes options))))
     _ (test/is (== 3 (:mtry options)))
-    options))
-  ([^clojure.lang.IFn$OD median] (options median (* 32 1024))))
+    options)))
 ;;----------------------------------------------------------------
+(def n (* 1 1 1 4 1024))
 (def nss (str *ns*))
+
+(def input-folder 
+  (io/file 
+    (apply io/file "tst" (butlast (s/split nss #"\."))) 
+    "in"))
+(defn input-file [prefix n suffix]
+  (let [file (io/file input-folder 
+                      (str prefix "-" n "." suffix))]
+    (io/make-parents file) 
+    file))
+
 (def output-folder 
-  (apply io/file "tst" (butlast (s/split nss #"\."))))
+  (io/file 
+    (apply io/file "tst" (butlast (s/split nss #"\.")))
+    "out"))
 (defn output-file [options model prefix suffix]
   (let [file (io/file output-folder 
                       (str prefix
@@ -55,9 +62,18 @@
     (io/make-parents file) 
     file))
 ;;----------------------------------------------------------------
+(defn write-inputs [prefix data]
+  (z/write-tsv-file 
+    record/tsv-attributes
+    data 
+    (input-file prefix (z/count data) "tsv.gz")))
+(defn read-inputs [prefix n]
+  (record/read-tsv-file 
+    (input-file prefix n"tsv.gz")))
+;;----------------------------------------------------------------
 (defn write-predictions [nss options prefix model predictions]
   (z/write-tsv-file 
     record/tsv-attributes
     predictions 
-    (predictions-file nss options prefix model)))
+    (output-file options model prefix "tsv.gz")))
 ;;----------------------------------------------------------------

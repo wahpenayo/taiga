@@ -37,7 +37,7 @@
    ^taiga.test.java.data.Kolor kolor
    ^clojure.lang.Keyword primate
    ;; ground truth
-   [^RealDistribution ymu 
+   ^org.apache.commons.math3.distribution.RealDistribution [ymu z/read-edn]
    ^double y ;; a sample from ymu
    ;; predictions 
    ;; predicted empirical distributions too large to keep
@@ -54,7 +54,10 @@
 ;(defn quantile ^double [^Record datum ^double p]
 ;  (.inverseCumulativeProbability (ymu datum) p))
 (defn quantile ^double [^Record datum ^double p]
-  (z/quantile (ymu datum) p))
+  (let [mu (ymu datum)]
+    (if mu
+      (z/quantile mu p)
+      Double/NaN)))
 (defn q10 ^double [^Record datum] (quantile datum 0.10))
 (defn q20 ^double [^Record datum] (quantile datum 0.20))
 (defn q30 ^double [^Record datum] (quantile datum 0.30))
@@ -64,15 +67,24 @@
 (defn q70 ^double [^Record datum] (quantile datum 0.70))
 (defn q80 ^double [^Record datum] (quantile datum 0.80))
 (defn q90 ^double [^Record datum] (quantile datum 0.90))
-(defn q10hat ^double [^Record datum] (deciles/q10 (qhat datum)))
-(defn q20hat ^double [^Record datum] (deciles/q20 (qhat datum)))
-(defn q30hat ^double [^Record datum] (deciles/q30 (qhat datum)))
-(defn q40hat ^double [^Record datum] (deciles/q40 (qhat datum)))
-(defn q50hat ^double [^Record datum] (deciles/q50 (qhat datum)))
-(defn q60hat ^double [^Record datum] (deciles/q60 (qhat datum)))
-(defn q70hat ^double [^Record datum] (deciles/q70 (qhat datum)))
-(defn q80hat ^double [^Record datum] (deciles/q80 (qhat datum)))
-(defn q90hat ^double [^Record datum] (deciles/q90 (qhat datum)))
+(defn q10hat ^double [^Record datum] 
+  (let [q (qhat datum)] (if q (deciles/q10 q) Double/NaN)))
+(defn q20hat ^double [^Record datum]
+  (let [q (qhat datum)] (if q (deciles/q20 q) Double/NaN)))
+(defn q30hat ^double [^Record datum] 
+  (let [q (qhat datum)] (if q (deciles/q30 q) Double/NaN)))
+(defn q40hat ^double [^Record datum] 
+  (let [q (qhat datum)] (if q (deciles/q40 q) Double/NaN)))
+(defn q50hat ^double [^Record datum] 
+  (let [q (qhat datum)] (if q (deciles/q50 q) Double/NaN)))
+(defn q60hat ^double [^Record datum] 
+  (let [q (qhat datum)] (if q (deciles/q60 q) Double/NaN)))
+(defn q70hat ^double [^Record datum] 
+  (let [q (qhat datum)] (if q (deciles/q70 q) Double/NaN)))
+(defn q80hat ^double [^Record datum]
+  (let [q (qhat datum)] (if q (deciles/q80 q) Double/NaN)))
+(defn q90hat ^double [^Record datum]
+  (let [q (qhat datum)] (if q (deciles/q90 q) Double/NaN)))
 ;;----------------------------------------------------------------
 (def attributes {:x0 x0 :x1 x1 :x2 x2 :x3 x3 :x4 x4 :x5 x5 
                  :kolor kolor :primate primate
