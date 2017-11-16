@@ -11,6 +11,6 @@
             [taiga.scripts.quantiles.defs :as defs]))
 ;;----------------------------------------------------------------
 (z/seconds 
-  (str *ns*)
+  (print-str *ns* "mean")
   (defs/mean-regression defs/n))
 ;;----------------------------------------------------------------

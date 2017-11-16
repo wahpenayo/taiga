@@ -97,15 +97,16 @@
 (def tsv-attributes 
   (assoc 
     (dissoc attributes :ground-truth :prediction)
+    :ymu ymu :y y
     ;; :mean mean :std std
     ;; :meanhat meanhat :stdhat stdhat
-    :ymu ymu :y y
-    :q10 q10 :q20 q20 :q30 q30 
-    :q40 q40 :q50 q50 :q60 q60
-    :q70 q70 :q80 q80 :q90 q90
-    :q10hat q10hat :q20hat q20hat :q30hat q30hat 
-    :q40hat q40hat :q50hat q50hat :q60hat q60hat
-    :q70hat q70hat :q80hat q80hat :q90hat q90hat))
+    ;;:q10 q10 :q20 q20 :q30 q30 
+    ;;:q40 q40 :q50 q50 :q60 q60
+    ;;:q70 q70 :q80 q80 :q90 q90
+    ;;:q10hat q10hat :q20hat q20hat :q30hat q30hat 
+    ;;:q40hat q40hat :q50hat q50hat :q60hat q60hat
+    ;;:q70hat q70hat :q80hat q80hat :q90hat q90hat
+    ))
 ;;----------------------------------------------------------------
 (defn make-pyramid-function [^double scale]
   (fn dz ^double [^Record datum]

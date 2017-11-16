@@ -12,16 +12,17 @@
             [clojure.pprint :as pp]
             [zana.api :as z]
             [taiga.api :as taiga]
+            [taiga.scripts.quantiles.deciles :as deciles]
             [taiga.scripts.quantiles.record :as record])
   
   (:import [java.util Map]
            [java.io File]
-           [clojure.lang IFn$OD]
+           [clojure.lang IFn IFn$OD]
            [taiga.ensemble MeanModel]))
 ;;----------------------------------------------------------------
 (def ^:private nss (str *ns*))
-(def n (* 1 1 1 8 1024))
-(def nterms 2)
+(def n (* 1 1 8 8 1024))
+(def nterms 128)
 ;;----------------------------------------------------------------
 (def ^:private input-folder 
   (io/file 
@@ -34,12 +35,6 @@
     (io/make-parents file) 
     file))
 ;;----------------------------------------------------------------
-(defn- write-input-data [prefix data]
-  (z/write-tsv-file 
-    record/tsv-attributes
-    data 
-    (input-file prefix (z/count data) "tsv.gz")))
-;;----------------------------------------------------------------
 (defn generate-data [^long n]
   (let [median (record/make-pyramid-function 16.0)
         data (z/seconds 
@@ -47,33 +42,23 @@
                (z/map (record/generator median) 
                       (range (* 3 n)))) 
         [mean measure test] (z/seconds 
-                          "partition" 
-                          (z/partition n data))]
-    (z/seconds
-      "mean" 
-      (z/write-tsv-file
-        record/tsv-attributes 
-        mean 
-        (input-file "mean" (z/count mean) "tsv.gz")))
-    (z/seconds
-      "measure" 
-      (z/write-tsv-file
-        record/tsv-attributes 
-        measure 
-        (input-file "measure" (z/count measure) "tsv.gz")))
-    (z/seconds
-      "test" 
-      (z/write-tsv-file
-        record/tsv-attributes 
-        test 
-        (input-file "test" (z/count test) "tsv.gz")))
+                              "partition" 
+                              (z/partition n data))]
+    (z/write-tsv-file
+      record/tsv-attributes 
+      mean 
+      (input-file "mean" (z/count mean) "tsv.gz"))
+    (z/write-tsv-file
+      record/tsv-attributes 
+      measure 
+      (input-file "measure" (z/count measure) "tsv.gz"))
+    (z/write-tsv-file
+      record/tsv-attributes 
+      test 
+      (input-file "test" (z/count test) "tsv.gz"))
     {:data mean
      :empirical-distribution-data measure
      :test-data test}))
-;;----------------------------------------------------------------
-(defn- read-input-data [prefix n]
-  (record/read-tsv-file 
-    (input-file prefix n "tsv.gz")))
 ;;----------------------------------------------------------------
 (def ^:private output-folder 
   (io/file 
@@ -107,19 +92,20 @@
 ;;----------------------------------------------------------------
 (defn mean-regression ^MeanModel [^long n]
   (let [options (mean-regression-options n)
-        data (read-input-data "mean" n)
-        forest (taiga/mean-regression (assoc options :data data))
-        edn-file (output-file "mean" options "edn.gz")]
-    (io/make-parents edn-file)
-    (taiga/write-edn forest edn-file)
-    forest))
+        data (record/read-tsv-file 
+               (input-file "mean" n "tsv.gz"))
+        mean-forest (taiga/mean-regression (assoc options :data data))
+        mean-forest-file (output-file "mean" options "edn.gz")]
+    (io/make-parents mean-forest-file)
+    (taiga/write-edn mean-forest mean-forest-file)
+    mean-forest))
 ;;----------------------------------------------------------------
 (defn- real-probability-measure-options ^Map [^long n]
   (let [options (mean-regression-options n)
         mean-forest-file (output-file "mean" options "edn.gz")
-        _(println mean-forest-file)
         mean-forest (taiga/read-edn mean-forest-file)
-        data (read-input-data "measure" n)]
+        data (record/read-tsv-file 
+               (input-file "measure" n "tsv.gz"))]
     (assoc options 
            :mean-regression-forest mean-forest
            :empirical-distribution-data data)))
@@ -127,15 +113,50 @@
 (defn real-probability-measure ^MeanModel [^long n]
   (let [options (real-probability-measure-options n)
         #_(pp/pprint (z/clojurize (:mean-regression-forest options)))
-        forest (taiga/real-probability-measure options)
-        edn-file (output-file "measure" options "edn.gz")]
-    (io/make-parents edn-file)
-    (taiga/write-edn forest edn-file)
-    forest))
+        measure-forest (taiga/real-probability-measure options)
+        measure-forest-file (output-file 
+                              "measure" options "edn.gz")]
+    (io/make-parents measure-forest-file)
+    (taiga/write-edn measure-forest measure-forest-file)
+    measure-forest))
 ;;----------------------------------------------------------------
-(defn- write-predictions [prefix options predictions]
-  (z/write-tsv-file 
-    record/tsv-attributes
-    predictions 
-    (output-file prefix options "tsv.gz")))
+(defn predict [^long n ^String prefix]
+  (let [options (real-probability-measure-options n)
+        measure-forest-file (output-file 
+                              "measure" options "edn.gz")
+        measure-forest (taiga/read-edn measure-forest-file)
+        predictors (dissoc record/attributes 
+                           :ground-truth :prediction)
+        predict1 (fn predict1 [datum]
+                   (assoc 
+                     datum 
+                     :qhat (deciles/make 
+                             z/quantile 
+                             (measure-forest predictors datum))))
+        predicted (z/pmap 
+                     runningpredict1 
+                    (record/read-tsv-file 
+                      (input-file prefix n "tsv.gz")))
+        predicted-file (output-file prefix options "tsv.gz")]
+    (record/write-tsv-file predicted predicted-file)
+    predicted))
+;;----------------------------------------------------------------
+(defn- decile-cost ^double [^IFn$OD y ^IFn deciles ^Iterable data]
+  (let [it (z/iterator data)]
+    (loop [sum (double 0.0)]
+      (if (.hasNext it)
+        (let [datum (.next it)
+              yi (.invokePrim y datum)
+              qi (deciles datum)]
+          (recur (+ sum (deciles/cost yi qi))))
+        sum))))
+;;----------------------------------------------------------------
+(defn relative-cost [^long n ^String prefix]
+  (let [options (real-probability-measure-options n)
+        predicted-file (output-file prefix options "tsv.gz")
+        predicted (record/read-tsv-file predicted-file)
+        true-cost (decile-cost record/y record/ymu predicted)
+        pred-cost (decile-cost record/y record/qhat predicted)]
+    (println n prefix (float true-cost) (float pred-cost) 
+             (float (/ pred-cost true-cost)))))
 ;;----------------------------------------------------------------
