@@ -4,7 +4,7 @@
                "John Alan McDonald" 
                "Kristina Lisa Klinkner"] 
       :since "2017-01-04"
-      :date "2017-11-10"
+      :date "2017-11-15"
       :doc "Random and other forests." }
     
     taiga.forest
@@ -21,7 +21,8 @@
             [taiga.tree.leaf.doubles :as doubles-leaf]
             [taiga.tree.grow :as grow]
             [taiga.tree.measure :as measure])
-  (:import [taiga.ensemble RealDistributionModel]))
+  (:import [clojure.lang IFn IFn$OD]
+           [taiga.ensemble RealDistributionModel]))
 (set! *unchecked-math* :warn-on-boxed)
 ;;----------------------------------------------------------------
 ;; training options
@@ -241,6 +242,7 @@
   (check options)
   (let [y (:ground-truth (:attributes options))
         data (z/drop-missing y (:data options))
+        _(assert (not (z/empty? data)))
         predictors (dissoc (:attributes options) 
                            :ground-truth :prediction)
         options (assoc options
@@ -269,6 +271,7 @@
 (defn mean-regression-options [options]
   "Fill in options map with standard defaults for simple L2 
    regression."
+  (assert (instance? IFn$OD (:ground-truth (:attributes options))))
   (assoc 
     options
     :maxdepth (or (:maxdepth options) Integer/MAX_VALUE)
@@ -390,23 +393,26 @@
   ^RealDistributionModel [options]
   (let [options (real-probability-measure-options options)
         ;; allow precomputed scalar valued forest as an option
-        forest (:mean-regression-forest options
-                                        (random-forest options))
+        forest (or (:mean-regression-forest options)
+                   (random-forest options))
+        _(assert (not (nil? forest)))
         ;; TODO: allow different ground truth for measures vs
         ;; regression?
-        ground-truth (:ground-truth (:attributes options))
+        ^IFn$OD ground-truth (:ground-truth (:attributes options))
+        _(assert (instance? IFn$OD ground-truth))
         ;; TODO: empirical distribution could allow probability
         ;; of missing?
         data (z/drop-missing 
                ground-truth
                (:empirical-distribution-data options))
-        predictors (dissoc (:attributes options) 
-                           :ground-truth :prediction)
-        ;; TODO: :probability-measure-learner option
-        learner (fn learner [root]
-                  (measure/train 
-                    root ground-truth predictors data))
-        terms (z/map learner (ensemble/terms forest))]
+        _(assert (not (z/empty? data)))
+         predictors (dissoc (:attributes options) 
+                            :ground-truth :prediction)
+         ;; TODO: :probability-measure-learner option
+         learner (fn learner [root]
+                   (measure/train 
+                     root ground-truth predictors data))
+         terms (z/map learner (ensemble/terms forest))]
     (ensemble/probability-measure-model terms)))
 ;;----------------------------------------------------------------
 ;; vector-valued regression

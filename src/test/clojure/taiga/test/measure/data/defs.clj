@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com" 
-      :date "2017-11-09"
+      :date "2017-11-15"
       :doc "Common definitions for unit tests." }
     
     taiga.test.measure.data.defs
@@ -14,10 +14,11 @@
             [taiga.api :as taiga]
             [taiga.test.measure.data.record :as record])
   
-  (:import [clojure.lang IFn$OD]))
+  (:import [java.util Map]
+           [clojure.lang IFn$OD]))
 ;;----------------------------------------------------------------
 (defn options 
-  ([^clojure.lang.IFn$OD median ^long n]
+  (^Map [^IFn$OD median ^long n]
     ;; Note: record/generator resets seed each time it's called
   (let [data (z/map (record/generator median) (range (* 3 n))) 
         [train emp test] (z/partition n data)
@@ -38,7 +39,7 @@
     _ (test/is (== 10 (count (:attributes options))))
     _ (test/is (== 3 (:mtry options)))
     options))
-  ([^clojure.lang.IFn$OD median] (options median (* 32 1024))))
+  (^Map [^IFn$OD median] (options median (* 32 1024))))
 ;;----------------------------------------------------------------
 (defn model-file [nss options model]
   (let [tokens (s/split nss #"\.")

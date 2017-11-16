@@ -2,7 +2,7 @@
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
       :since "2017-11-10"
-      :date "2017-11-10"
+      :date "2017-11-15"
       :doc "Artificial data for random forest unit tests.
             around simple regression function." }
     
@@ -26,6 +26,11 @@
            [taiga.scripts.quantiles.deciles Deciles]))
 ;; mvn -Dtest=taiga.scripts.quantiles.record clojure:test
 ;;----------------------------------------------------------------
+(defn- parse-RealDistribution [tuple archetype] 
+  (archetype (z/read-edn (:ymu tuple))))
+(defn- parse-Kolor [tuple archetype] 
+  (archetype (z/read-edn (:kolor tuple))))
+;;----------------------------------------------------------------
 (z/define-datum Record
   [;; predictors
    ^double x0
@@ -34,10 +39,10 @@
    ^double x3
    ^double x4
    ^double x5
-   ^taiga.test.java.data.Kolor kolor
+   ^taiga.test.java.data.Kolor [kolor parse-Kolor]
    ^clojure.lang.Keyword primate
    ;; ground truth
-   ^org.apache.commons.math3.distribution.RealDistribution [ymu z/read-edn]
+   ^org.apache.commons.math3.distribution.RealDistribution [ymu parse-RealDistribution]
    ^double y ;; a sample from ymu
    ;; predictions 
    ;; predicted empirical distributions too large to keep
@@ -91,9 +96,10 @@
                  :ground-truth y :prediction q50hat})
 (def tsv-attributes 
   (assoc 
-    attributes
+    (dissoc attributes :ground-truth :prediction)
     ;; :mean mean :std std
     ;; :meanhat meanhat :stdhat stdhat
+    :ymu ymu :y y
     :q10 q10 :q20 q20 :q30 q30 
     :q40 q40 :q50 q50 :q60 q60
     :q70 q70 :q80 q80 :q90 q90
@@ -148,6 +154,6 @@
             dy (.invokePrim center datum)
             ^RealDistribution ymu (TranslatedRealDistribution/shift
                                     mu dy)
-            y  (.sample ymu)]
+            y (.sample ymu)]
         (assoc datum :ymu ymu :y y)))))
 ;;----------------------------------------------------------------

@@ -1,6 +1,10 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
-(ns ^{:author "John Alan McDonald" :date "2016-11-08"
+(ns ^{:author ["John Alan McDonald"
+               "Kristina Kilnkner"
+               "wahpenayo at gmail dot com"]
+      :since "2016-11-08"
+      :date "2017-11-15"
       :doc "Primary external interface to Taiga, providing a subset of the
             functions found in other taiga namespaces, created using 
             [Potemkin](https://github.com/ztellman/potemkin).
@@ -12,7 +16,7 @@
             [[mean-regression]], or [[positive-fraction-probability]]." }
 
     taiga.api
-  
+
   (:require [potemkin.namespaces :as pn]
             [taiga.tree.node :as node]
             [taiga.metrics :as m]
@@ -30,11 +34,13 @@
                 f/majority-vote-probability
                 #_f/minimum-cost-classifier
                 f/mean-regression
+                f/mean-regression-options
                 f/mean-vector-regression
                 f/positive-fraction-probability
                 f/pprint-forest
                 f/random-forest
                 f/read-edn
+                f/real-probability-measure-options
                 f/real-probability-measure
                 f/write-edn
                 f/write-json
