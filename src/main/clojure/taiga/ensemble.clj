@@ -1,8 +1,9 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
-(ns ^{:author "John Alan McDonald, Kristina Lisa Klinkner" 
-      :since "2017-01-13"
-      :date "2017-11-08"
+(ns ^{:author ["wahpenayo at gmail dot com"
+               "John Alan McDonald" 
+               "Kristina Lisa Klinkner"] 
+      :date "2017-12-06"
       :doc "Ensemble (Reducer) model classes." }
     
     taiga.ensemble
