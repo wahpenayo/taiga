@@ -1,120 +1,37 @@
-\documentclass[11pt,openany,american,usenames,dvipsnames,svgnames,x11names,table,isodate]{article}
-\setlength{\parskip}{3pt}
-\setlength{\parindent}{0pt}
-
-\usepackage{color}
-\usepackage{xcolor}
-\usepackage{url}
-\usepackage{babel}
-\usepackage{times}
-
-\usepackage{amsthm}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\numberwithin{equation}{section}
-\numberwithin{figure}{section}
-
-\usepackage{graphics}
-\usepackage{epsfig}
-\usepackage{graphicx}
-\PassOptionsToPackage{normalem}{ulem}
-\usepackage{ulem}
-\usepackage[numbers]{natbib} 
-\usepackage[parfill]{parskip}
-
-\usepackage[T1]{fontenc}
-\usepackage{xeCJK}
-\setCJKmainfont{SimHei}
-\setCJKsansfont{SimHei}
-\setCJKmonofont{Lucida Sans Typewriter}
-
-\input{symbols}
-\DeclareMathOperator*{\argmin}{argmin}
-\DeclareMathOperator*{\argmax}{argmax}
-%\DeclareMathOperator*{\cdf}{cdf}
-%\DeclareMathOperator*{\quantile}{quantile}
-
-\makeatother
-\usepackage{listings}
-\lstset{backgroundcolor={\color{GhostWhite}},
-basicstyle={\ttfamily\small},
-breaklines=false,
-captionpos=b,
-%frame=tblr,
-keywordstyle={\ttfamily}}
-\renewcommand{\lstlistingname}{Listing}
-\providecommand{\algorithmname}{Algorithm}
-\providecommand{\exercisename}{Exercise}
-\providecommand{\theoremname}{Theorem}
-
-\usepackage{algpseudocode,algorithm,algorithmicx}
-
-\usepackage{geometry}
-\geometry{twoside,twocolumn,landscape,margin=2cm,columnsep=2cm,
-paperheight=300mm,paperwidth=168mm}
-
-\usepackage[unicode=true,pdfusetitle,
- bookmarks=true,bookmarksnumbered=false,bookmarksopen=true,bookmarksopenlevel=1,
- breaklinks=false,pdfborder={0 0 0},backref=false,colorlinks=true]{hyperref}
-\hypersetup{unicode=true,colorlinks=true,pdfpagemode=UsfeOutlines,
-pdfpagelayout=OneColumn,pdfstartview=FitH,linkcolor=MidnightBlue,
-urlcolor=Mahogany,citecolor=OliveGreen}
-\makeatletter
-
-\usepackage{datetime}
-\renewcommand{\dateseparator}{-}
-\renewcommand{\today}{\the\year \dateseparator \twodigit\month \dateseparator
- \twodigit\day}
-
-\usepackage{fancyhdr}
-\fancypagestyle{plain}{
-\fancyhead{} % clear all header fields 
-\fancyfoot{} % clear all foot fields
-\fancyfoot[RO,LE]{\thepage} 
-\fancyfoot[RE,LO]{Draft of \today}
-\renewcommand{\headrulewidth}{0.0pt}
-\renewcommand{\footrulewidth}{0.1pt}}
-\pagestyle{plain}
-
-\usepackage{fontspec}
-%\setmainfont{Baskerville Old Face}
-\setmainfont{Centaur}
-%\setmainfont{Garamond}
-%\setmainfont{Georgia}
-%\setmainfont{Perpetua}
-%\setmainfont{Poor Richard}
-\setsansfont{Gill Sans MT} 
-\newfontfamily\headingfont[]{Gill Sans MT}
-
-\usepackage[sf,small,compact]{titlesec}
-\titleformat{\section}{\large\headingfont\bfseries}{\thesection}{0.5em}{}
-\titleformat{\subsection}{\headingfont\bfseries}{\thesubsection}{0.5em}{}
-\titleformat{\subsubsection}{\headingfont\mdseries}{\thesubsubsection}{0.5em}{}
-\titleformat{\paragraph}[runin]{\headingfont\mdseries}{\thesubsubsection}{0.5em}{}[\hspace{1em}]
-
-\usepackage{titling}
-\renewcommand{\maketitlehooka}{\headingfont}
-\pretitle{\begin{flushright}\Large\sffamily\bfseries}
-\posttitle{\par\end{flushright}\vskip 0.25em}
-\preauthor{\begin{flushright}}
-\postauthor{\par\end{flushright}}
-\predate{\begin{flushright}}
-\postdate{\par\end{flushright}}
-
-\usepackage{enumitem}
-\setlist[description]{font=\sffamily\mdseries,style=unboxed,leftmargin=0cm}
-\setlist[itemize]{style=unboxed,leftmargin=0cm}
-\setlist[enumerate]{style=unboxed,leftmargin=0cm}
-
+% !TEX TS-program = arara
+% arara: xelatex: { synctex: on, options: '-halt-on-error' } 
+% arara: biber
+% arara: makeglossaries
+% arara: makeindex
+% arara: xelatex: { synctex: on, options: '-halt-on-error'  } 
+% arara: xelatex: { synctex: on, options: '-halt-on-error'   } 
+% arara: clean: { files: [ overview.aux, overview.bbl] }
+% arara: clean: { files: [ overview.bcf, overview.blg] }
+% arara: clean: { files: [ overview.glg, overview.glo] }
+% arara: clean: { files: [ overview.gls, overview.gls] }
+% arara: clean: { files: [ overview.idx, overview.ilg] }
+% arara: clean: { files: [ overview.ind, overview.loe] }
+% arara: clean: { files: [ overview.lof, overview.log ] }
+% arara: clean: { files: [ overview.log, overview.lol ] }
+% arara: clean: { files: [ overview.out ] }
+% arara: clean: { files: [ overview.run.xml] }
+% arara: clean: { files: [ overview.toc, overview.xdy] }
+% arara: clean: { files: [ overview.synctex.gz] }
 %-------------------------------------------------------------------------------
-
-\begin{document}
-
-\input{clj-listings} 
-
+\documentclass[10pt,openany]{article}
+\input{head}
+\input{landscape-2col-header}
+\input{clj-listings}
+\input{symbols}
+\addbibresource{../taiga.bib}
+\addbibresource{../tex.bib}
+%-------------------------------------------------------------------------------
 \title{Taiga: overview}
 \author{John Alan McDonald, Kristina Lisa Klinkner}
 \date{\today}
+%-------------------------------------------------------------------------------
+\begin{document}
+
 \maketitle
 
 \begin{abstract}
@@ -376,9 +293,9 @@ domain with $\sigma=0.5$ gaussian noise added.
 
 \begin{figure}
 \noindent \begin{centering}
-\includegraphics[width=40mm]{fig/reg-true-levelplot}~
-\includegraphics[width=40mm]{fig/reg-true-wireframe}~
-\includegraphics[width=40mm]{fig/rpart-training-data}
+% \includegraphics[width=40mm]{fig/reg-true-levelplot}~
+% \includegraphics[width=40mm]{fig/reg-true-wireframe}~
+% \includegraphics[width=40mm]{fig/rpart-training-data}
 \par\end{centering}
 
 \protect\caption{\label{fig:synthetic-data}Synthetic data for regularization examples}
@@ -405,9 +322,9 @@ is what makes CART special.
 
 \begin{figure}
 \noindent \begin{centering}
-\includegraphics[width=40mm]{fig/rpart-1-split-levelplot}~
-\includegraphics[width=40mm]{fig/rpart-1-split-wireframe}~
-\includegraphics[width=40mm]{fig/rpart-1-split-tree}
+% \includegraphics[width=40mm]{fig/rpart-1-split-levelplot}~
+% \includegraphics[width=40mm]{fig/rpart-1-split-wireframe}~
+% \includegraphics[width=40mm]{fig/rpart-1-split-tree}
 \par\end{centering}
 
 \protect\caption{\label{fig:one-split}First split}
@@ -436,9 +353,9 @@ the first split, whose result is shown in figure \ref{fig:3-spits}.
 
 \begin{figure}
 \noindent \begin{centering}
-\includegraphics[width=40mm]{fig/rpart-3-split-levelplot}~
-\includegraphics[width=40mm]{fig/rpart-3-split-wireframe}~
-\includegraphics[width=40mm]{fig/rpart-3-split-tree}
+% \includegraphics[width=40mm]{fig/rpart-3-split-levelplot}~
+% \includegraphics[width=40mm]{fig/rpart-3-split-wireframe}~
+% \includegraphics[width=40mm]{fig/rpart-3-split-tree}
 \par\end{centering}
 
 \protect\caption{\label{fig:3-spits}First 3 splits}
@@ -452,9 +369,9 @@ or too similar to split meaningfully. The result is shown in figure
 
 \begin{figure}
 \noindent \begin{centering}
-\includegraphics[width=40mm]{fig/rpart-unpruned-levelplot}~
-\includegraphics[width=40mm]{fig/rpart-unpruned-wireframe}~
-\includegraphics[width=40mm]{fig/rpart-unpruned-tree}
+% \includegraphics[width=40mm]{fig/rpart-unpruned-levelplot}~
+% \includegraphics[width=40mm]{fig/rpart-unpruned-wireframe}~
+% \includegraphics[width=40mm]{fig/rpart-unpruned-tree}
 \par\end{centering}
 
 \protect\caption{\label{fig:unpruned-tree}Unpruned tree}
@@ -507,7 +424,7 @@ The cost as a function of tree size for our example is shown in figure
 
 \begin{figure}
 \noindent \begin{centering}
-\includegraphics[width=12cm]{fig/rpart-unpruned-plotcp}
+% \includegraphics[width=12cm]{fig/rpart-unpruned-plotcp}
 \par\end{centering}
 
 \protect\caption{\label{fig:Cross-validated-accuracy-vs}Cross-validated accuracy vs
@@ -522,9 +439,9 @@ parabola.
 
 \begin{figure}
 \noindent \begin{centering}
-\includegraphics[width=40mm]{fig/rpart-pruned-levelplot}~
-\includegraphics[width=40mm]{fig/rpart-pruned-wireframe}~
-\includegraphics[width=40mm]{fig/rpart-pruned-tree}
+% \includegraphics[width=40mm]{fig/rpart-pruned-levelplot}~
+% \includegraphics[width=40mm]{fig/rpart-pruned-wireframe}~
+% \includegraphics[width=40mm]{fig/rpart-pruned-tree}
 \par\end{centering}
 
 \protect\caption{\label{fig:pruned-tree}Pruned tree}
@@ -587,8 +504,8 @@ rectangles.
 
 \begin{figure}[t]
 \noindent \begin{centering}
-\includegraphics[width=40mm]{fig/rf-1-tree-levelplot}~
-\includegraphics[width=40mm]{fig/rf-1-tree-wireframe}
+% \includegraphics[width=40mm]{fig/rf-1-tree-levelplot}~
+% \includegraphics[width=40mm]{fig/rf-1-tree-wireframe}
 \par\end{centering}
 \protect\caption{\label{fig:One-tree-random}One tree random forest}
 \end{figure}
@@ -596,8 +513,8 @@ rectangles.
 
 \begin{figure}
 \noindent \begin{centering}
-\includegraphics[width=40mm]{fig/rf-4-tree-levelplot}~
-\includegraphics[width=40mm]{fig/rf-4-tree-wireframe}
+% \includegraphics[width=40mm]{fig/rf-4-tree-levelplot}~
+% \includegraphics[width=40mm]{fig/rf-4-tree-wireframe}
 \par\end{centering}
 \protect\caption{\label{fig:four-tree-random}Four tree random forest}
 \end{figure}
@@ -605,15 +522,15 @@ rectangles.
 
 \begin{figure}
 \noindent \begin{centering}
-\includegraphics[width=40mm]{fig/rf-1024-tree-levelplot}~
-\includegraphics[width=40mm]{fig/rf-1024-tree-wireframe}
+% \includegraphics[width=40mm]{fig/rf-1024-tree-levelplot}~
+% \includegraphics[width=40mm]{fig/rf-1024-tree-wireframe}
 \par\end{centering}
 
 \protect\caption{\label{fig:random-forest}Complete random forest}
 \end{figure}
 \begin{figure}
 \noindent \begin{centering}
-\includegraphics[width=12cm]{fig/rf-1024-tree-forest}
+% \includegraphics[width=12cm]{fig/rf-1024-tree-forest}
 \par\end{centering}
 
 \protect\caption{\label{fig:Error-on-independent}Error on test data by number of trees.}
@@ -1879,8 +1796,6 @@ Exercise \ref{ex:cannonize}:
 \end{minipage}
 
 \newpage{}
-
-\bibliographystyle{plainurl}
-\bibliography{../bib}
-
+\input{typesetting}
+\input{tail}
 \end{document}
