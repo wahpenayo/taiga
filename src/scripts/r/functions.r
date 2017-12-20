@@ -3,6 +3,10 @@
 #-------------------------------------------------------------------------------
 # Load the necessary add-on packages, downloading and installing (in the user's
 # R_LIBS_USER folder) if necessary.  
+#remove.packages(c("ggplot2", "data.table"))
+#install.packages('Rcpp', dependencies = TRUE)
+#install.packages('ggplot2', dependencies = TRUE)
+#install.packages('data.table', dependencies = TRUE)
 load.packages <- function () {
  user.libs <- Sys.getenv('R_LIBS_USER')
  dir.create(user.libs,showWarnings=FALSE,recursive=TRUE)
@@ -28,13 +32,15 @@ load.packages <- function () {
      'maptools',
      'randomForest',
      'quantregForest',
+     'rpart',
      #'randomSurvivalForest',
      'mlbench',
      'datasets')
  for (package in packages) {
   found <- eval(call('require',package,quietly=TRUE))
   if (! found) { 
-   install.packages(c(package),user.libs,repos=repos)
+   install.packages(c(package),user.libs,repos=repos,
+     dependencies=TRUE)
    eval(call('library',package)) } } }
 #-------------------------------------------------------------------------------
 load.packages()
@@ -78,7 +84,10 @@ theme_set(theme_bw())
 # Open a png graphics device.
 # aspect ratio is height/width
 
-dev.on <- function (filename,aspect=(1050/1400),width=1400,theme=my.theme) {
+dev.on <- function (filename,
+  aspect=(1050/1400),
+  width=16,
+  theme=my.theme) {
  
  # make sure the folder is there
  dir.create(dirname(filename),showWarnings=FALSE,recursive=TRUE)
@@ -94,27 +103,46 @@ dev.on <- function (filename,aspect=(1050/1400),width=1400,theme=my.theme) {
  h <- aspect*w
  
  # The png device doesn't work under my R installation on linux.
- # The bitmap device doesn't work on my windowslaptop.
+ # The bitmap device doesn't work on my windows laptop.
  # At least they both produce png files.
  plotF <- paste(filename,'png',sep='.')
  print(plotF)
+ print(paste('size:',w,'x',h))
  if ('windows'==.Platform$OS.type) {
-  trellis.device(device='png',theme=theme,
-    filename=plotF,width=w,height=h,pointsize=12) }
+  trellis.device(
+    device='png',
+    theme=theme,
+    filename=plotF,
+    width=w,
+    height=h,
+    pointsize=10,
+    units='cm',
+    res=96) }
  else { 
-  trellis.device(device='bitmap',theme=theme,
-    file=plotF,width=w,height=h,pointsize=12,units='px',theme=theme) } }
-#-------------------------------------------------------------------------------
-
+  trellis.device(
+    device='bitmap',
+    theme=theme,
+    file=plotF,
+    width=w,
+    height=h,
+    pointsize=10,
+    units='cm',
+    res=96) } }
+#-----------------------------------------------------------------
 write.tsv <- function (data, file) {
- write.table(x=data, quote=FALSE, sep='\t', row.names=FALSE, file=file) }
+ write.table(
+   x=data, 
+   quote=FALSE, 
+   sep='\t', 
+   row.names=FALSE, 
+   file=file) }
 
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------
 
 write.ssv <- function (data, file) {
  write.table(x=data, quote=FALSE, sep=' ', row.names=FALSE, file=file) }
 
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------
 # rf dummy example
 #-------------------------------------------------------------------------------
 
@@ -136,7 +164,7 @@ add.noise <- function (frame,sigma) {
 
 #-------------------------------------------------------------------------------
 
-make.data <- function (name) {
+make.data <- function (name,width=14,aspect=0.9) {
  
  steps <- seq(-1,1,by=0.05)
  test <- expand.grid(x0=steps,x1=steps)
@@ -147,20 +175,37 @@ make.data <- function (name) {
  ncuts <- 16
  palette <- colorRampPalette(rev(brewer.pal(11,'RdYlGn')))
  
- dev.on(paste('fig/',name,'-true-levelplot',sep=''),width=4,aspect=1)
+ dev.on(paste('fig/',name,'-true-levelplot',sep=''),
+   width=width,
+   aspect=aspect)
  print(
-   levelplot(y ~ x0 + x1, test, cex=0.5, main=exp, col.regions=palette))
+   levelplot(y ~ x0 + x1, 
+     test, 
+     #cex=0.5, 
+     main=exp, 
+     col.regions=palette))
  dev.off()      
  
- dev.on(paste('fig/',name,'-true-wireframe',sep=''),width=4,aspect=1)
+ dev.on(paste('fig/',name,'-true-wireframe',sep=''),
+   width=width,
+   aspect=aspect)
  print(
-   wireframe(y ~ x0 + x1, test, cex=0.5, main=exp, col='#AAAAAA44',
-     drape=TRUE, cuts=ncuts, col.regions=palette(ncuts+1)))
+   wireframe(y ~ x0 + x1, 
+     test,
+     #cex=0.5, 
+     main=exp, col='#AAAAAA44',
+     drape=TRUE, 
+     cuts=ncuts, 
+     col.regions=palette(ncuts+1)))
  dev.off()      
  
- dev.on('fig/rpart-training-data',width=4,aspect=1)
+ dev.on('fig/rpart-training-data',
+   width=width,aspect=aspect)
  print(
-   cloud(y ~ x0 + x1, train, cex=0.5, col='blue', pch='.',
+   cloud(y ~ x0 + x1, train, 
+     #cex=0.5, 
+     col='blue', 
+     pch='.',
      main=expression(y[i] + sigma*epsilon[i])))
  dev.off()      
  
@@ -173,20 +218,31 @@ illustrate.rpart <- function (
   d,
   maxdepth=30,
   cp=0.0001,
-  minsplit=8) {
+  minsplit=8,
+  width=12) {
  
- tree <- rpart(y ~ x0 + x1, d$train, maxdepth=maxdepth, minsplit=minsplit, 
-   method='anova', cp=0.0001, maxcompete=0, maxsurrogate=0)
+ tree <- rpart(
+   y ~ x0 + x1, 
+   d$train, 
+   maxdepth=maxdepth, 
+   minsplit=minsplit, 
+   method='anova', 
+   cp=0.0001, 
+   maxcompete=0,
+   maxsurrogate=0)
  
  if ((cp <= 0.0005) & (nrow(tree$frame) > 32)) {
   treep <- prune(tree,cp=0.0002)
-  dev.on(paste('fig/rpart',name,'plotcp',sep='-'),width=12,aspect=1/3)
+  dev.on(
+    paste('fig/rpart',name,'plotcp',sep='-'),
+    width=width,
+    aspect=0.5)
   plotcp(treep,pch='.')
   dev.off() }
  
  tree <- prune(tree,cp=cp)
  
- dev.on(paste('fig/rpart',name,'tree',sep='-'),width=4,aspect=1)
+ dev.on(paste('fig/rpart',name,'tree',sep='-'),width=width,aspect=1)
  plot(tree, branch=0.1, uniform=TRUE, main=paste(name,'CART tree'))
  if (nrow(tree$frame) < 64) { text(tree, use.n=FALSE, fancy=FALSE) }
 # post(tree0,filename='')
@@ -195,13 +251,13 @@ illustrate.rpart <- function (
  test0 <- d$test
  test0$yhat <- predict(tree,newdata=test0)
  
- dev.on(paste('fig/rpart',name,'levelplot',sep='-'),width=4,aspect=1)
+ dev.on(paste('fig/rpart',name,'levelplot',sep='-'),width=width,aspect=1)
  print(
    levelplot(yhat ~ x0 + x1, test0, cex=0.5, main=paste(name,'fit'),
      col.regions=d$palette))
  dev.off()      
  
- dev.on(paste('fig/rpart',name,'wireframe',sep='-'),width=4,aspect=1)
+ dev.on(paste('fig/rpart',name,'wireframe',sep='-'),width=width,aspect=1)
  print(
    wireframe(yhat ~ x0 + x1, test0, cex=0.5, main=paste(name,'fit'), 
      col='#AAAAAA44', drape=TRUE, 
@@ -212,7 +268,7 @@ illustrate.rpart <- function (
 
 #-------------------------------------------------------------------------------
 
-illustrate.rf <- function (name,d,ntree=128,minsplit=8) {
+illustrate.rf <- function (name,d,ntree=128,minsplit=8,width=12) {
  
  forest <- 
    randomForest(y ~ x0 + x1, 
@@ -224,20 +280,20 @@ illustrate.rf <- function (name,d,ntree=128,minsplit=8) {
      keep.forest=TRUE) 
  
  if (ntree > 32) {
-  dev.on(paste('fig/rf',name,'forest',sep='-'),width=6,aspect=1/3) 
+  dev.on(paste('fig/rf',name,'forest',sep='-'),width=width,aspect=1/3) 
   plot(forest) 
   dev.off() }
  
  test0 <- d$test
  test0$yhat <- predict(forest,newdata=test0)
  
- dev.on(paste('fig/rf',name,'levelplot',sep='-'),width=4,aspect=1)
+ dev.on(paste('fig/rf',name,'levelplot',sep='-'),width=width,aspect=1)
  print(
    levelplot(yhat ~ x0 + x1, test0, cex=0.5, main=paste(name,'fit'),
      col.regions=d$palette))
  dev.off()      
  
- dev.on(paste('fig/rf',name,'wireframe',sep='-'),width=4,aspect=1)
+ dev.on(paste('fig/rf',name,'wireframe',sep='-'),width=width,aspect=1)
  print(
    wireframe(yhat ~ x0 + x1, test0, cex=0.5, main=paste(name,'fit'), 
      col='#AAAAAA44', drape=TRUE, 
