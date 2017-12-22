@@ -1,6 +1,6 @@
 # John Alan McDonald
 # 2015-12-11
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------
 # Load the necessary add-on packages, downloading and installing (in the user's
 # R_LIBS_USER folder) if necessary.  
 #remove.packages(c("ggplot2", "data.table"))
@@ -42,9 +42,9 @@ load.packages <- function () {
    install.packages(c(package),user.libs,repos=repos,
      dependencies=TRUE)
    eval(call('library',package)) } } }
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------
 load.packages()
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------
 my.theme <- function () {
  n <- 7
  text.color <- 'black'
@@ -68,29 +68,40 @@ my.theme <- function () {
    plot.symbol = list(col="darkgreen"),
    plot.polygon = list(col="darkgreen"),
    reference.line = list(col="#e8e8e8"),
-   regions = list(col = colorRampPalette(rev(brewer.pal(11,'RdYlGn')))(100)),
-   shade.colors = list(palette=colorRampPalette(rev(brewer.pal(11,'RdYlGn')))),
+   regions = list(
+     col=colorRampPalette(rev(brewer.pal(11,'RdYlGn')))(100)),
+   shade.colors = list(
+     palette=colorRampPalette(rev(brewer.pal(11,'RdYlGn')))),
    strip.border = list(col='gray'),
    strip.shingle = list(col=dark),
    strip.background = list(col='gray'),
    superpose.line = list(col = dark,lty = 1:n,lwd=1),
-   superpose.polygon = list(col=dark,border=rep('#DDDDDD44',n),alpha=rep(0.3,n)),
-   superpose.symbol = list(pch=c(1,3,6,0,5,16,17),cex=rep(1, n),col=dark,fontface='bold')) }
+   superpose.polygon = 
+     list(col=dark,border=rep('#DDDDDD44',n),alpha=rep(0.3,n)),
+   superpose.symbol = 
+     list(pch=c(1,3,6,0,5,16,17),cex=rep(1, n),col=dark,
+       fontface='bold')) }
 lattice.options(default.theme = my.theme)
 lattice.options(lattice.theme = my.theme)
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------
 theme_set(theme_bw())
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------
 # Open a png graphics device.
 # aspect ratio is height/width
 
-dev.on <- function (filename,
+dev.on <- function (
+  filename=NULL,
   aspect=(1050/1400),
   width=16,
   theme=my.theme) {
  
+  stopifnot(!is.null(filename))
+  
  # make sure the folder is there
- dir.create(dirname(filename),showWarnings=FALSE,recursive=TRUE)
+ dir.create(
+   path=dirname(filename),
+   showWarnings=FALSE,
+   recursive=TRUE)
  
  # often the graphics device is stuck from the last failed run
  options(show.error.messages = FALSE)
@@ -136,35 +147,31 @@ write.tsv <- function (data, file) {
    sep='\t', 
    row.names=FALSE, 
    file=file) }
-
 #-----------------------------------------------------------------
-
 write.ssv <- function (data, file) {
- write.table(x=data, quote=FALSE, sep=' ', row.names=FALSE, file=file) }
-
+ write.table(
+   x=data, 
+   quote=FALSE, 
+   sep=' ', 
+   row.names=FALSE, 
+   file=file) }
 #-----------------------------------------------------------------
 # rf dummy example
-#-------------------------------------------------------------------------------
-
-parabola <- function (x0,x1) { return( ((x0+x1)^2)/2 + (x0-x1)^2 ); }
-
-#-------------------------------------------------------------------------------
-
+#-----------------------------------------------------------------
+parabola <- function (x0,x1) { 
+  return( ((x0+x1)^2)/2 + (x0-x1)^2 ); }
+#-----------------------------------------------------------------
 parabola.data <- function (n) {
  x0 <- runif(n,-1,1);
  x1 <- runif(n,-1,1);
  y <- parabola(x0,x1);
  return( data.frame(x0=x0,x1=x1,y=y) ); }
-
-#-------------------------------------------------------------------------------
-
+#-----------------------------------------------------------------
 add.noise <- function (frame,sigma) {
  frame$y <- frame$y + rnorm(length(frame$y),mean=0,sd=sigma); 
  return( frame ); }
-
-#-------------------------------------------------------------------------------
-
-make.data <- function (name,width=14,aspect=0.9) {
+#-----------------------------------------------------------------
+make.data <- function (name,width=16,aspect=0.9) {
  
  steps <- seq(-1,1,by=0.05)
  test <- expand.grid(x0=steps,x1=steps)
@@ -181,7 +188,7 @@ make.data <- function (name,width=14,aspect=0.9) {
  print(
    levelplot(y ~ x0 + x1, 
      test, 
-     #cex=0.5, 
+     cex=0.5, 
      main=exp, 
      col.regions=palette))
  dev.off()      
@@ -193,7 +200,8 @@ make.data <- function (name,width=14,aspect=0.9) {
    wireframe(y ~ x0 + x1, 
      test,
      #cex=0.5, 
-     main=exp, col='#AAAAAA44',
+     main=exp, 
+     col='#AAAAAA44',
      drape=TRUE, 
      cuts=ncuts, 
      col.regions=palette(ncuts+1)))
@@ -209,9 +217,14 @@ make.data <- function (name,width=14,aspect=0.9) {
      main=expression(y[i] + sigma*epsilon[i])))
  dev.off()      
  
- list(test=test,train=train,exp=exp,palette=palette,ncuts=ncuts) }
+ list(
+   test=test,
+   train=train,
+   exp=exp,
+   palette=palette,
+   ncuts=ncuts) }
 
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------
 
 illustrate.rpart <- function (
   name,
@@ -219,7 +232,8 @@ illustrate.rpart <- function (
   maxdepth=30,
   cp=0.0001,
   minsplit=8,
-  width=12) {
+  width=16,
+  aspect=0.9) {
  
  tree <- rpart(
    y ~ x0 + x1, 
@@ -234,42 +248,76 @@ illustrate.rpart <- function (
  if ((cp <= 0.0005) & (nrow(tree$frame) > 32)) {
   treep <- prune(tree,cp=0.0002)
   dev.on(
-    paste('fig/rpart',name,'plotcp',sep='-'),
+    filename=paste('fig/rpart',name,'plotcp',sep='-'),
     width=width,
-    aspect=0.5)
-  plotcp(treep,pch='.')
+    aspect=0.75*aspect)
+  plotcp(treep,pch='.',main=NULL)
   dev.off() }
  
  tree <- prune(tree,cp=cp)
  
- dev.on(paste('fig/rpart',name,'tree',sep='-'),width=width,aspect=1)
- plot(tree, branch=0.1, uniform=TRUE, main=paste(name,'CART tree'))
- if (nrow(tree$frame) < 64) { text(tree, use.n=FALSE, fancy=FALSE) }
+ dev.on(
+   filename=paste('fig/rpart',name,'tree',sep='-'),
+   width=0.75*width,
+   aspect=aspect)
+ plot(
+   x=tree, 
+   uniform=TRUE, 
+   #main=paste(name,'CART tree'), 
+   branch=0.1)
+ if (nrow(tree$frame) < 64) { 
+   text(tree, use.n=FALSE, fancy=FALSE) }
 # post(tree0,filename='')
  dev.off()
  
  test0 <- d$test
  test0$yhat <- predict(tree,newdata=test0)
  
- dev.on(paste('fig/rpart',name,'levelplot',sep='-'),width=width,aspect=1)
+ dev.on(
+   filename=paste('fig/rpart',name,'levelplot',sep='-'),
+   width=width,
+   aspect=aspect)
  print(
-   levelplot(yhat ~ x0 + x1, test0, cex=0.5, main=paste(name,'fit'),
+   levelplot(
+     x=yhat ~ x0 + x1, 
+     data=test0, 
+     cex=0.5, 
+     #main=paste(name,'fit'),
      col.regions=d$palette))
  dev.off()      
  
- dev.on(paste('fig/rpart',name,'wireframe',sep='-'),width=width,aspect=1)
+ dev.on(
+   filename=paste('fig/rpart',name,'wireframe',sep='-'),
+   width=width,
+   aspect=aspect)
  print(
-   wireframe(yhat ~ x0 + x1, test0, cex=0.5, main=paste(name,'fit'), 
-     col='#AAAAAA44', drape=TRUE, 
-     cuts=d$ncuts, col.regions=d$palette(d$ncuts+1)))
+   wireframe(
+     x=yhat ~ x0 + x1, 
+     data=test0, 
+     cex=0.5, 
+     #main=paste(name,'fit'), 
+     col='#AAAAAA44', 
+     drape=TRUE, 
+     cuts=d$ncuts, 
+     col.regions=d$palette(d$ncuts+1)))
  dev.off()      
  
  NULL }
 
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------
 
-illustrate.rf <- function (name,d,ntree=128,minsplit=8,width=12) {
+illustrate.rf <- function (
+  name,
+  d,
+  ntree=128,
+  minsplit=8,
+  width=16,
+  aspect=0.9) {
  
+  stopifnot(
+    !is.null(name),
+    !is.null(d))
+  
  forest <- 
    randomForest(y ~ x0 + x1, 
      data=d$train, 
@@ -280,31 +328,50 @@ illustrate.rf <- function (name,d,ntree=128,minsplit=8,width=12) {
      keep.forest=TRUE) 
  
  if (ntree > 32) {
-  dev.on(paste('fig/rf',name,'forest',sep='-'),width=width,aspect=1/3) 
-  plot(forest) 
+  dev.on(
+    filename=paste('fig/rf',name,'forest',sep='-'),
+    width=width,
+    aspect=0.75) 
+  plot(x=forest,main=NULL) 
   dev.off() }
  
  test0 <- d$test
  test0$yhat <- predict(forest,newdata=test0)
  
- dev.on(paste('fig/rf',name,'levelplot',sep='-'),width=width,aspect=1)
+ dev.on(
+   filename=paste('fig/rf',name,'levelplot',sep='-'),
+   width=width,
+   aspect=aspect)
  print(
-   levelplot(yhat ~ x0 + x1, test0, cex=0.5, main=paste(name,'fit'),
+   levelplot(
+     x=yhat ~ x0 + x1, 
+     data=test0, 
+     cex=0.5, 
+     #main=paste(name,'fit'),
      col.regions=d$palette))
  dev.off()      
  
- dev.on(paste('fig/rf',name,'wireframe',sep='-'),width=width,aspect=1)
+ dev.on(
+   filename=paste('fig/rf',name,'wireframe',sep='-'),
+   width=width,
+   aspect=aspect)
  print(
-   wireframe(yhat ~ x0 + x1, test0, cex=0.5, main=paste(name,'fit'), 
-     col='#AAAAAA44', drape=TRUE, 
-     cuts=d$ncuts, col.regions=d$palette(d$ncuts+1)))
+   wireframe(
+     x=yhat ~ x0 + x1, 
+     data=test0, 
+     cex=0.5, 
+     #main=paste(name,'fit'), 
+     col='#AAAAAA44', 
+     drape=TRUE, 
+     cuts=d$ncuts, 
+     col.regions=d$palette(d$ncuts+1)))
  dev.off()      
  
  NULL }
 
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------
 # synthetic data tests
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------
 synthetic.prediction.data <- function (package=NULL,
   namespace=NULL,
   ndata=32768,
@@ -329,7 +396,7 @@ synthetic.prediction.data <- function (package=NULL,
  } else {
   return (NULL); 
  } }
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------
 synthetic.prediction.plots <- function (package=NULL,
   namespace=NULL,
   data=NULL,
@@ -386,5 +453,5 @@ synthetic.prediction.plots <- function (package=NULL,
 # print(p);
 # dev.off(); 
 }
-#-------------------------------------------------------------------------------
+#-----------------------------------------------------------------
 

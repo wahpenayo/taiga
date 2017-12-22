@@ -1,8 +1,8 @@
 % !TEX TS-program = arara
 % arara: xelatex: { synctex: on, options: '-halt-on-error' } 
 % arara: biber
-% arara: makeglossaries
-% arara: makeindex
+% skip-arara: makeglossaries
+% skip-arara: makeindex
 % arara: xelatex: { synctex: on, options: '-halt-on-error'  } 
 % arara: xelatex: { synctex: on, options: '-halt-on-error'   } 
 % arara: clean: { files: [ overview.aux, overview.bbl] }
@@ -17,25 +17,31 @@
 % arara: clean: { files: [ overview.run.xml] }
 % arara: clean: { files: [ overview.toc, overview.xdy] }
 % arara: clean: { files: [ overview.synctex.gz] }
-%-------------------------------------------------------------------------------
+%-----------------------------------------------------------------
 \documentclass[10pt,openany]{article}
 \input{head}
 \input{landscape-2col-header}
 \input{clj-listings}
 \input{symbols}
+
+\numberwithin{definition}{section}
+\numberwithin{example}{section}
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+
 \addbibresource{../taiga.bib}
 \addbibresource{../tex.bib}
-%-------------------------------------------------------------------------------
+%-----------------------------------------------------------------
 \title{Taiga: overview}
 \author{John Alan McDonald, Kristina Lisa Klinkner}
 \date{\today}
-%-------------------------------------------------------------------------------
+%-----------------------------------------------------------------
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-Taiga\cite{taiga-2015} is a machine learning library written in
+Taiga is a machine learning library written in
 Clojure. 
 
 As of December 2015, Taiga offers a general
@@ -52,7 +58,7 @@ in a day or 2.
 As of December 2015, Taiga is about 700 lines of Clojure.
 It is based on an earlier tutorial implementation of random forest
 regression, in about 200 lines of Clojure, which was in fact written
-over the long New Year's weekend of 2012\cite{rfrk-video-2012}.
+over the long New Year's weekend of 2012.
 
 Taiga represents both data and models in orders of
 magnitude less memory than the widely used R
@@ -66,7 +72,7 @@ number of cores.
 \tableofcontents{}
 \newpage{}
 
-%-------------------------------------------------------------------------------
+%-----------------------------------------------------------------
 
 \section{Introduction}
 
@@ -81,7 +87,7 @@ and Clojure can be useful introductory instances of the larger class
 of tools they represent. 
 
 
-\paragraph{Random forests}
+\subsection{Random forests}
 
 Among tree-based methods, random forests are probably the most widely
 used. They perform 'remarkably well, with very little tuning required'
@@ -118,7 +124,7 @@ it is to grow random forests in parallel. The implementation you produce
 will have none of these limitations.
 
 
-\paragraph{Clojure}
+\subsection{Clojure}
 
 Doing statistics/machine learning in Lisp is not a new idea. Depending
 on how you draw the boundary between AI and machine learning, you
@@ -128,7 +134,8 @@ was quite a bit of work on statistical computing in Lisp in the 1980s-1990s
 including R \cite{r-project}, which began as a project to develop
 statistical software in Scheme \cite{ihaka-2010}. R later morphed
 into an open-source implementation of the S language from Bell Labs,
-itself heavily influenced by Lisp \cite{R:Becker+Chambers+Wilks:1988,R:Chambers+Hastie:1992,R:Chambers:1998}.
+itself heavily influenced by Lisp 
+\cite{R:Becker+Chambers+Wilks:1988,R:Chambers+Hastie:1992,R:Chambers:1998}.
 More recently, the R and S authors have discusssed the limitations
 of those languages and suggested starting over from a modern Lisp
 implementation (eg \cite{ihaka-lang-2008,Tierney-2005}).
@@ -144,16 +151,20 @@ implies 'no reflection'...).
 \item Recursion.
 \item \textbf{TODO}: more...
 \end{enumerate}
-As a Lisp, Clojure \cite{emerick2011clojure,fogus2011clojure,halloway2009clojure,rathore2011clojure,vanderhart2009clojure}
+As a Lisp, Clojure 
+\cite{emerick2011clojure,fogus2011clojure,halloway2009clojure,rathore2011clojure,vanderhart2009clojure}
 is something of a mixed bag. Some aspects are very well done, permitting
 elegant, expressive, compact, safe, fast code, especially in the context
 of concurrency. Other important aspects of the language are a patchwork
-of inconsistent afterthoughts.\footnote{Many \sout{forms of Government} \emph{JVM languages} have been
+of inconsistent afterthoughts.\footnote{Many \sout{forms of Government}
+ \emph{JVM languages} have been
 tried, and will be tried in this world of sin and woe. No one pretends
 that \sout{democracy} \emph{Clojure} is perfect or all-wise. Indeed,
 it has been said that \sout{democracy} \emph{Clojure} is the worst
 \sout{forms of Government} \emph{JVM language,} except all those
-other \sout{forms} \emph{JVM languages} that have been tried\ldots{}.\cite{churchill-democracy-1947}} Fortunately, like any Lisp, it's at least possible for a developer
+other \sout{forms} \emph{JVM languages} that have been 
+tried\ldots{}.\cite{churchill-democracy-1947}} 
+Fortunately, like any Lisp, it's at least possible for a developer
 to replace/hide/work-around bad decisions by the language designer
 (see Exercise \ref{Ex:lexical-environment-access}).
 
@@ -200,7 +211,7 @@ that can be used for the really difficult tasks, like drawing scatterplots.
 
 \newpage{}
 
-%-------------------------------------------------------------------------------
+%-----------------------------------------------------------------
 
 \section{\label{sec:Predictive-modeling-with}Predictive modeling with trees}
 
@@ -291,15 +302,15 @@ be thought of as latitude and longitude). The training data consists
 of 10,000 points sampled uniformly from the $(-1.0,1.0)\times(-1.0,1.0)$
 domain with $\sigma=0.5$ gaussian noise added. 
 
-\begin{figure}
+\begin{figure*}
 \noindent \begin{centering}
-% \includegraphics[width=40mm]{fig/reg-true-levelplot}~
-% \includegraphics[width=40mm]{fig/reg-true-wireframe}~
-% \includegraphics[width=40mm]{fig/rpart-training-data}
+ \includegraphics[width=80mm]{fig/reg-true-levelplot}~
+ \includegraphics[width=80mm]{fig/reg-true-wireframe}~
+ \includegraphics[width=80mm]{fig/rpart-training-data}
 \par\end{centering}
 
 \protect\caption{\label{fig:synthetic-data}Synthetic data for regularization examples}
-\end{figure}
+\end{figure*}
 
 
 
@@ -320,15 +331,15 @@ is what makes CART special.
 
 \subsubsection{Greedy tree growth}
 
-\begin{figure}
+\begin{figure*}
 \noindent \begin{centering}
-% \includegraphics[width=40mm]{fig/rpart-1-split-levelplot}~
-% \includegraphics[width=40mm]{fig/rpart-1-split-wireframe}~
-% \includegraphics[width=40mm]{fig/rpart-1-split-tree}
+\includegraphics[width=80mm]{fig/rpart-1-split-levelplot}~
+\includegraphics[width=80mm]{fig/rpart-1-split-wireframe}~
+\includegraphics[width=80mm]{fig/rpart-1-split-tree}
 \par\end{centering}
 
 \protect\caption{\label{fig:one-split}First split}
-\end{figure}
+\end{figure*}
 
 
 The growing phase is a optimizes the tree to minimize a cost function
@@ -351,15 +362,15 @@ The result of this process with our synthetic data is shown in figure
 \ref{fig:one-split}. Then we repeat on the 2 leaves generated by
 the first split, whose result is shown in figure \ref{fig:3-spits}.
 
-\begin{figure}
+\begin{figure*}
 \noindent \begin{centering}
-% \includegraphics[width=40mm]{fig/rpart-3-split-levelplot}~
-% \includegraphics[width=40mm]{fig/rpart-3-split-wireframe}~
-% \includegraphics[width=40mm]{fig/rpart-3-split-tree}
+\includegraphics[width=80mm]{fig/rpart-3-split-levelplot}~
+\includegraphics[width=80mm]{fig/rpart-3-split-wireframe}~
+\includegraphics[width=80mm]{fig/rpart-3-split-tree}
 \par\end{centering}
 
 \protect\caption{\label{fig:3-spits}First 3 splits}
-\end{figure}
+\end{figure*}
 
 
 This process continues until we run out of data, where 'run out of
@@ -367,15 +378,15 @@ data' means the training examples in a given node are either too few
 or too similar to split meaningfully. The result is shown in figure
 \ref{fig:unpruned-tree}
 
-\begin{figure}
+\begin{figure*}
 \noindent \begin{centering}
-% \includegraphics[width=40mm]{fig/rpart-unpruned-levelplot}~
-% \includegraphics[width=40mm]{fig/rpart-unpruned-wireframe}~
-% \includegraphics[width=40mm]{fig/rpart-unpruned-tree}
+\includegraphics[width=80mm]{fig/rpart-unpruned-levelplot}~
+\includegraphics[width=80mm]{fig/rpart-unpruned-wireframe}~
+\includegraphics[width=80mm]{fig/rpart-unpruned-tree}
 \par\end{centering}
 
 \protect\caption{\label{fig:unpruned-tree}Unpruned tree}
-\end{figure}
+\end{figure*}
 
 
 The fit is visually noisy and more important, could be shown by experiments
@@ -422,14 +433,14 @@ $\cost(\f_{\mathcal{S}},\mathcal{S})\,-\,\cost(\f_{\mathcal{S}_{0}},\mathcal{S}_
 The cost as a function of tree size for our example is shown in figure
 \ref{fig:Cross-validated-accuracy-vs}.
 
-\begin{figure}
+\begin{figure*}
 \noindent \begin{centering}
-% \includegraphics[width=12cm]{fig/rpart-unpruned-plotcp}
+\includegraphics[width=12cm]{fig/rpart-unpruned-plotcp}
 \par\end{centering}
 
 \protect\caption{\label{fig:Cross-validated-accuracy-vs}Cross-validated accuracy vs
 tree size}
-\end{figure}
+\end{figure*}
 
 
 CART then picks the smallest tree such that no larger tree shows a
@@ -437,15 +448,15 @@ significant improvement. The result is in figure \ref{fig:pruned-tree}.
 The resulting function is a pretty coarse approximation to the underlying
 parabola.
 
-\begin{figure}
+\begin{figure*}
 \noindent \begin{centering}
-% \includegraphics[width=40mm]{fig/rpart-pruned-levelplot}~
-% \includegraphics[width=40mm]{fig/rpart-pruned-wireframe}~
-% \includegraphics[width=40mm]{fig/rpart-pruned-tree}
+\includegraphics[width=80mm]{fig/rpart-pruned-levelplot}~
+\includegraphics[width=80mm]{fig/rpart-pruned-wireframe}~
+\includegraphics[width=80mm]{fig/rpart-pruned-tree}
 \par\end{centering}
 
 \protect\caption{\label{fig:pruned-tree}Pruned tree}
-\end{figure}
+\end{figure*}
 
 \subsection{Bagging (Random Forests)}
 
@@ -502,39 +513,40 @@ tends to be evenly distributed over the domain, whereas in CART models
 it's more likely to be concentrated near the boundaries of the leaf
 rectangles.
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \noindent \begin{centering}
-% \includegraphics[width=40mm]{fig/rf-1-tree-levelplot}~
-% \includegraphics[width=40mm]{fig/rf-1-tree-wireframe}
+\includegraphics[width=80mm]{fig/rf-1-tree-levelplot}~
+\includegraphics[width=80mm]{fig/rf-1-tree-wireframe}
 \par\end{centering}
 \protect\caption{\label{fig:One-tree-random}One tree random forest}
-\end{figure}
+\end{figure*}
 
 
-\begin{figure}
+\begin{figure*}
 \noindent \begin{centering}
-% \includegraphics[width=40mm]{fig/rf-4-tree-levelplot}~
-% \includegraphics[width=40mm]{fig/rf-4-tree-wireframe}
+\includegraphics[width=80mm]{fig/rf-4-tree-levelplot}~
+\includegraphics[width=80mm]{fig/rf-4-tree-wireframe}
 \par\end{centering}
 \protect\caption{\label{fig:four-tree-random}Four tree random forest}
-\end{figure}
+\end{figure*}
 
 
-\begin{figure}
+\begin{figure*}
 \noindent \begin{centering}
-% \includegraphics[width=40mm]{fig/rf-1024-tree-levelplot}~
-% \includegraphics[width=40mm]{fig/rf-1024-tree-wireframe}
+\includegraphics[width=80mm]{fig/rf-1024-tree-levelplot}~
+\includegraphics[width=80mm]{fig/rf-1024-tree-wireframe}
 \par\end{centering}
 
 \protect\caption{\label{fig:random-forest}Complete random forest}
-\end{figure}
-\begin{figure}
+\end{figure*}
+\begin{figure*}
 \noindent \begin{centering}
-% \includegraphics[width=12cm]{fig/rf-1024-tree-forest}
+\includegraphics[width=12cm]{fig/rf-1024-tree-forest}
 \par\end{centering}
 
-\protect\caption{\label{fig:Error-on-independent}Error on test data by number of trees.}
-\end{figure}
+\protect\caption{
+\label{fig:Error-on-independent}Error on test data by number of trees.}
+\end{figure*}
 
 
 \newpage{}
