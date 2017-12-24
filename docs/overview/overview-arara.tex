@@ -1,3 +1,22 @@
+% !TEX TS-program = arara
+% arara: xelatex: { synctex: on, options: '-halt-on-error'}
+% arara: biber
+% skip-arara: makeglossaries
+% skip-arara: makeindex
+% arara: xelatex: { synctex: on, options: '-halt-on-error'}
+% arara: xelatex: { synctex: on, options: '-halt-on-error'}
+% arara: clean: { files: [ overview.aux, overview.bbl] }
+% arara: clean: { files: [ overview.bcf, overview.blg] }
+% arara: clean: { files: [ overview.glg, overview.glo] }
+% arara: clean: { files: [ overview.gls, overview.gls] }
+% arara: clean: { files: [ overview.idx, overview.ilg] }
+% arara: clean: { files: [ overview.ind, overview.loe] }
+% arara: clean: { files: [ overview.lof, overview.log ] }
+% arara: clean: { files: [ overview.log, overview.lol ] }
+% arara: clean: { files: [ overview.out ] }
+% arara: clean: { files: [ overview.run.xml] }
+% arara: clean: { files: [ overview.toc, overview.xdy] }
+% arara: clean: { files: [ overview.synctex.gz] }
 %-----------------------------------------------------------------
 \documentclass[10pt,openany]{article}
 \input{head}
