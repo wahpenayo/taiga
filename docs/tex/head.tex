@@ -23,47 +23,44 @@
 %-------------------------------------------------------------------------------
 \usepackage{fontspec}
 %-------------------------------------------------------------------------------
-%\setmainfont{Baskerville Old Face}
-
-% http://www.impallari.com/projects/overview/libre-caslon-display-and-text
-%\setmainfont{Libre Caslon Text}[Scale=0.85]
-%\newfontfamily\scshape[Letters=SmallCaps,Scale=1.15]{Crimson}
-
-% http://iginomarini.com/fell/the-revival-fonts/
-% \fontspec[
-%  SmallCapsFont=IM FELL English SC,
-%  SmallCapsFeatures={Letters=SmallCaps},
-% ]{IM FELL English}
-% \setmainfont{IM FELL English}
- 
-% https://github.com/CatharsisFonts/Cormorant/releases/tag/v3.3 
-
 % http://www.georgduffner.at/ebgaramond/download.html
-% \fontspec[
-%  SmallCapsFeatures={Letters=SmallCaps},
-% ]{EB Garamond}
-\setmainfont[
-Path,
-UprightFont = *12-Regular,
-ItalicFont  = *12-Italic,
-BoldFont    = *08-Regular,
-BoldItalicFont = *08-Italic ]
-{EBGaramond}
+% https://bitbucket.org/georgd/eb-garamond/downloads/EBGaramond-0.016.zip
+\IfFontExistsTF{EB Garamond}{\message{---EB Garamond---}
+  \fontspec[SmallCapsFeatures={Letters=SmallCaps},]{EB Garamond}
+  \setmainfont[
+    Path,
+    UprightFont = *12-Regular,
+    ItalicFont  = *12-Italic,
+    BoldFont    = *08-Regular,
+    BoldItalicFont = *08-Italic ]
+    {EBGaramond}}
+  {% https://www.microsoft.com/typography/fonts/family.aspx?FID=134
+  \IfFontExistsTF{Garamond}{%
+    \message{---Garamond---}
+    \fontspec[SmallCapsFeatures={Letters=SmallCaps},]{Garamond}
+    \setmainfont{Garamond}}
+    {
+    \IfFontExistsTF{Apple Garamond}{%
+      \message{Apple Garamond}
+      \setmainfont{Apple Garamond}}
+      {\message{default main font}}}}
 
-% https://www.microsoft.com/typography/fonts/family.aspx?FID=134
-% \fontspec[
-%  SmallCapsFeatures={Letters=SmallCaps},
-% ]{Garamond}
-% \setmainfont{Garamond}
 %\setmainfont{Palatino Linotype}
 %\setmainfont{Perpetua}[Scale=1.1]
 %\setmainfont{Times New Roman}
 %-------------------------------------------------------------------------------
 % https://www.microsoft.com/typography/fonts/family.aspx?FID=155
-\setsansfont{Gill Sans MT} 
-
-% http://arkandis.tuxfamily.org/adffonts.html
-% \setsansfont{Gillius ADF}
+\IfFontExistsTF{Gill Sans MT}{%
+  \message{---Gill Sans MT---}%
+  \setsansfont{Gill Sans MT}}%
+  {% http://arkandis.tuxfamily.org/adffonts.html
+  \IfFontExistsTF{Gillius ADF}{%
+    \message{---Gillius ADF---}%
+    \setsansfont{Gillius ADF}}%
+    \IfFontExistsTF{Gill Sans}{%
+      \message{---Apple Gill Sans---}%
+      \setsansfont{Gill Sans}}%
+      {\message{---default Sans---}}}
 %-------------------------------------------------------------------------------
 % \setmonofont{}
 %-------------------------------------------------------------------------------
@@ -277,7 +274,7 @@ pdfpagelayout=SinglePage,
 pdfstartview=FitB,
 pdfview=FitB,
 linkcolor=MidnightBlue,
-urlcolor=Mahogany,
+urlcolor=MidnightBlue,
 citecolor=OliveGreen}
 %-------------------------------------------------------------------------------
 % %\usepackage[xindy,toc,style=alttreehypergroup,nolong,nosuper]{glossaries}

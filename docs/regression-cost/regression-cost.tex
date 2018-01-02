@@ -19,18 +19,18 @@
 % arara: clean: { files: [regression-cost.synctex.gz] }
 %-----------------------------------------------------------------
 \documentclass[10pt,openany]{article}
-\input{head}
-\input{landscape-2col-header}
-\input{clj-listings}
-\input{symbols}
+\input{../tex/head}
+\input{../tex/landscape-2col-header}
+\input{../tex/clj-listings}
+\input{../tex/symbols}
 
 \numberwithin{definition}{section}
 \numberwithin{example}{section}
 \numberwithin{equation}{section}
 \numberwithin{figure}{section}
 
-\addbibresource{../taiga.bib}
-\addbibresource{../tex.bib}
+\addbibresource{../bib/taiga.bib}
+\addbibresource{../bib/tex.bib}
 %-----------------------------------------------------------------
 \title{Regression costs for decision trees}
 \author{\textsc{John Alan McDonald }}
@@ -188,6 +188,6 @@ c\left(\mathcal{L},\mathcal{R}\right) =
 $$
 
 \newpage{}
-\input{typesetting}
-\input{tail}
+\input{../tex/typesetting}
+\input{../tex/tail}
 \end{document}

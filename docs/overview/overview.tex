@@ -1,17 +1,36 @@
+% !TEX TS-program = arara
+% arara: xelatex: { synctex: on, options: '-halt-on-error'}
+% arara: biber
+% skip-arara: makeglossaries
+% skip-arara: makeindex
+% arara: xelatex: { synctex: on, options: '-halt-on-error'}
+% arara: xelatex: { synctex: on, options: '-halt-on-error'}
+% arara: clean: { files: [ overview.aux, overview.bbl] }
+% arara: clean: { files: [ overview.bcf, overview.blg] }
+% arara: clean: { files: [ overview.glg, overview.glo] }
+% arara: clean: { files: [ overview.gls, overview.gls] }
+% arara: clean: { files: [ overview.idx, overview.ilg] }
+% arara: clean: { files: [ overview.ind, overview.loe] }
+% arara: clean: { files: [ overview.lof, overview.log ] }
+% arara: clean: { files: [ overview.log, overview.lol ] }
+% arara: clean: { files: [ overview.out ] }
+% arara: clean: { files: [ overview.run.xml] }
+% arara: clean: { files: [ overview.toc, overview.xdy] }
+% arara: clean: { files: [ overview.synctex.gz] }
 %-----------------------------------------------------------------
 \documentclass[10pt,openany]{article}
-\input{head}
-\input{landscape-2col-header}
-\input{clj-listings}
-\input{symbols}
+\input{../tex/head}
+\input{../tex/landscape-2col-header}
+\input{../tex/clj-listings}
+\input{../tex/symbols}
 
 \numberwithin{definition}{section}
 \numberwithin{example}{section}
 \numberwithin{equation}{section}
 \numberwithin{figure}{section}
 
-\addbibresource{../taiga.bib}
-\addbibresource{../tex.bib}
+\addbibresource{../bib/taiga.bib}
+\addbibresource{../bib/tex.bib}
 %-----------------------------------------------------------------
 \title{Taiga: overview}
 \author{John Alan McDonald, Kristina Lisa Klinkner}
@@ -21,8 +40,7 @@
 \maketitle
 %-----------------------------------------------------------------
 \begin{abstract}
-Taiga is a machine learning library written in
-Clojure. 
+Taiga is a machine learning library written in Clojure. 
 
 As of December 2015, Taiga offers a general
 pattern for random forest models, with specific implementations for least 
@@ -30,7 +48,7 @@ squares regression, binary classification, and binary class probability
 estimation. 
 Random forest regression/classification is widely used in machine learning, 
 performing 'remarkably well' on many data sets 
-(p.590\cite{hastie-tibshirani-friedman-2009}).
+(p.590 \cite{hastie-tibshirani-friedman-2009}).
 It is also arguably the simplest useful machine learning algorithm
 --- so simple that a working implementation can be easily produced
 in a day or 2. 
@@ -42,8 +60,10 @@ over the long New Year's weekend of 2012.
 
 Taiga represents both data and models in orders of
 magnitude less memory than the widely used R
-randomForest\cite{r-randomForest} package.
-Taiga is much faster than R (\textit{TODO: some real measurements.}), 
+randomForest \cite{r-randomForest} package.
+Taiga is much faster than R 
+(see
+\href{https://github.com/wahpenayo/taigabench}{taigabench} \cite{taigabench-2018}), 
 running on a single core, and its speed scales roughly linearly with the
 number of cores.
 \end{abstract}
@@ -71,8 +91,8 @@ of tools they represent.
 
 Among tree-based methods, random forests are probably the most widely
 used. They perform 'remarkably well, with very little tuning required'
-(p.590\cite{hastie-tibshirani-friedman-2009}) for classification
-and least squares regression. Random forest regression/classification
+(p.590 \cite{hastie-tibshirani-friedman-2009}) for
+classification and least squares regression. Random forest regression/classification
 is also arguably the simplest useful machine learning algorithm ---
 so simple that, as you will see, a working implementation can be easily
 produced in a day or 2.
@@ -85,7 +105,7 @@ algorithm for random forest L2 (least squared error) regression to
 optimize other cost functions.\footnote{The standard approach to L1 
 (least absolute error) regression grows a forest to minimize L2 cost, 
 and then post-processes it to get an estimate of the 
-'median'.\cite{Meinshausen:2006:QRF:1248547.1248582}}
+'median'.\cite{Meinshausen-QRF-2006}}
 
 On the 3rd hand, random forests do work well enough for classification
 and least squares regression---two important problem classes. 
@@ -145,8 +165,9 @@ it has been said that \sout{democracy} \emph{Clojure} is the worst
 other \sout{forms} \emph{JVM languages} that have been 
 tried\ldots{}.\cite{churchill-democracy-1947}} 
 Fortunately, like any Lisp, it's at least possible for a developer
-to replace/hide/work-around bad decisions by the language designer
-(see Exercise \ref{Ex:lexical-environment-access}).
+to replace/hide/work-around bad decisions by the language
+designer.
+% (see Exercise \ref{Ex:lexical-environment-access}).
 
 The features of Clojure that make it suitable for implementing random
 forests include:
@@ -284,9 +305,9 @@ domain with $\sigma=0.5$ gaussian noise added.
 
 \begin{figure*}
 \noindent \begin{centering}
- \includegraphics[width=80mm]{fig/reg-true-levelplot}~
- \includegraphics[width=80mm]{fig/reg-true-wireframe}~
- \includegraphics[width=80mm]{fig/rpart-training-data}
+ \includegraphics[width=80mm]{../fig/reg-true-levelplot}~
+ \includegraphics[width=80mm]{../fig/reg-true-wireframe}~
+ \includegraphics[width=80mm]{../fig/rpart-training-data}
 \par\end{centering}
 
 \protect\caption{\label{fig:synthetic-data}Synthetic data for regularization examples}
@@ -313,9 +334,9 @@ is what makes CART special.
 
 \begin{figure*}
 \noindent \begin{centering}
-\includegraphics[width=80mm]{fig/rpart-1-split-levelplot}~
-\includegraphics[width=80mm]{fig/rpart-1-split-wireframe}~
-\includegraphics[width=80mm]{fig/rpart-1-split-tree}
+\includegraphics[width=80mm]{../fig/rpart-1-split-levelplot}~
+\includegraphics[width=80mm]{../fig/rpart-1-split-wireframe}~
+\includegraphics[width=80mm]{../fig/rpart-1-split-tree}
 \par\end{centering}
 
 \protect\caption{\label{fig:one-split}First split}
@@ -344,9 +365,9 @@ the first split, whose result is shown in figure \ref{fig:3-spits}.
 
 \begin{figure*}
 \noindent \begin{centering}
-\includegraphics[width=80mm]{fig/rpart-3-split-levelplot}~
-\includegraphics[width=80mm]{fig/rpart-3-split-wireframe}~
-\includegraphics[width=80mm]{fig/rpart-3-split-tree}
+\includegraphics[width=80mm]{../fig/rpart-3-split-levelplot}~
+\includegraphics[width=80mm]{../fig/rpart-3-split-wireframe}~
+\includegraphics[width=80mm]{../fig/rpart-3-split-tree}
 \par\end{centering}
 
 \protect\caption{\label{fig:3-spits}First 3 splits}
@@ -360,9 +381,9 @@ or too similar to split meaningfully. The result is shown in figure
 
 \begin{figure*}
 \noindent \begin{centering}
-\includegraphics[width=80mm]{fig/rpart-unpruned-levelplot}~
-\includegraphics[width=80mm]{fig/rpart-unpruned-wireframe}~
-\includegraphics[width=80mm]{fig/rpart-unpruned-tree}
+\includegraphics[width=80mm]{../fig/rpart-unpruned-levelplot}~
+\includegraphics[width=80mm]{../fig/rpart-unpruned-wireframe}~
+\includegraphics[width=80mm]{../fig/rpart-unpruned-tree}
 \par\end{centering}
 
 \protect\caption{\label{fig:unpruned-tree}Unpruned tree}
@@ -415,7 +436,7 @@ The cost as a function of tree size for our example is shown in figure
 
 \begin{figure*}
 \noindent \begin{centering}
-\includegraphics[width=12cm]{fig/rpart-unpruned-plotcp}
+\includegraphics[width=12cm]{../fig/rpart-unpruned-plotcp}
 \par\end{centering}
 
 \protect\caption{\label{fig:Cross-validated-accuracy-vs}Cross-validated accuracy vs
@@ -430,9 +451,9 @@ parabola.
 
 \begin{figure*}
 \noindent \begin{centering}
-\includegraphics[width=80mm]{fig/rpart-pruned-levelplot}~
-\includegraphics[width=80mm]{fig/rpart-pruned-wireframe}~
-\includegraphics[width=80mm]{fig/rpart-pruned-tree}
+\includegraphics[width=80mm]{../fig/rpart-pruned-levelplot}~
+\includegraphics[width=80mm]{../fig/rpart-pruned-wireframe}~
+\includegraphics[width=80mm]{../fig/rpart-pruned-tree}
 \par\end{centering}
 
 \protect\caption{\label{fig:pruned-tree}Pruned tree}
@@ -495,8 +516,8 @@ rectangles.
 
 \begin{figure*}[t]
 \noindent \begin{centering}
-\includegraphics[width=80mm]{fig/rf-1-tree-levelplot}~
-\includegraphics[width=80mm]{fig/rf-1-tree-wireframe}
+\includegraphics[width=80mm]{../fig/rf-1-tree-levelplot}~
+\includegraphics[width=80mm]{../fig/rf-1-tree-wireframe}
 \par\end{centering}
 \protect\caption{\label{fig:One-tree-random}One tree random forest}
 \end{figure*}
@@ -504,8 +525,8 @@ rectangles.
 
 \begin{figure*}
 \noindent \begin{centering}
-\includegraphics[width=80mm]{fig/rf-4-tree-levelplot}~
-\includegraphics[width=80mm]{fig/rf-4-tree-wireframe}
+\includegraphics[width=80mm]{../fig/rf-4-tree-levelplot}~
+\includegraphics[width=80mm]{../fig/rf-4-tree-wireframe}
 \par\end{centering}
 \protect\caption{\label{fig:four-tree-random}Four tree random forest}
 \end{figure*}
@@ -513,15 +534,15 @@ rectangles.
 
 \begin{figure*}
 \noindent \begin{centering}
-\includegraphics[width=80mm]{fig/rf-1024-tree-levelplot}~
-\includegraphics[width=80mm]{fig/rf-1024-tree-wireframe}
+\includegraphics[width=80mm]{../fig/rf-1024-tree-levelplot}~
+\includegraphics[width=80mm]{../fig/rf-1024-tree-wireframe}
 \par\end{centering}
 
 \protect\caption{\label{fig:random-forest}Complete random forest}
 \end{figure*}
 \begin{figure*}
 \noindent \begin{centering}
-\includegraphics[width=12cm]{fig/rf-1024-tree-forest}
+\includegraphics[width=12cm]{../fig/rf-1024-tree-forest}
 \par\end{centering}
 
 \protect\caption{
@@ -1750,44 +1771,44 @@ fields.
 \newpage{}
 
 
-\section{Solutions to some exercises}
-
-Exercise \ref{Ex:mean-model}:
-
-\begin{minipage}[t]{1\columnwidth}%
-\begin{lstlisting}[caption={Mean additive model},label={lis:mean-model},language=clojure,tabsize=2]
-(defn mean-model [terms] 
-  (let [f (apply juxt terms)
-        n (count terms)]
-    (fn [x] (/ (reduce + (f x)) n)))
-\end{lstlisting}
-%
-\end{minipage}
-
-Exercise \ref{ex:cannonize}:
-
-\begin{minipage}[t]{1\columnwidth}%
-\begin{lstlisting}[caption={Canonizer factory },label={lis:canonizer-factory},language=clojure,tabsize=2]
-(defn make-canonizer
-  "Return a closure containing a HashMap used to de-dup its argument."
-  ([]       
-    (let [canon (HashMap.)]
-      (fn [item]
-        (or (.get ^HashMap canon item)
-             (.put ^HashMap canon item item)
-             item))))
-
-  ([n]
-    (let [canon (HashMap. (int n))]
-      (fn [item]
-        (or (.get ^HashMap canon item)
-             (.put ^HashMap canon item item)
-             item)))))
-\end{lstlisting}
-%
-\end{minipage}
+% \section{Solutions to some exercises}
+% 
+% Exercise \ref{Ex:mean-model}:
+% 
+% \begin{minipage}[t]{1\columnwidth}%
+% \begin{lstlisting}[caption={Mean additive model},label={lis:mean-model},language=clojure,tabsize=2]
+% (defn mean-model [terms] 
+%   (let [f (apply juxt terms)
+%         n (count terms)]
+%     (fn [x] (/ (reduce + (f x)) n)))
+% \end{lstlisting}
+% %
+% \end{minipage}
+% 
+% Exercise \ref{ex:cannonize}:
+% 
+% \begin{minipage}[t]{1\columnwidth}%
+% \begin{lstlisting}[caption={Canonizer factory },label={lis:canonizer-factory},language=clojure,tabsize=2]
+% (defn make-canonizer
+%   "Return a closure containing a HashMap used to de-dup its argument."
+%   ([]       
+%     (let [canon (HashMap.)]
+%       (fn [item]
+%         (or (.get ^HashMap canon item)
+%              (.put ^HashMap canon item item)
+%              item))))
+% 
+%   ([n]
+%     (let [canon (HashMap. (int n))]
+%       (fn [item]
+%         (or (.get ^HashMap canon item)
+%              (.put ^HashMap canon item item)
+%              item)))))
+% \end{lstlisting}
+% %
+% \end{minipage}
 
 \newpage{}
-\input{typesetting}
-\input{tail}
+\input{../tex/typesetting}
+\input{../tex/tail}
 \end{document}
