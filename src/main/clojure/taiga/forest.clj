@@ -3,8 +3,7 @@
 (ns ^{:author ["wahpenayo at gmail dot com"
                "John Alan McDonald" 
                "Kristina Lisa Klinkner"] 
-      :since "2017-01-04"
-      :date "2017-11-15"
+      :date "2018-01-18"
       :doc "Random and other forests." }
     
     taiga.forest
@@ -30,14 +29,26 @@
 (defn- classification-mtry ^long [options]
   (let [predictors (dissoc (:attributes options) 
                            :ground-truth :prediction)]
-    (long (:mtry options 
-                 (Math/floor (Math/sqrt (z/count predictors)))))))
+    (Math/max
+      (long 1)
+      (Math/min 
+        (long (count predictors))
+        (long (:mtry 
+                options 
+                (Math/ceil 
+                  (Math/sqrt (z/count predictors)))))))))
 ;;----------------------------------------------------------------
 (defn- regression-mtry ^long [options]
   (let [predictors (dissoc (:attributes options) 
                            :ground-truth :prediction)]
-    (long (:mtry options 
-                 (Math/floor (/ (z/count predictors) 3.0))))))
+    (Math/max
+      (long 1)
+      (Math/min 
+        (long (count predictors))
+        (long (:mtry 
+                options 
+                (Math/ceil 
+                  (/ (z/count predictors) 3.0))))))))
 ;;----------------------------------------------------------------
 (defn- classification-mincount ^long [options] 
   (long (:mincount options 5)))
@@ -406,13 +417,13 @@
                ground-truth
                (:empirical-distribution-data options))
         _(assert (not (z/empty? data)))
-         predictors (dissoc (:attributes options) 
-                            :ground-truth :prediction)
-         ;; TODO: :probability-measure-learner option
-         learner (fn learner [root]
-                   (measure/train 
-                     root ground-truth predictors data))
-         terms (z/map learner (ensemble/terms forest))]
+        predictors (dissoc (:attributes options) 
+                           :ground-truth :prediction)
+        ;; TODO: :probability-measure-learner option
+        learner (fn learner [root]
+                  (measure/train 
+                    root ground-truth predictors data))
+        terms (z/map learner (ensemble/terms forest))]
     (ensemble/probability-measure-model terms)))
 ;;----------------------------------------------------------------
 ;; vector-valued regression
