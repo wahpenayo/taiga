@@ -1,6 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
-(ns ^{:author "John Alan McDonald, Kristina Lisa Klinkner" :date "2016-12-19"
+(ns ^{:author "John Alan McDonald, Kristina Lisa Klinkner" 
+      :date "2018-01-19"
       :doc "Heuristic search based on number of categories." }
     
     taiga.split.object.categorical.heuristic
@@ -10,14 +11,14 @@
             [taiga.split.object.categorical.bottom-up :as bottom-up]))
 ;;------------------------------------------------------------------------------
 ;; TODO: determine cutoff for all subsets search using performance scripts
-(def ^Long/TYPE cutoff 
+(def ^Long/TYPE CUTOFF 
   "How many categories is too many for an all subsets search?"
   11)
 ;;------------------------------------------------------------------------------
 (defn split [options]
   (let [[_ ^clojure.lang.IFn x] (:this-predictor options)
         n (z/count-distinct-not-missing x (:data options))]
-    (if (< n cutoff)
+    (if (< n CUTOFF)
       (all-subsets/split options)
       (bottom-up/split options))))
 ;;------------------------------------------------------------------------------

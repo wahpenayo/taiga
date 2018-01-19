@@ -1,5 +1,13 @@
 # change history
 
+## 5.0.0
+
+### default options
+
+#### mtry
+
+Replace `Math/floor` with `Math/ceil`.
+
 ## 4.1.0
 
 ### wahpenayo-parent pom
