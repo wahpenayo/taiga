@@ -1,0 +1,24 @@
+\geometry{
+%showframe=true,
+%showcrop=true,
+twoside=false,
+twocolumn=false,
+landscape=false,
+margin=2mm,
+%columnsep=12mm,
+paperheight=160mm,
+paperwidth=120mm}
+%-------------------------------------------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+%\setlength{\headwidth}{2 \columnwidth}
+%\addtolength{\headwidth}{\columnsep}
+\setlength{\headwidth}{\textwidth}
+\fancypagestyle{plain}{
+\fancyhead{} % clear all header fields 
+\fancyfoot{} % clear all foot fields
+\fancyfoot[R]{\textsf{\thepage}} 
+\fancyfoot[L]{\textsf{Draft of \today}}
+\renewcommand{\headrulewidth}{0.0pt}
+\renewcommand{\footrulewidth}{0.1pt}}
+\pagestyle{plain}

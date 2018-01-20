@@ -1,0 +1,27 @@
+% !TEX TS-program = arara
+% arara: xelatex: { synctex: on, options: '-halt-on-error' } 
+% arara: biber
+% skip-arara: makeglossaries
+% skip-arara: makeindex
+% arara: xelatex: { synctex: on, options: '-halt-on-error'  } 
+% arara: xelatex: { synctex: on, options: '-halt-on-error'   } 
+% arara: clean: { files: [regression-cost.aux,regression-cost.bbl] }
+% arara: clean: { files: [regression-cost.bcf,regression-cost.blg] }
+% arara: clean: { files: [regression-cost.glg,regression-cost.glo] }
+% arara: clean: { files: [regression-cost.gls,regression-cost.gls] }
+% arara: clean: { files: [regression-cost.idx,regression-cost.ilg] }
+% arara: clean: { files: [regression-cost.ind,regression-cost.loe] }
+% arara: clean: { files: [regression-cost.lof,regression-cost.log ] }
+% arara: clean: { files: [regression-cost.log,regression-cost.lol ] }
+% arara: clean: { files: [regression-cost.out ] }
+% arara: clean: { files: [regression-cost.run.xml] }
+% arara: clean: { files: [regression-cost.toc,regression-cost.xdy] }
+% arara: clean: { files: [regression-cost.synctex.gz] }
+%-----------------------------------------------------------------
+\documentclass[10pt,openany]{article}
+\input{../tex/head}
+\input{../tex/kindle-paperwhite-header}
+\input{../tex/clj-listings}
+\input{../tex/symbols}
+
+\input{regression-cost-body}
