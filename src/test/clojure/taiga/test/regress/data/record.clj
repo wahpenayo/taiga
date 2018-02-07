@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-02-01"
+      :date "2018-02-06"
       :doc "Artificial data for regression unit tests." }
     
     taiga.test.regress.data.record
@@ -82,11 +82,11 @@
         (- mu)))))
 ;;----------------------------------------------------------------
 (defn make-affine-function [^double scale]
-  (let [^IFn$D generate-dy (z/continuous-uniform-generator -100.0 100.0 seed8)
-  (fn p ^double [^Record datum]
-    (let [mu (* scale 
-                (+ (Math/abs (x0 datum)) (Math/abs (x1 datum))))]
-      (if (kolor/primary? (kolor datum)) 
-        mu
-        (- mu)))))
+  (let [^IFn$D generate-dy (z/continuous-uniform-generator -100.0 100.0 seed8)]
+    (fn p ^double [^Record datum]
+      (let [mu (* scale 
+                  (+ (Math/abs (x0 datum)) (Math/abs (x1 datum))))]
+        (if (kolor/primary? (kolor datum)) 
+          mu
+          (- mu))))))
 ;;----------------------------------------------------------------
