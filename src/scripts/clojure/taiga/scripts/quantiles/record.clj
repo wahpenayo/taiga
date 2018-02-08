@@ -19,8 +19,7 @@
            [org.apache.commons.math3.random 
             RandomGenerator Well44497b]
            [org.apache.commons.math3.distribution 
-            NormalDistribution RealDistribution 
-            UniformRealDistribution]
+            RealDistribution]
            [zana.java.prob TranslatedRealDistribution]
            [taiga.test.java.data Kolor]
            [taiga.scripts.quantiles.deciles Deciles]))
@@ -134,8 +133,8 @@
         generate-kolor (kolor/generator seed6)
         generate-primate (primate/generator seed7)
         ^RandomGenerator prng (z/well44497b "seeds/Well44497b-2017-11-05-00.edn")
-        ;;^RealDistribution mu (NormalDistribution. prng 0.0 1.0)
-        ^RealDistribution mu (UniformRealDistribution. prng -1.0 1.0)]
+        ;;^RealDistribution mu (z/gaussian-distribution prng 0.0 1.0)
+        ^RealDistribution mu (z/uniform-distribution prng -1.0 1.0)]
     
     ;; TODO: create a generating y distribution at every sample.
     ;; and serialize that, rather than quantiles.
@@ -153,8 +152,8 @@
                     x0 x1 x2 x3 x4 x5 kolor primate
                     nil Double/NaN nil)
             dy (.invokePrim center datum)
-            ^RealDistribution ymu (TranslatedRealDistribution/shift
-                                    mu dy)
+            ^RealDistribution ymu 
+            (TranslatedRealDistribution/shift mu dy)
             y (.sample ymu)]
         (assoc datum :ymu ymu :y y)))))
 ;;----------------------------------------------------------------
