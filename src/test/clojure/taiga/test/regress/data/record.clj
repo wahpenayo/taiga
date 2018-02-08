@@ -73,17 +73,18 @@
       (if (kolor/primary? (kolor datum)) 
         mu
         (- mu)))))
+;;----------------------------------------------------------------
 (def attributes {:x0 x0 :x1 x1 :x2 x2 :x3 x3 :x4 x4 :x5 x5 
                  :kolor kolor :primate primate
                  :ground-truth y
                  :prediction predicted-y})
-
+(def xbindings 
+  (into (sorted-map)
+        (dissoc attributes :ground-truth :prediction)))
 ;;----------------------------------------------------------------
 (defn make-affine-function [^double scale]
-  (let [attributes (vals (dissoc attributes 
-                                 :ground-truth :prediction))
-        bindings (z/attribute-bindings attributes)
-        embedding (z/affine-embedding
+  (let [embedding (z/affine-embedding
+                    "affine-data"
                     [[:x0 Double/TYPE] 
                      [:x1 Double/TYPE] 
                      [:x2 Double/TYPE] 
@@ -95,17 +96,17 @@
         ^IFn$D gl (z/double-generator 
                     (z/gaussian-distribution 
                       (z/well44497b 
-                        "seeds/WellB44497b-2017-11-05-00.edn") 
+                        "seeds/Well44497b-2017-11-05-00.edn") 
                       scale 
                       (* scale 10.0)))
         ^IFn$D gt (z/double-generator 
                     (z/gaussian-distribution
                       (z/well44497b 
-                        "seeds/WellB44497b-2017-11-05-01.edn") 
+                        "seeds/Well44497b-2017-11-05-01.edn") 
                       0.0 
                       scale))
         dim (z/embedding-dimension embedding)
         ^IFn$OD a (z/generate-affine-functional dim gl gt)]
     (fn y-mean ^double [^Record datum]
-      (.invokePrim a (embedding bindings datum)))))
+      (.invokePrim a (embedding xbindings datum)))))
 ;;----------------------------------------------------------------
