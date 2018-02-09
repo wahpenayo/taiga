@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-02-07"
+      :date "2018-02-08"
       :doc "Artificial data for regression unit tests." }
     
     taiga.test.regress.data.record
@@ -40,7 +40,7 @@
 (def ^:private seed08 "5C53D355CED2EA5D3888CBAD069C9D89")
 (def ^:private seed09 "888CD02BF903BB078E640090A0F23FF8")
 ;;----------------------------------------------------------------
-(defn generator [^IFn$OD mean]
+(defn generator [^IFn$OD mean ^double sigma]
   (let [^IFn$D generate-x0 (z/continuous-uniform-generator -1.0 1.0 seed00)
         ^IFn$D generate-x1 (z/continuous-uniform-generator -1.0 1.0 seed01)
         ^IFn$D generate-x2 (z/continuous-uniform-generator -1.0 1.0 seed02)
@@ -49,7 +49,9 @@
         ^IFn$D generate-x5 (z/continuous-uniform-generator -1.0 1.0 seed05)
         generate-kolor (kolor/generator seed06)
         generate-primate (primate/generator seed07)
-        ^IFn$D generate-dy (z/continuous-uniform-generator -1.0 1.0 seed08)]
+        half-sigma (* 0.5 sigma)
+        ^IFn$D generate-dy (z/continuous-uniform-generator 
+                             (- half-sigma) half-sigma seed08)]
     (fn random-record ^Record [_]
       (let [x0 (.invokePrim generate-x0)
             x1 (.invokePrim generate-x1)

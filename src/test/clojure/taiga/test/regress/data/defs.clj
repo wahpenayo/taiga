@@ -14,28 +14,44 @@
             [taiga.api :as taiga]
             [taiga.test.regress.data.record :as record])
   
-  (:import [clojure.lang IFn$OD IFn$OOD]))
+  (:import [java.util Map]
+           [clojure.lang IFn IFn$OD IFn$OOD]))
 ;;----------------------------------------------------------------
 (defn options 
-  ([^IFn$OD mean ^long n]
-  (let [data (z/map (record/generator mean) (range (* 2 n))) 
+
+  ([^Map attributes 
+    ^Map bindings 
+    ^IFn generator 
+    ^IFn$OD mean 
+    sigma
+    n]
+  (let [n (int n)
+        sigma (double sigma)
+        data (z/map (generator mean sigma) (range (* 2 n))) 
         [train test] (z/split-at n data)
         _ (test/is (== n (z/count train) (z/count test)))
-        m (int (z/count record/xbindings))
-        _ (test/is (== 8 (z/count record/xbindings)))
+        m (int (z/count bindings))
+        ;;_ (test/is (== 8 (z/count bindings)))
         mtry (Math/min m (int (Math/round (Math/sqrt m))))
         nterms 128
         mincount 127
         options {:data train 
                  :test-data test 
-                 :attributes record/attributes
+                 :attributes attributes
                  :nterms nterms 
                  :mincount mincount 
                  :mtry mtry}]
-    _ (test/is (== 10 (count (:attributes options))))
-    _ (test/is (== 3 (:mtry options)))
+    ;;_ (test/is (== 10 (count (:attributes options))))
+    ;;_ (test/is (== 3 (:mtry options)))
     options))
-  ([^IFn$OD mean] (options mean (* 32 1024))))
+
+  
+  ([^Map attributes 
+    ^Map bindings 
+    ^IFn generator 
+    ^IFn$OD mean
+    sigma] 
+    (options attributes bindings generator mean sigma (* 32 1024))))
 ;;----------------------------------------------------------------
 (defn forest-file [nss options forest]
   (let [tokens (s/split nss #"\.")

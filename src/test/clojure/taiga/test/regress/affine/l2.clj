@@ -17,7 +17,12 @@
 ;;----------------------------------------------------------------
 (def nss (str *ns*))
 (z/reset-mersenne-twister-seeds)
-(def options (defs/options (record/make-affine-function 10.0)))
+(def options (defs/options 
+               record/attributes
+               record/xbindings
+               record/generator
+               (record/make-affine-function 10.0)
+               2.0))
 ;;----------------------------------------------------------------
 (test/deftest forest
   (z/seconds 
