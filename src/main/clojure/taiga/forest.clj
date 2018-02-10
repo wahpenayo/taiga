@@ -598,7 +598,7 @@
     (binding [*out* w] 
       (pp/pprint (z/clojurize forest)))))
 ;;----------------------------------------------------------------
-;; TODO: don't really need these function. Just here to ensure 
+;; TODO: don't really need these functions. Just here to ensure 
 ;; needed readers and classes are loaded.
 
 (defn write-edn 

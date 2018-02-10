@@ -48,7 +48,7 @@
   (into (sorted-map)
         (dissoc attributes :ground-truth :prediction)))
 ;;----------------------------------------------------------------
-(defn make-xy-function [^double intercept ^double slope]
+(defn make-xy-function [^double slope ^double intercept]
     (fn y-mean ^double [^XY datum]
       (+ intercept (* slope (.x datum)))))
 ;;----------------------------------------------------------------

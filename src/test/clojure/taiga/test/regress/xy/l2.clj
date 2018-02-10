@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-02-08"
+      :date "2018-02-09"
       :doc "1d y = a*x + b data and l2 regression models." }
     
     taiga.test.regress.xy.l2
@@ -17,6 +17,35 @@
 ;;----------------------------------------------------------------
 (def nss (str *ns*))
 ;;----------------------------------------------------------------
+(test/deftest noiseless-affine
+  (z/seconds 
+    nss
+    (let [options (defs/options 
+                    xy/attributes
+                    xy/xbindings
+                    xy/generator
+                    (xy/make-xy-function 1.0 2.0)
+                    -1.0)
+          model (taiga/affine-l2-regression options)
+          ;;_ (defs/serialization-test nss options model)
+          y (:ground-truth xy/attributes)
+          yhat (fn yhat ^double [datum] 
+                 (model xy/xbindings datum))
+          _ (println "train:" )
+          train-summary (defs/print-residual-summary 
+                          y yhat (:data options))
+          _ (println "test:" )
+          test-summary (defs/print-residual-summary 
+                         y yhat (:test-data options))]
+      (test/is (= [-1.7604732775733378E-17 
+                   8.841986127560332E-17 
+                   1.7604732775733378E-17]
+                  train-summary))
+      (test/is (= [-1.8241701552068612E-17 
+                   9.000523778413571E-17 
+                   1.8241701552068612E-17]
+                  test-summary)))))
+;;----------------------------------------------------------------
 (test/deftest forest
   (z/reset-mersenne-twister-seeds)
   (z/seconds 
@@ -25,29 +54,29 @@
                     xy/attributes
                     xy/xbindings
                     xy/generator
-                    (xy/make-xy-function 1.0 2.0)
+                    (xy/make-xy-function 2.0 1.0)
                     0.5)
-          forest (taiga/mean-regression options)
+          model (taiga/mean-regression options)
           _ (z/mapc #(tree/check-mincount options %) 
-                    (taiga/terms forest))
-          _ (defs/serialization-test nss options forest)
+                    (taiga/terms model))
+          _ (defs/serialization-test nss options model)
           y (:ground-truth xy/attributes)
           yhat (fn yhat ^double [datum] 
-                 (forest xy/xbindings datum))
+                 (model xy/xbindings datum))
           _ (println "train:" )
           train-summary (defs/print-residual-summary 
                           y yhat (:data options))
           _ (println "test:" )
           test-summary (defs/print-residual-summary 
                          y yhat (:test-data options))]
-      (test/is (= (mapv taiga/node-height (taiga/terms forest))
+      (test/is (= (mapv taiga/node-height (taiga/terms model))
                   [9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9
                    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9
                    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9
                    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9
                    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9
                    9 9 9 9 9 9 9 9]))
-      (test/is (= (mapv taiga/count-children (taiga/terms forest))
+      (test/is (= (mapv taiga/count-children (taiga/terms model))
                   [377 393 389 395 393 389 395 395 393 399 391 383
                    387 387 379 375 377 379 389 383 385 375 387 391
                    395 391 395 385 387 389 387 391 403 391 377 399
@@ -59,7 +88,7 @@
                    387 391 383 387 387 393 389 373 389 381 397 379
                    391 385 389 399 393 391 383 375 393 385 387 383
                    391 389 389 389 383 395 383 389]))
-      (test/is (= (mapv taiga/count-leaves (taiga/terms forest))
+      (test/is (= (mapv taiga/count-leaves (taiga/terms model))
                   [189 197 195 198 197 195 198 198 197 200 196 192
                    194 194 190 188 189 190 195 192 193 188 194 196
                    198 196 198 193 194 195 194 196 202 196 189 200
@@ -88,29 +117,29 @@
                     xy/attributes
                     xy/xbindings
                     xy/generator
-                    (xy/make-xy-function 1.0 2.0)
+                    (xy/make-xy-function 2.0 1.0)
                     -1.0)
-          forest (taiga/mean-regression options)
+          model (taiga/mean-regression options)
           _ (z/mapc #(tree/check-mincount options %) 
-                    (taiga/terms forest))
-          _ (defs/serialization-test nss options forest)
+                    (taiga/terms model))
+          _ (defs/serialization-test nss options model)
           y (:ground-truth xy/attributes)
           yhat (fn yhat ^double [datum] 
-                 (forest xy/xbindings datum))
+                 (model xy/xbindings datum))
           _ (println "train:" )
           train-summary (defs/print-residual-summary 
                           y yhat (:data options))
           _ (println "test:" )
           test-summary (defs/print-residual-summary 
                          y yhat (:test-data options))]
-      (test/is (= (mapv taiga/node-height (taiga/terms forest))
+      (test/is (= (mapv taiga/node-height (taiga/terms model))
                   [9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9
                    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9
                    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9
                    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9
                    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9
                    9 9 9 9 9 9 9 9]))
-      (test/is (= (mapv taiga/count-children (taiga/terms forest))
+      (test/is (= (mapv taiga/count-children (taiga/terms model))
                   [377 377 401 391 397 389 395 383 369 393 399 389
                    393 387 387 391 393 397 391 389 383 403 397 395
                    381 385 389 391 391 395 389 387 389 403 391 387
@@ -122,18 +151,18 @@
                    399 383 389 393 387 387 385 385 405 391 391 387
                    393 391 385 405 397 393 387 395 389 377 375 391
                    395 395 391 393 391 391 397 391]))
-      #_(test/is (= (mapv taiga/count-leaves (taiga/terms forest))
-                    [189 189 201 196 199 195 198 192 185 197 200 195
-                     197 194 194 196 197 199 196 195 192 202 199 198
-                     191 193 195 196 196 198 195 194 195 202 196 194
-                     194 197 191 198 194 193 196 190 192 193 197 194
-                     199 192 195 198 195 198 197 193 202 193 195 196
-                     194 191 198 188 194 197 201 196 194 201 197 199
-                     193 201 194 195 197 194 193 193 195 202 198 196
-                     199 197 191 192 200 190 198 192 191 199 195 194
-                     200 192 195 197 194 194 193 193 203 196 196 194
-                     197 196 193 203 199 197 194 198 195 189 188 196
-                     198 198 196 197 196 196 199 196]))
+      (test/is (= (mapv taiga/count-leaves (taiga/terms model))
+                  [189 189 201 196 199 195 198 192 185 197 200 195
+                   197 194 194 196 197 199 196 195 192 202 199 198
+                   191 193 195 196 196 198 195 194 195 202 196 194
+                   194 197 191 198 194 193 196 190 192 193 197 194
+                   199 192 195 198 195 198 197 193 202 193 195 196
+                   194 191 198 188 194 197 201 196 194 201 197 199
+                   193 201 194 195 197 194 193 193 195 202 198 196
+                   199 197 191 192 200 190 198 192 191 199 195 194
+                   200 192 195 197 194 194 193 193 203 196 196 194
+                   197 196 193 203 199 197 194 198 195 189 188 196
+                   198 198 196 197 196 196 199 196]))
       (test/is (= [-0.009317156875444071
                    0.2280583200826239
                    0.17506472425026406]
@@ -142,18 +171,4 @@
                    0.2376067380534039 
                    0.18277868732700348]
                   test-summary)))))
-;;----------------------------------------------------------------
-#_(test/deftest affine
-    (z/seconds 
-      nss
-      (let [model (taiga/affine-regression options)
-            y (:ground-truth xy/attributes)
-            yhat (fn yhat ^double [datum] (forest predictors datum))
-            _ (println "train:" )
-            train-summary (defs/print-residual-summary 
-                            y yhat (:data options))
-            _ (println "test:" )
-            test-summary (defs/print-residual-summary 
-                           y yhat (:test-data options))]
-        )))
 ;;----------------------------------------------------------------

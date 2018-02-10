@@ -3,8 +3,7 @@
 (ns ^{:author ["John Alan McDonald"
                "Kristina Kilnkner"
                "wahpenayo at gmail dot com"]
-      :since "2016-11-08"
-      :date "2017-11-15"
+      :date "2018-02-09"
       :doc "Primary external interface to Taiga, providing a subset of the
             functions found in other taiga namespaces, created using 
             [Potemkin](https://github.com/ztellman/potemkin).
@@ -18,6 +17,7 @@
     taiga.api
 
   (:require [potemkin.namespaces :as pn]
+            [taiga.affine :as a]
             [taiga.tree.node :as node]
             [taiga.metrics :as m]
             [taiga.permutation :as p]
@@ -30,6 +30,7 @@
                 e/terms
                 e/nterms
                 e/take-terms
+                a/affine-l2-regression
                 f/majority-vote-classifier
                 f/majority-vote-probability
                 #_f/minimum-cost-classifier
