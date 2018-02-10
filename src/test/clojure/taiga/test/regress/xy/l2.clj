@@ -18,6 +18,7 @@
 (def nss (str *ns*))
 ;;----------------------------------------------------------------
 (test/deftest noiseless-affine
+  (z/reset-mersenne-twister-seeds)
   (z/seconds 
     nss
     (let [options (defs/options 
@@ -44,6 +45,36 @@
       (test/is (= [-1.8241701552068612E-17 
                    9.000523778413571E-17 
                    1.8241701552068612E-17]
+                  test-summary)))))
+;;----------------------------------------------------------------
+(test/deftest affine
+  (z/reset-mersenne-twister-seeds)
+  (z/seconds 
+    nss
+    (let [options (defs/options 
+                    xy/attributes
+                    xy/xbindings
+                    xy/generator
+                    (xy/make-xy-function 1.0 2.0)
+                    0.5)
+          model (taiga/affine-l2-regression options)
+          ;;_ (defs/serialization-test nss options model)
+          y (:ground-truth xy/attributes)
+          yhat (fn yhat ^double [datum] 
+                 (model xy/xbindings datum))
+          _ (println "train:" )
+          train-summary (defs/print-residual-summary 
+                          y yhat (:data options))
+          _ (println "test:" )
+          test-summary (defs/print-residual-summary 
+                         y yhat (:test-data options))]
+      (test/is (= [-5.425130830682967E-15
+                   0.5004578997453809
+                   0.39929176914302816]
+                  train-summary))
+      (test/is (= [-0.004412699741725591
+                   0.5005329599483825
+                   0.40041545472567863]
                   test-summary)))))
 ;;----------------------------------------------------------------
 (test/deftest forest
