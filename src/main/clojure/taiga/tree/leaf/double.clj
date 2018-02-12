@@ -1,7 +1,11 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* false) ;; warnings in cheshire.generate
-(ns ^{:author "John Alan McDonald, Kristina Lisa Klinkner" :date "2016-11-29"
-      :doc "A primitive double-valued decision tree leaf." }
+(ns ^{:author ["John Alan McDonald"
+               "Kristina Lisa Klinkner"
+               "wahpenayo at gmail dot com"]
+      :date "2018-02-11"
+      :doc 
+      "A primitive double-valued decision tree leaf." }
     
     taiga.tree.leaf.double
   
@@ -39,11 +43,8 @@
     (and (instance? Leaf that) (== score (.score ^Leaf that)))))
 ;;------------------------------------------------------------------------------
 (defn map->Leaf [m] (Leaf. (:score m)))
-
 (defn map<-Leaf [^Leaf l] {:class :leaf :score (.score l)})
-
 (defmethod z/clojurize Leaf [this] (map<-Leaf this))
-
 (defmethod print-method Leaf [^Leaf this ^java.io.Writer w]
   (if *print-readably*
     (do

@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-02-10"
+      :date "2018-02-11"
       :doc "Affine data and l2 regression models." }
     
     taiga.test.regress.affine.l2
@@ -17,65 +17,65 @@
 ;;----------------------------------------------------------------
 (def nss (str *ns*))
 ;;----------------------------------------------------------------
-#_(test/deftest noiseless-affine
-   (z/reset-mersenne-twister-seeds)
-   (z/seconds 
-     nss
-     (let [options (defs/options 
-                     record/attributes
-                     record/xbindings
-                     record/generator
-                     (record/make-affine-function 10.0)
-                     -1.0)
-           model (taiga/affine-l2-regression options)
-           ;;_ (defs/serialization-test nss options model)
-           y (:ground-truth record/attributes)
-           yhat (fn yhat ^double [datum] 
-                  (model record/xbindings datum))
-           _ (println "train:" )
-           train-summary (defs/print-residual-summary 
-                           y yhat (:data options))
-           _ (println "test:" )
-           test-summary (defs/print-residual-summary 
-                          y yhat (:test-data options))]
-       (test/is (= [-1.7604732775733378E-17 
-                    8.841986127560332E-17 
-                    1.7604732775733378E-17]
-                   train-summary))
-       (test/is (= [-1.8241701552068612E-17 
-                    9.000523778413571E-17 
-                    1.8241701552068612E-17]
-                   test-summary)))))
+(test/deftest noiseless-affine
+  (z/reset-mersenne-twister-seeds)
+  (z/seconds 
+    nss
+    (let [options (defs/options 
+                    record/attributes
+                    record/xbindings
+                    record/generator
+                    (record/make-affine-function 10.0)
+                    -1.0)
+          model (taiga/affine-l2-regression options)
+          _ (defs/edn-test model (defs/affine-edn-file nss))
+          y (:ground-truth record/attributes)
+          yhat (fn yhat ^double [datum] 
+                 (model record/xbindings datum))
+          _ (println "train:" )
+          train-summary (defs/print-residual-summary 
+                          y yhat (:data options))
+          _ (println "test:" )
+          test-summary (defs/print-residual-summary 
+                         y yhat (:test-data options))]
+      (test/is (= [-2.826835309886408E-13 
+                   0.28965213775380116 
+                   0.2507829916473225]
+                  train-summary))
+      (test/is (= [-0.002635712379292359 
+                   0.2891101777339957 
+                   0.2501678760956037]
+                  test-summary)))))
 ;;----------------------------------------------------------------
-#_(test/deftest affine
-   (z/reset-mersenne-twister-seeds)
-   (z/seconds 
-     nss
-     (let [options (defs/options 
-                     record/attributes
-                     record/xbindings
-                     record/generator
-                     (record/make-affine-function 10.0)
-                     2.0)
-           model (taiga/affine-l2-regression options)
-           ;;_ (defs/serialization-test nss options model)
-           y (:ground-truth record/attributes)
-           yhat (fn yhat ^double [datum] 
-                  (model record/xbindings datum))
-           _ (println "train:" )
-           train-summary (defs/print-residual-summary 
-                           y yhat (:data options))
-           _ (println "test:" )
-           test-summary (defs/print-residual-summary 
-                          y yhat (:test-data options))]
-       (test/is (= [-1.7604732775733378E-17 
-                    8.841986127560332E-17 
-                    1.7604732775733378E-17]
-                   train-summary))
-       (test/is (= [-1.8241701552068612E-17 
-                    9.000523778413571E-17 
-                    1.8241701552068612E-17]
-                   test-summary)))))
+(test/deftest affine
+  (z/reset-mersenne-twister-seeds)
+  (z/seconds 
+    nss
+    (let [options (defs/options 
+                    record/attributes
+                    record/xbindings
+                    record/generator
+                    (record/make-affine-function 10.0)
+                    2.0)
+          model (taiga/affine-l2-regression options)
+         _ (defs/edn-test model (defs/affine-edn-file nss))
+          y (:ground-truth record/attributes)
+          yhat (fn yhat ^double [datum] 
+                 (model record/xbindings datum))
+          _ (println "train:" )
+          train-summary (defs/print-residual-summary 
+                          y yhat (:data options))
+          _ (println "test:" )
+          test-summary (defs/print-residual-summary 
+                         y yhat (:test-data options))]
+      (test/is (= [-3.1018200161159193E-13
+                   0.579304275507601
+                   0.501565983294387]
+                  train-summary))
+      (test/is (= [0.005271424758363115
+                   0.5782203554684783
+                   0.500335752191665]
+                  test-summary)))))
 ;;----------------------------------------------------------------
 (test/deftest noiseless-forest
   (z/reset-mersenne-twister-seeds)
@@ -90,7 +90,9 @@
           model (taiga/mean-regression options)
           _ (z/mapc #(tree/check-mincount options %) 
                     (taiga/terms model))
-          _ (defs/serialization-test nss options model)
+          _ (defs/json-test nss options model)
+          _ (defs/edn-test 
+              model (defs/forest-file nss options model))
           y (:ground-truth record/attributes)
           yhat (fn yhat ^double [datum] 
                  (model record/xbindings datum))
@@ -155,7 +157,9 @@
           model (taiga/mean-regression options)
           _ (z/mapc #(tree/check-mincount options %) 
                     (taiga/terms model))
-          _ (defs/serialization-test nss options model)
+          _ (defs/json-test nss options model)
+          _ (defs/edn-test 
+              model (defs/forest-file nss options model))
           y (:ground-truth record/attributes)
           yhat (fn yhat ^double [datum] 
                  (model record/xbindings datum))

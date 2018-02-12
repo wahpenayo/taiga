@@ -43,7 +43,9 @@
                            (dissoc record/attributes 
                                    :ground-truth :prediction))
           model (taiga/real-probability-measure options)
-          _ (defs/serialization-test nss options model)
+          _ (defs/json-test nss options model)
+          _ (defs/edn-test 
+              model (defs/forest-file nss options model))
           predict (fn predict [datum]
                     (assoc datum 
                            :qhat (deciles/make 

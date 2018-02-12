@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com" 
-      :date "2018-02-08"
+      :date "2018-02-11"
       :doc "Common definitions for unit tests." }
     
     taiga.test.regress.data.defs
@@ -15,6 +15,7 @@
             [taiga.test.regress.data.record :as record])
   
   (:import [java.util Map]
+           [java.io File]
            [clojure.lang IFn IFn$OD IFn$OOD]))
 ;;----------------------------------------------------------------
 (defn options 
@@ -55,34 +56,41 @@
 ;;----------------------------------------------------------------
 (defn forest-file [nss options forest]
   (let [tokens (s/split nss #"\.")
-        folder (apply io/file "tst" (butlast tokens))
+        ^File folder (apply io/file "tst" (butlast tokens))
+        _ (.mkdirs folder)
         fname (last tokens)
-        file (io/file folder 
-                      (str fname 
-                           "-" (z/count (:data options))
-                           "-" (taiga/nterms forest) 
-                           "-" (:mincount options)
-                           "-" (:mtry options)
-                           "." (:ext options)))]
-    (io/make-parents file) 
+        file (File/createTempFile
+               (str fname 
+                    "-" (z/count (:data options))
+                    "-" (taiga/nterms forest) 
+                    "-" (:mincount options)
+                    "-" (:mtry options))
+               (str "." (:ext options "edn.gz"))
+               (io/file folder))]
+    (println (.getPath file))
     file))
 ;;----------------------------------------------------------------
-(defn serialization-test [nss options forest]
-  (let [edn-file (forest-file nss (assoc options :ext "edn.gz") 
-                              forest)
-        #_pretty-file 
-        #_(forest-file nss (assoc options :ext "pretty.edn") 
-                       forest)
-        json-file (forest-file nss (assoc options :ext "json.gz") 
-                               forest)
-        #_bin-file 
-        #_(forest-file nss (assoc options :ext "bin.gz") forest)
-        _ (io/make-parents edn-file)
-        _ (taiga/write-json forest json-file)
-        _ (taiga/write-edn forest edn-file)
-        ;;_ (taiga/pprint-forest forest pretty-file)
-        edn-forest (taiga/read-edn edn-file)]
-    (test/is (= forest edn-forest))))
+(defn affine-edn-file [nss]
+  (let [tokens (s/split nss #"\.")
+        ^File folder (apply io/file "tst" (butlast tokens))
+        _ (.mkdirs folder)
+        fname (last tokens)
+        file (File/createTempFile 
+               (str fname "-affine-")
+               ".edn" 
+               (io/file folder))]
+    (println (.getPath file))
+    file))
+;;----------------------------------------------------------------
+(defn json-test [nss options forest]
+  (let [json-file (forest-file nss
+                               (assoc options :ext "json.gz") 
+                               forest)]
+        (taiga/write-json forest json-file)))
+;;----------------------------------------------------------------
+(defn edn-test [model edn-file]
+  (taiga/write-edn model edn-file)
+  (test/is (= model (taiga/read-edn edn-file))))
 ;;----------------------------------------------------------------
 (defn prediction-file [nss options prefix model]
   (let [tokens (s/split nss #"\.")

@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-02-09"
+      :date "2018-02-11"
       :doc "1d y = a*x + b data and l2 regression models." }
     
     taiga.test.regress.xy.l2
@@ -28,7 +28,7 @@
                     (xy/make-xy-function 1.0 2.0)
                     -1.0)
           model (taiga/affine-l2-regression options)
-          ;;_ (defs/serialization-test nss options model)
+          _ (defs/edn-test model (defs/affine-edn-file nss))
           y (:ground-truth xy/attributes)
           yhat (fn yhat ^double [datum] 
                  (model xy/xbindings datum))
@@ -58,7 +58,7 @@
                     (xy/make-xy-function 1.0 2.0)
                     0.5)
           model (taiga/affine-l2-regression options)
-          ;;_ (defs/serialization-test nss options model)
+          _ (defs/edn-test model (defs/affine-edn-file nss))
           y (:ground-truth xy/attributes)
           yhat (fn yhat ^double [datum] 
                  (model xy/xbindings datum))
@@ -90,7 +90,9 @@
           model (taiga/mean-regression options)
           _ (z/mapc #(tree/check-mincount options %) 
                     (taiga/terms model))
-          _ (defs/serialization-test nss options model)
+          _ (defs/json-test nss options model)
+          _ (defs/edn-test 
+              model (defs/forest-file nss options model))
           y (:ground-truth xy/attributes)
           yhat (fn yhat ^double [datum] 
                  (model xy/xbindings datum))
@@ -153,7 +155,9 @@
           model (taiga/mean-regression options)
           _ (z/mapc #(tree/check-mincount options %) 
                     (taiga/terms model))
-          _ (defs/serialization-test nss options model)
+          _ (defs/json-test nss options model)
+          _ (defs/edn-test 
+              model (defs/forest-file nss options model))
           y (:ground-truth xy/attributes)
           yhat (fn yhat ^double [datum] 
                  (model xy/xbindings datum))

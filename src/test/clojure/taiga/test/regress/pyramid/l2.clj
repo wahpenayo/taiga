@@ -31,7 +31,9 @@
           model (taiga/mean-regression options)
           _ (z/mapc #(tree/check-mincount options %) 
                     (taiga/terms model))
-          _ (defs/serialization-test nss options model)
+          _ (defs/json-test nss options model)
+          _ (defs/edn-test 
+              model (defs/forest-file nss options model))
           y (:ground-truth record/attributes)
           yhat (fn yhat ^double [datum] 
                  (model record/xbindings datum))
@@ -99,7 +101,9 @@
           model (taiga/mean-regression options)
           _ (z/mapc #(tree/check-mincount options %) 
                     (taiga/terms model))
-          _ (defs/serialization-test nss options model)
+          _ (defs/json-test nss options model)
+          _ (defs/edn-test 
+              model (defs/forest-file nss options model))
           y (:ground-truth record/attributes)
           yhat (fn yhat ^double [datum] 
                  (model record/xbindings datum))

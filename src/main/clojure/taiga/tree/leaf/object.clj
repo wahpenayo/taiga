@@ -52,11 +52,8 @@
 (defn make ^Leaf [value] (Leaf. value)) 
 ;;----------------------------------------------------------------
 (defn map->Leaf [m] (Leaf. (:value m)))
-
 (defn map<-Leaf [^Leaf l] {:class :leaf :value (.value l)})
-
 (defmethod z/clojurize Leaf [this] (map<-Leaf this))
-
 (defmethod print-method Leaf [^Leaf this ^java.io.Writer w]
   (if *print-readably*
     (do

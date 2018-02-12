@@ -1,19 +1,79 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-02-09"
+      :date "2018-02-11"
       :doc 
       "Affine (aka linear) models." }
     
     taiga.affine
   
   (:require [zana.api :as z])
-  (:import [java.util Arrays]
-           [clojure.lang IFn IFn$OD]
+  (:import [java.util Arrays Map]
+           [java.io Writer]
+           [clojure.lang IFn IFn$OD IFn$OOD]
            [org.apache.commons.math3.stat.regression
-            OLSMultipleLinearRegression]))
+            OLSMultipleLinearRegression]
+           [zana.geometry.functionals AffineFunctional]
+           [zana.java.data AffineEmbedding]))
 ;;----------------------------------------------------------------
-;; training options
+;; This ought to be just a function composition, but we need to 
+;; define a special class so it can be serialized.
+;; As it is, an AffineModel is an affine functional (a real-valued
+;; function on <b>E</b><sup>p</sup>) composed with an affine
+;; embedding of the relevant record type, a function from
+;; the specified attributes of record objects to 
+;; <b>E</b><sup>p</sup>.
+;; TODO: support linear as well as affine, ie, general to flat
+;; functionals and embeddings?
+
+(deftype AffineModel [^AffineFunctional functional
+                      ^AffineEmbedding embedding]
+  java.io.Serializable
+  IFn$OOD 
+  (invokePrim ^double [_ bindings record]
+    (.invokePrim ^IFn$OD functional
+      (.invoke ^IFn embedding bindings record)))
+  IFn 
+  (invoke [this bindings record]
+    (.invokePrim ^IFn$OOD this bindings record))
+  Object
+  (hashCode [_]
+    (let [h (int 17)
+          h (unchecked-multiply-int h (int 31))
+          h (unchecked-add-int h (.hashCode functional))
+          h (unchecked-multiply-int h (int 31))
+          h (unchecked-add-int h (.hashCode embedding))]
+      h))
+  (equals [_ that]
+    (and (instance? AffineModel that)
+         (.equals functional (.functional ^AffineModel that))
+         (.equals embedding (.embedding ^AffineModel that))))
+  (toString [_]
+    (str "AffineModel[" functional ", " embedding "?}"))) 
+;;----------------------------------------------------------------
+;; EDN IO
+;;----------------------------------------------------------------
+(defn map->AffineModel ^AffineModel [^Map m] 
+  (AffineModel. 
+    ^AffineFunctional (:functional m)
+    ^AffineEmbedding (:embedding m)))
+(defn map<-AffineModel ^Map [^AffineModel this] 
+  {:functional (.functional this) :embedding (.embedding this)})
+(defmethod z/clojurize AffineModel [^AffineModel this]
+  (map<-AffineModel this))
+(defmethod print-method AffineModel [^AffineModel this ^Writer w]
+  (if *print-readably*
+    (do
+      (.write w " #taiga.affine.AffineModel ")
+      (.write w (pr-str (map<-AffineModel this))))
+    (.write w (print-str (map<-AffineModel this)))))
+;;----------------------------------------------------------------
+;; EDN input (output just works?)
+;;----------------------------------------------------------------
+(z/add-edn-readers! 
+  {'taiga.affine.AffineModel map->AffineModel})
+;;----------------------------------------------------------------
+;; training
 ;;----------------------------------------------------------------
 (defn- check [options]
   (assert (not (z/empty? (:data options)))
@@ -34,8 +94,6 @@
   (assert (ifn? (:ground-truth (:attributes options)))
           (str "No :ground-truth!"
                (z/pprint-map-str options))))
-;;----------------------------------------------------------------
-;; generic training
 ;;----------------------------------------------------------------
 (defn affine-l2-regression
   
@@ -82,7 +140,7 @@
    </dd>
    </dl>"
   
-  [options]
+  ^IFn$OOD [options]
   
   #_(println (z/pprint-map-str options))
   (check options)
@@ -115,7 +173,4 @@
                      (aget beta 0))]
     (println "beta:" (into [] beta))
     (println "af:" af)
-    ;; NOTE: can't serialize this!!
-    (fn predict ^double [bindings datum] 
-      (.invokePrim af (ae bindings datum)))))
-;;----------------------------------------------------------------
+    (AffineModel. af ae)))
