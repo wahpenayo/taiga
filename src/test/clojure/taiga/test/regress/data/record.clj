@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-02-08"
+      :date "2018-02-12"
       :doc "Artificial data for regression unit tests." }
     
     taiga.test.regress.data.record
@@ -41,10 +41,10 @@
 (def ^:private seed09 "888CD02BF903BB078E640090A0F23FF8")
 ;;----------------------------------------------------------------
 (defn generator [^IFn$OD mean ^double sigma]
-  (let [^IFn$D generate-x0 (z/continuous-uniform-generator -1.0 1.0 seed00)
-        ^IFn$D generate-x1 (z/continuous-uniform-generator -1.0 1.0 seed01)
-        ^IFn$D generate-x2 (z/continuous-uniform-generator -1.0 1.0 seed02)
-        ^IFn$D generate-x3 (z/continuous-uniform-generator -1.0 1.0 seed03)
+  (let [^IFn$D generate-x0 (z/continuous-uniform-generator 0.0 1.0 seed00)
+        ^IFn$D generate-x1 (z/continuous-uniform-generator 0.0 1.0 seed01)
+        ^IFn$D generate-x2 (z/continuous-uniform-generator 0.0 1.0 seed02)
+        ^IFn$D generate-x3 (z/continuous-uniform-generator 0.0 1.0 seed03)
         ^IFn$D generate-x4 (z/continuous-uniform-generator -1.0 1.0 seed04)
         ^IFn$D generate-x5 (z/continuous-uniform-generator -1.0 1.0 seed05)
         generate-kolor (kolor/generator seed06)
@@ -70,11 +70,9 @@
 ;;----------------------------------------------------------------
 (defn make-pyramid-function [^double scale]
   (fn y-mean ^double [^Record datum]
-    (let [mu (* scale 
-                (+ (Math/abs (x0 datum)) (Math/abs (x1 datum))))]
-      (if (kolor/primary? (kolor datum)) 
-        mu
-        (- mu)))))
+    (let [mu (* scale (+ (Math/abs (x0 datum)) 
+                         (Math/abs (x1 datum))))]
+      (if (kolor/primary? (kolor datum)) mu (- mu)))))
 ;;----------------------------------------------------------------
 (def attributes {:x0 x0 :x1 x1 :x2 x2 :x3 x3 :x4 x4 :x5 x5 
                  :kolor kolor :primate primate
@@ -83,19 +81,19 @@
 (def xbindings 
   (into (sorted-map)
         (dissoc attributes :ground-truth :prediction)))
-;;----------------------------------------------------------------
-(defn make-affine-function [^double scale]
-  (let [embedding (z/affine-embedding
+(def embedding (z/affine-embedding
                     "affine-data"
-                    [[:x0 Double/TYPE] 
+                    [[:kolor (drop 1 kolor/kolors)]
+                     [:primate (drop 1 primate/primates)]
+                     [:x0 Double/TYPE] 
                      [:x1 Double/TYPE] 
                      [:x2 Double/TYPE] 
                      [:x3 Double/TYPE] 
                      [:x4 Double/TYPE] 
-                     [:x5 Double/TYPE] 
-                     [:kolor kolor/kolors]
-                     [:primate primate/primates]])
-        ^IFn$D gl (z/double-generator 
+                     [:x5 Double/TYPE]]))
+;;----------------------------------------------------------------
+(defn make-affine-functional ^IFn$OD [^double scale]
+  (let [^IFn$D gl (z/double-generator 
                     (z/gaussian-distribution 
                       (z/well44497b 
                         "seeds/Well44497b-2017-11-05-00.edn") 
@@ -107,8 +105,6 @@
                         "seeds/Well44497b-2017-11-05-01.edn") 
                       0.0 
                       scale))
-        dim (z/embedding-dimension embedding)
-        ^IFn$OD a (z/generate-affine-functional dim gl gt)]
-    (fn y-mean ^double [^Record datum]
-      (.invokePrim a (embedding xbindings datum)))))
+        dim (z/embedding-dimension embedding)]
+    (z/generate-affine-functional dim gl gt)))
 ;;----------------------------------------------------------------

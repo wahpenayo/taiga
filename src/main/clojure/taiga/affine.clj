@@ -50,6 +50,11 @@
          (.equals embedding (.embedding ^AffineModel that))))
   (toString [_]
     (str "AffineModel[" functional ", " embedding "?}"))) 
+
+(defn functional ^AffineFunctional [^AffineModel am]
+  (.functional am))
+(defn embedding ^AffineEmbedding [^AffineModel am]
+  (.embedding am))
 ;;----------------------------------------------------------------
 ;; EDN IO
 ;;----------------------------------------------------------------
@@ -156,7 +161,9 @@
                                :ground-truth 
                                :prediction))
         xs (vals bindings)
-        ae (z/affine-embedding (str datum-name "->En") xs data)
+        ae (:embedding 
+             options
+             (z/affine-embedding (str datum-name "->En") xs data))
         ;; commons math handles the intercept itself
         le (z/linear-part ae)
         lembed (fn ^doubles [datum] (le bindings datum))
@@ -166,11 +173,10 @@
         ols (OLSMultipleLinearRegression.)
         _ (.newSampleData ols ys xembedded)
         ^doubles beta (.estimateRegressionParameters ols)
-        ;; commons math has intercept as zeroth element
-        ^IFn$OD af (z/affine-functional 
-                     (z/linear-functional 
-                       (Arrays/copyOfRange beta 1 (alength beta)))
-                     (aget beta 0))]
-    (println "beta:" (into [] beta))
-    (println "af:" af)
+        #_ (println "beta:" (into [] beta))
+          ;; commons math has intercept as zeroth element
+          ^IFn$OD af (z/affine-functional 
+                       (z/linear-functional 
+                         (Arrays/copyOfRange beta 1 (alength beta)))
+                       (aget beta 0))]
     (AffineModel. af ae)))
