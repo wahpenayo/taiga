@@ -1,0 +1,36 @@
+% !TEX TS-program = arara
+% arara: xelatex: { synctex: on, options: '-halt-on-error' } 
+% arara: biber
+% skip-arara: makeglossaries
+% skip-arara: makeindex
+% arara: xelatex: { synctex: on, options: '-halt-on-error'  } 
+% arara: xelatex: { synctex: on, options: '-halt-on-error'   } 
+% arara: xelatex: { synctex: on, options: '-halt-on-error'  } 
+% arara: xelatex: { synctex: on, options: '-halt-on-error'   } 
+% arara: clean: { files: [flat-models-kindle.aux] }
+% arara: clean: { files: [flat-models-kindle.bbl] }
+% arara: clean: { files: [flat-models-kindle.bcf] } 
+% arara: clean: { files: [flat-models-kindle.blg] } 
+% arara: clean: { files: [flat-models-kindle.glg] }
+% arara: clean: { files: [flat-models-kindle.glo] }
+% arara: clean: { files: [flat-models-kindle.gls] }
+% arara: clean: { files: [flat-models-kindle.idx] }
+% arara: clean: { files: [flat-models-kindle.ilg] }
+% arara: clean: { files: [flat-models-kindle.ind] }
+% arara: clean: { files: [flat-models-kindle.loe] }
+% arara: clean: { files: [flat-models-kindle.lof] }
+% arara: clean: { files: [flat-models-kindle.log] }
+% arara: clean: { files: [flat-models-kindle.lol ] }
+% arara: clean: { files: [flat-models-kindle.out] }
+% arara: clean: { files: [flat-models-kindle.run.xml] }
+% arara: clean: { files: [flat-models-kindle.toc] }
+% arara: clean: { files: [flat-models-kindle.xdy] }
+% arara: clean: { files: [flat-models-kindle.synctex.gz] }
+%-----------------------------------------------------------------
+\documentclass[10pt,openany]{article}
+\input{../tex/head}
+\input{../tex/kindle-paperwhite-header}
+\input{../tex/clj-listings}
+\input{../tex/symbols}
+
+\input{flat-models-body}

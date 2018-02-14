@@ -1,0 +1,35 @@
+% !TEX TS-program = arara
+% arara: xelatex: { synctex: on, options: '-halt-on-error' } 
+% arara: biber
+% skip-arara: makeglossaries
+% skip-arara: makeindex
+% arara: xelatex: { synctex: on, options: '-halt-on-error'  } 
+% arara: xelatex: { synctex: on, options: '-halt-on-error'   } 
+% arara: xelatex: { synctex: on, options: '-halt-on-error'  } 
+% arara: xelatex: { synctex: on, options: '-halt-on-error'   } 
+% arara: clean: { files: [flat-models-landscape.aux] }
+% arara: clean: { files: [flat-models-landscape.bbl] }
+% arara: clean: { files: [flat-models-landscape.bcf] } 
+% arara: clean: { files: [flat-models-landscape.blg] } 
+% arara: clean: { files: [flat-models-landscape.glg] }
+% arara: clean: { files: [flat-models-landscape.glo] }
+% arara: clean: { files: [flat-models-landscape.gls] }
+% arara: clean: { files: [flat-models-landscape.idx] }
+% arara: clean: { files: [flat-models-landscape.ilg] }
+% arara: clean: { files: [flat-models-landscape.ind] }
+% arara: clean: { files: [flat-models-landscape.loe] }
+% arara: clean: { files: [flat-models-landscape.lof] }
+% arara: clean: { files: [flat-models-landscape.log] }
+% arara: clean: { files: [flat-models-landscape.lol ] }
+% arara: clean: { files: [flat-models-landscape.out] }
+% arara: clean: { files: [flat-models-landscape.run.xml] }
+% arara: clean: { files: [flat-models-landscape.toc] }
+% arara: clean: { files: [flat-models-landscape.xdy] }
+% arara: clean: { files: [flat-models-landscape.synctex.gz] }
+%-----------------------------------------------------------------
+\documentclass[10pt,openany]{article}
+\input{../tex/head}
+\input{../tex/landscape-2col-header}
+\input{../tex/clj-listings}
+\input{../tex/symbols}
+\input{flat-models-body}
