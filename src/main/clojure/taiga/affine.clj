@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-02-11"
+      :date "2018-02-22"
       :doc 
       "Affine (aka linear) models." }
     
@@ -13,8 +13,8 @@
            [clojure.lang IFn IFn$OD IFn$OOD]
            [org.apache.commons.math3.stat.regression
             OLSMultipleLinearRegression]
-           [zana.geometry.functionals AffineFunctional]
-           [zana.java.data AffineEmbedding]))
+           #_[zana.java.geometry AffineFunctional]
+           #_[zana.java.data AffineEmbedding]))
 ;;----------------------------------------------------------------
 ;; This ought to be just a function composition, but we need to 
 ;; define a special class so it can be serialized.
@@ -26,8 +26,10 @@
 ;; TODO: support linear as well as affine, ie, general to flat
 ;; functionals and embeddings?
 
-(deftype AffineModel [^AffineFunctional functional
-                      ^AffineEmbedding embedding]
+(deftype AffineModel [^IFn$OD functional
+                      ^IFn embedding]
+  #_[^AffineFunctional functional
+     ^AffineEmbedding embedding]
   java.io.Serializable
   IFn$OOD 
   (invokePrim ^double [_ bindings record]
@@ -51,17 +53,24 @@
   (toString [_]
     (str "AffineModel[" functional ", " embedding "?}"))) 
 
-(defn functional ^AffineFunctional [^AffineModel am]
+(defn functional ^IFn$OD [^AffineModel am]
   (.functional am))
-(defn embedding ^AffineEmbedding [^AffineModel am]
+(defn embedding ^IFn [^AffineModel am]
+  (.embedding am))
+#_(defn functional ^AffineFunctional [^AffineModel am]
+  (.functional am))
+#_(defn embedding ^AffineEmbedding [^AffineModel am]
   (.embedding am))
 ;;----------------------------------------------------------------
 ;; EDN IO
 ;;----------------------------------------------------------------
 (defn map->AffineModel ^AffineModel [^Map m] 
   (AffineModel. 
-    ^AffineFunctional (:functional m)
-    ^AffineEmbedding (:embedding m)))
+    ^IFn$OD (:functional m)
+    ^IFn (:embedding m))
+  #_(AffineModel. 
+     ^AffineFunctional (:functional m)
+     ^AffineEmbedding (:embedding m)))
 (defn map<-AffineModel ^Map [^AffineModel this] 
   {:functional (.functional this) :embedding (.embedding this)})
 (defmethod z/clojurize AffineModel [^AffineModel this]
@@ -161,11 +170,13 @@
                                :ground-truth 
                                :prediction))
         xs (vals bindings)
+        ;; need affine embedding for predictions later
         ae (:embedding 
              options
              (z/affine-embedding (str datum-name "->En") xs data))
-        ;; commons math handles the intercept itself
-        le (z/linear-part ae)
+        ;; need corresponding linear embedding for commons math,
+        ;; which handles the intercept itself
+        le (z/linear-embedding ae)
         lembed (fn ^doubles [datum] (le bindings datum))
         xembedded (z/map-to-objects (Class/forName "[D")
                                     lembed 

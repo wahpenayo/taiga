@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-02-12"
+      :date "2018-02-22"
       :doc 
       "Affine data and l2 regression models." }
     
@@ -46,10 +46,10 @@
           _ (println "test:" )
           test-summary (defs/print-residual-summary 
                          y yhat (:test-data options))
-          true-dual (z/dual (z/linear af))
+          true-dual (z/dual (z/linear-part af))
           true-translation (z/translation af)
           est-functional (taiga/functional model)
-          est-dual (z/dual (z/linear est-functional))
+          est-dual (z/dual (z/linear-part est-functional))
           est-translation (z/translation est-functional)]
       (test/is (z/approximately== 
                  0.01 true-translation est-translation)
@@ -104,10 +104,10 @@
           _ (println "test:" )
           test-summary (defs/print-residual-summary 
                          y yhat (:test-data options))
-          true-dual (z/dual (z/linear af))
+          true-dual (z/dual (z/linear-part af))
           true-translation (z/translation af)
           est-functional (taiga/functional model)
-          est-dual (z/dual (z/linear est-functional))
+          est-dual (z/dual (z/linear-part est-functional))
           est-translation (z/translation est-functional)]
       (println "tru:" true-translation)
       (println "est:" est-translation)
