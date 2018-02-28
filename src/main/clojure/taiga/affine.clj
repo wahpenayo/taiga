@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-02-22"
+      :date "2018-02-27"
       :doc 
       "Affine (aka linear) models." }
     
@@ -13,7 +13,7 @@
            [clojure.lang IFn IFn$OD IFn$OOD]
            [org.apache.commons.math3.stat.regression
             OLSMultipleLinearRegression]
-           #_[zana.java.geometry AffineFunctional]
+           #_[zana.java.geometry.functions AffineFunctional]
            #_[zana.java.data AffineEmbedding]))
 ;;----------------------------------------------------------------
 ;; This ought to be just a function composition, but we need to 
