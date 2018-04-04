@@ -3,7 +3,7 @@
 (ns ^{:author ["John Alan McDonald"
                "Kristina Kilnkner"
                "wahpenayo at gmail dot com"]
-      :date "2018-04-02"
+      :date "2018-04-04"
       :doc 
       "Primary external interface to Taiga, providing a subset of
        the functions found in other taiga namespaces, created
@@ -34,6 +34,7 @@
                 e/take-terms
                 a/affine-l2-regression
                 a/affine-l2
+                a/affine-qr
                 a/embedding
                 a/functional
                 f/majority-vote-classifier

@@ -1,9 +1,9 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-04-02"
+      :date "2018-04-04"
       :doc 
-      "Affine data and l2 regression models." }
+      "Affine data and regression models." }
     
     taiga.test.regress.affine.l2
   
@@ -34,7 +34,11 @@
                            record/generator
                            ymean
                            -1.0)
-                         :embedding record/embedding)
+                         :embedding record/embedding
+                         :relative-tolerance 1.0e-7
+                         :absolute-tolerance 1.0e-7
+                         :line-search-relative-tolerance 1.0e-4
+                         :line-search-absolute-tolerance 1.0e-4)
           model (taiga/affine-l2 options)
           _ (defs/edn-test model (defs/affine-edn-file nss))
           y (:ground-truth record/attributes)
@@ -69,16 +73,22 @@
                (print-str "not =\n"
                           record/embedding "\n"
                           (taiga/embedding model)))
-      (test/is (= [2.2052744016749087E-13 
-                   0.2896521377538011
-                   0.25078299164728407]
-                  train-summary))
-      (test/is (= [-0.002635712379207253
-                   0.2891101777340187
-                   0.2501678760956035]
-                  test-summary)))))
+      (z/mapc 
+        (fn [^double x0 ^double x1]
+          (test/is (z/approximately== 1.0e-6 x0 x1))) 
+        [2.2052744016749087E-13 
+         0.2896521377538011
+         0.25078299164728407]
+        train-summary)
+      (z/mapc 
+        (fn [^double x0 ^double x1]
+          (test/is (z/approximately== 1.0e-6 x0 x1))) 
+        [-0.002635712379207253
+         0.2891101777340187
+         0.2501678760956035]
+        test-summary))))
 ;;----------------------------------------------------------------
-#_(test/deftest affine-l2
+(test/deftest affine-l2
   (z/reset-mersenne-twister-seeds)
   (z/seconds 
     nss
@@ -92,7 +102,11 @@
                            record/generator
                            ymean
                            2.0)
-                         :embedding record/embedding)
+                         :embedding record/embedding
+                         :relative-tolerance 1.0e-7
+                         :absolute-tolerance 1.0e-7
+                         :line-search-relative-tolerance 1.0e-4
+                         :line-search-absolute-tolerance 1.0e-4)
           model (taiga/affine-l2 options)
           _ (defs/edn-test model (defs/affine-edn-file nss))
           y (:ground-truth record/attributes)
@@ -113,34 +127,40 @@
       (println "est:" est-translation)
       (println "true:\n" (z/pprint-str (into [] true-dual) 32))
       (println "est:\n" (z/pprint-str (into [] est-dual) 32))
-      #_(test/is (z/approximately== 
-                   0.01 true-translation est-translation)
-                 (print-str "not ==\n"
-                            true-translation "\n"
-                            est-translation))
-      #_(z/mapc 
-          (fn [^double bi ^double bihat]
-            (test/is (z/approximately== 0.01 bi bihat))
-            (print-str "not approximately==\n"
-                       (z/pprint-str (into [] true-dual) 32)
-                       "\n"
-                       (z/pprint-str (into [] est-dual) 32)))
-          (into [] true-dual) 
-          (into [] est-dual))
-      #_(test/is (= record/embedding (taiga/embedding model))
-                 (print-str "not =\n"
-                            record/embedding "\n"
-                            (taiga/embedding model)))
-      (test/is (= [5.570680364479913E-13 
-                   0.5793042755076032 
-                   0.5015659832944205]
-                  train-summary))
-      (test/is (= [0.005271424758805213
-                   0.578220355468474
-                   0.5003357521916836]
-                  test-summary)))))
+      (test/is (z/approximately== 
+                 0.01 true-translation est-translation)
+               (print-str "not ==\n"
+                          true-translation "\n"
+                          est-translation))
+      (z/mapc 
+        (fn [^double bi ^double bihat]
+          (test/is (z/approximately== 0.1 bi bihat))
+          (print-str "not approximately==\n"
+                     (z/pprint-str (into [] true-dual) 32)
+                     "\n"
+                     (z/pprint-str (into [] est-dual) 32)))
+        (into [] true-dual) 
+        (into [] est-dual))
+      (test/is (= record/embedding (taiga/embedding model))
+               (print-str "not =\n"
+                          record/embedding "\n"
+                          (taiga/embedding model)))
+      (z/mapc 
+        (fn [^double x0 ^double x1]
+          (test/is (z/approximately== 1.0e-3 x0 x1))) 
+        [5.570680364479913E-13 
+         0.5793042755076032 
+         0.5015659832944205]
+        train-summary)
+      (z/mapc 
+        (fn [^double x0 ^double x1]
+          (test/is (z/approximately== 1.0e-3 x0 x1))) 
+        [0.005271424758805213
+         0.578220355468474
+         0.5003357521916836]
+        test-summary))))
 ;;----------------------------------------------------------------
-#_(test/deftest noiseless-affine-l2-regression
+(test/deftest noiseless-affine-l2-regression
   (z/reset-mersenne-twister-seeds)
   (z/seconds 
     nss
@@ -198,7 +218,7 @@
                    0.2501678760956035]
                   test-summary)))))
 ;;----------------------------------------------------------------
-#_(test/deftest affine-l2-regression
+(test/deftest affine-l2-regression
   (z/reset-mersenne-twister-seeds)
   (z/seconds 
     nss
@@ -233,21 +253,21 @@
       (println "est:" est-translation)
       (println "true:\n" (z/pprint-str (into [] true-dual) 32))
       (println "est:\n" (z/pprint-str (into [] est-dual) 32))
-      #_(test/is (z/approximately== 
-                   0.01 true-translation est-translation)
+      (test/is (z/approximately== 
+                   0.1 true-translation est-translation)
                  (print-str "not ==\n"
                             true-translation "\n"
                             est-translation))
-      #_(z/mapc 
+      (z/mapc 
           (fn [^double bi ^double bihat]
-            (test/is (z/approximately== 0.01 bi bihat))
+            (test/is (z/approximately== 0.1 bi bihat))
             (print-str "not approximately==\n"
                        (z/pprint-str (into [] true-dual) 32)
                        "\n"
                        (z/pprint-str (into [] est-dual) 32)))
           (into [] true-dual) 
           (into [] est-dual))
-      #_(test/is (= record/embedding (taiga/embedding model))
+      (test/is (= record/embedding (taiga/embedding model))
                  (print-str "not =\n"
                             record/embedding "\n"
                             (taiga/embedding model)))
@@ -260,7 +280,7 @@
                    0.5003357521916836]
                   test-summary)))))
 ;;----------------------------------------------------------------
-#_(test/deftest noiseless-forest
+(test/deftest noiseless-forest
    (z/reset-mersenne-twister-seeds)
    (z/seconds 
      nss
@@ -331,7 +351,7 @@
                     24.882500837165818]
                    test-summary)))))
 ;;----------------------------------------------------------------
-#_(test/deftest forest
+(test/deftest forest
    (z/reset-mersenne-twister-seeds)
    (z/seconds 
      nss
