@@ -19,16 +19,16 @@
 ;;----------------------------------------------------------------
 (defn options [] 
   {:data (read-tsv-file (io/file "data" "stackloss.csv") #",")
-   :attributes {:airflow airflow
+   :attributes {:acidconc acidconc
+                :airflow airflow
                 :watertemp watertemp
-                :acidconc acidconc
                 :ground-truth stackloss
                 :prediction predicted-stackloss}
    :embedding (z/affine-embedding
                 "stackloss"
-                [[:airflow Double/TYPE]
-                 [:watertemp Double/TYPE]
-                 [:acidconc Double/TYPE]])
+                [[:acidconc Double/TYPE]
+                 [:airflow Double/TYPE]
+                 [:watertemp Double/TYPE]])
    :nterms 1023
    :mincount 1
    :mtry (int (Math/round (Math/sqrt 3)))

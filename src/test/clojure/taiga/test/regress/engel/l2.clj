@@ -1,8 +1,8 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-04-05"
-      :doc "Stackloss l2 regression models." }
+      :date "2018-04-06"
+      :doc "Engel l2 regression models." }
     
     taiga.test.regress.engel.l2
   
@@ -17,12 +17,11 @@
 ;;----------------------------------------------------------------
 (def nss (str *ns*))
 ;;----------------------------------------------------------------
-(test/deftest affine-l2
-  #_(z/reset-mersenne-twister-seeds)
+(defn- l2-test [fit]
   (z/seconds 
     nss
     (let [options (engel/options)
-          model (taiga/affine-l2 options)
+          model (fit options)
           _ (defs/edn-test model (defs/affine-edn-file nss))
           y (:ground-truth (:attributes options))
           xbindings (into (sorted-map)
@@ -32,8 +31,8 @@
           _ (println "train:" )
           train-summary (defs/print-residual-summary 
                           y yhat (:data options))
-          true-dual (double-array [0.7156 1.2953 -0.1521])
-          true-translation -39.9197
+          true-dual (double-array [0.4852])
+          true-translation 147.4754
           est-functional (taiga/functional model)
           est-dual (z/dual (z/linear-part est-functional))
           est-translation (z/translation est-functional)]
@@ -57,53 +56,15 @@
         (into [] est-dual))
       (z/mapc 
         (fn [^double x0 ^double x1]
-          (test/is (z/approximately== 1.0e-6 x0 x1))) 
-        [2.0111546713711244E-8 2.918169367439959 2.366620201019657]
+          (test/is (z/approximately== 1.0e-4 x0 x1))) 
+        [-1.2743E-8 113.6213 77.3475]
         train-summary))))
 ;;----------------------------------------------------------------
-(test/deftest affine-l2-regression
-  #_(z/reset-mersenne-twister-seeds)
-  (z/seconds 
-    nss
-    (let [options (engel/options)
-          model (taiga/affine-l2-regression options)
-          _ (defs/edn-test model (defs/affine-edn-file nss))
-          y (:ground-truth (:attributes options))
-          xbindings (into (sorted-map)
-                          (dissoc (:attributes options) 
-                                  :ground-truth :prediction))
-          yhat (fn yhat ^double [datum] (model xbindings datum))
-          _ (println "train:" )
-          train-summary (defs/print-residual-summary 
-                          y yhat (:data options))
-          true-dual (double-array [0.7156 1.2953 -0.1521])
-          true-translation -39.9197
-          est-functional (taiga/functional model)
-          est-dual (z/dual (z/linear-part est-functional))
-          est-translation (z/translation est-functional)]
-      (println "tru:" true-translation)
-      (println "est:" est-translation)
-      (println "true:\n" (z/pprint-str (into [] true-dual) 32))
-      (println "est:\n" (z/pprint-str (into [] est-dual) 32))
-      (test/is (z/approximately== 
-                 1.0e-4 true-translation est-translation)
-               (print-str "not ==\n"
-                          true-translation "\n"
-                          est-translation))
-      (z/mapc 
-        (fn [^double bi ^double bihat]
-          (test/is (z/approximately== 1.0e-4 bi bihat))
-          (print-str "not approximately==\n"
-                     (z/pprint-str (into [] true-dual) 32)
-                     "\n"
-                     (z/pprint-str (into [] est-dual) 32)))
-        (into [] true-dual) 
-        (into [] est-dual))
-      (z/mapc 
-        (fn [^double x0 ^double x1]
-          (test/is (z/approximately== 1.0e-6 x0 x1))) 
-        [2.0111546713711244E-8 2.918169367439959 2.366620201019657]
-        train-summary))))
+(test/deftest affine-l2 
+  (l2-test taiga/affine-l2))
+;;----------------------------------------------------------------
+(test/deftest affine-l2-regression 
+  (l2-test taiga/affine-l2-regression))
 ;;----------------------------------------------------------------
 #_(test/deftest forest
     (z/reset-mersenne-twister-seeds)

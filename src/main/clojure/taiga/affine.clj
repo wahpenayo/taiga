@@ -277,6 +277,79 @@
         [^doubles beta ^double cost] (z/optimize-cg cg-options)]
     (AffineModel. (z/affine-functional beta) ae)))
 ;;----------------------------------------------------------------
+(defn affine-l1
+  
+  "Train an affine (aka linear) model by minimizing possibly 
+   regularized huberized quantile regression prediction cost on 
+   the training data, using nonlinear conjugate gradients
+   (<code>zana/optimize-cg</code>) to do the fitting. 
+   <p>
+   <code>^clojure.lang.IPersistentMap options</code></dt>
+   a map containing options used directly by 
+   <code>l2</code> and passed to functions called by 
+   <code>l2</code>:
+   <dl>
+   <dt><code>:attributes</code></dt>
+   <dd> 
+   a map from keywords to attribute functions, functions which can
+   be applied to the elements of <code>:data</code>.
+   Must include <code>:ground-truth</code>. Key-value pairs other 
+   than <code>:ground-truth</code> and <code>:prediction</code> 
+   are used as predictors in the forest.<br>
+   Attribute functions are treated as numerical if they implement 
+   <code>clojure.lang.IFn$OD</code> or if their value on every 
+   element of <code>:data</code> is a <code>Number</code>. 
+   Implementing <code>clojure.lang.IFn$OD</code> will result in 
+   much higher performance.
+   <br>
+   Missing data for numerical attributes is represented by 
+   returning <code>Double/NaN</code>.
+   <br>
+   Any other attribute functions are treated as categorical. There
+   is no hard limit on the number of categories allowed. Too large 
+   a number of categories is likely to result in overfitting. The 
+   best way to detect overfitting is to compare accuracy on the 
+   training data to accuracy on a fair test set. If training 
+   accuracy is much better, looking at the number of distinct 
+   values for the categorical attributes is one of the first 
+   things to check.
+   </dd>
+   <dt><code>:data</code></dt>
+   <dd>
+   a finite <code>Iterable</code> whose elements are valid inputs 
+   to the attribute functions.
+   </dd>
+   <dt><code>:embedding</code></dt>
+   <dd>
+   TODO
+   </dd>
+   </dl>"
+  
+  ^IFn$OOD [options]
+  
+  #_(println (z/pprint-map-str options))
+  (check options)
+  ;; TODO: straighten out affine vs linear embeddings
+  (let [[y ae bindings data] (flatten options)
+        le (z/linear-embedding ae)
+        embed (fn ^doubles [datum] (le bindings datum))
+        x (z/map embed data)
+        hd (z/huberdistance-from 
+              (:huber-epsilon options)
+              y)
+        sample (z/sampler x)
+        ;; dimension of linear homogeneous coordinate space
+        n+1 (inc (.dimension ^LinearEmbedding le))
+        adual (z/affine-dual (Dn/get n+1))
+        costf (z/compose hd (z/compose sample adual))
+        _(println "costf" costf)
+        cg-options (merge {:objective costf
+                           :start (double-array n+1 0.0)
+                           :max-iterations 100}
+                          options)
+        [^doubles beta ^double cost] (z/optimize-cg cg-options)]
+    (AffineModel. (z/affine-functional beta) ae)))
+;;----------------------------------------------------------------
 (defn affine-qr
   
   "Train an affine (aka linear) model by minimizing possibly 
