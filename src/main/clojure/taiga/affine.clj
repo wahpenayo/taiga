@@ -334,20 +334,18 @@
         le (z/linear-embedding ae)
         embed (fn ^doubles [datum] (le bindings datum))
         x (z/map embed data)
-        l2d2 (z/qrdistance-from 
-               (:p options)
-               (:epsilon options)
-               y)
+        qrd (z/qrdistance-from 
+              (:quantile-p options)
+              (:huber-epsilon options)
+              y)
         sample (z/sampler x)
         ;; dimension of linear homogeneous coordinate space
         n+1 (inc (.dimension ^LinearEmbedding le))
-        start (double-array n+1 0.0)
-        _ (println "affine" (Arrays/toString start))
         adual (z/affine-dual (Dn/get n+1))
-        costf (z/compose l2d2 (z/compose sample adual))
+        costf (z/compose qrd (z/compose sample adual))
         _(println "costf" costf)
         cg-options (merge {:objective costf
-                           :start start
+                           :start (double-array n+1 0.0)
                            :max-iterations 100}
                           options)
         [^doubles beta ^double cost] (z/optimize-cg cg-options)]

@@ -1,5 +1,5 @@
-# John Alan McDonald
-# 2015-12-11
+# wahpenayo at gmail dot com
+# 2018-04-05
 #-----------------------------------------------------------------
 # Load the necessary add-on packages, downloading and installing (in the user's
 # R_LIBS_USER folder) if necessary.  
@@ -31,6 +31,7 @@ load.packages <- function () {
      'rgdal',
      'maptools',
      'randomForest',
+     'quantreg',
      'quantregForest',
      'rpart',
      #'randomSurvivalForest',
@@ -42,7 +43,6 @@ load.packages <- function () {
    install.packages(c(package),user.libs,repos=repos,
      dependencies=TRUE)
    eval(call('library',package)) } } }
-#-----------------------------------------------------------------
 load.packages()
 #-----------------------------------------------------------------
 my.theme <- function () {

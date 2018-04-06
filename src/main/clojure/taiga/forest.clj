@@ -3,7 +3,7 @@
 (ns ^{:author ["wahpenayo at gmail dot com"
                "John Alan McDonald" 
                "Kristina Lisa Klinkner"] 
-      :date "2018-01-18"
+      :date "2018-04-05"
       :doc "Random and other forests." }
     
     taiga.forest
@@ -606,16 +606,16 @@
   "Serialize the <code>forest</code> to <code>file</code> in 
    [EDN](https://github.com/edn-format/edn) (clojure) syntax." 
   
-  [forest file]
-  (z/write-edn forest file))
+  [forest output]
+  (z/write-edn forest output))
 
 (defn read-edn
   
   "Read a forest serialized to <code>file</code> in  
    [EDN](https://github.com/edn-format/edn) (clojure) syntax." 
   
-  [file]
-  (z/read-edn file))
+  [input]
+  (z/read-edn input))
 ;;----------------------------------------------------------------
 ;; requires cheshire 5.6.x, not in brazil 2016-08-25
 #_(defn write-json [forest file]
