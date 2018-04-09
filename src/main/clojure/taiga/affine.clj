@@ -343,6 +343,13 @@
         adual (z/affine-dual (Dn/get n+1))
         costf (z/compose hd (z/compose sample adual))
         _(println "costf" costf)
+        costf (if (:trace options)
+                (z/trace-function costf (:trace options))
+                costf)
+        costf (if (:gradient-check options)
+                (z/gradient-check costf (:gradient-check options))
+                costf)
+        _(println "costf" costf)
         cg-options (merge {:objective costf
                            :start (double-array n+1 0.0)
                            :max-iterations 100}

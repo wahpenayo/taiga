@@ -6,10 +6,24 @@ if (file.exists('e:/porta/projects/taiga')) {
 } else {
   setwd('c:/porta/projects/taiga')
 }
-source('src/scripts/r/functions.r')
+#source('src/scripts/r/functions.r')
 #-----------------------------------------------------------------
 library(quantreg)
 #example(rq)
+#-----------------------------------------------------------------
+data(engel)
+model.l2 <- lm(foodexp~income,data=engel)
+model.l1 <- rq(foodexp~income,data=engel,tau=0.5) 
+y <- engel$foodexp
+x <- data.frame(income=engel$income)
+yhat <- predict(model.l1,newdata=x)
+n <- length(yhat)
+r <- y -yhat
+rmean <- sum(r)/n
+r <- y-yhat
+rmse <- sqrt(sum(r*r/n))
+mad <- sum(abs(r))/n
+#-----------------------------------------------------------------
 data(stackloss)
 yx <- data.frame(
   stackloss=stackloss$stack.loss,
@@ -30,6 +44,4 @@ rmean <- sum(r)/n
 r <- y-yhat
 rmse <- sqrt(sum(r*r/n))
 mad <- sum(abs(r))/n
-
-data(engel)
-lm(foodexp~income,data=engel)
+#-----------------------------------------------------------------
