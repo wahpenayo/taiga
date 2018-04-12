@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-04-09"
+      :date "2018-04-11"
       :doc "Engel data affine regression models." }
     
     taiga.test.regress.engel.affine
@@ -35,7 +35,7 @@
                          [0.5 100.0]
                          #_[0.5 100.0]
                          #_[1.0 1.0]
-                         :gradient-check *out*)
+                         :gradient-check (z/print-writer System/out))
           model (fit options)
           _ (defs/edn-test model (defs/affine-edn-file nss))
           y (:ground-truth (:attributes options))
