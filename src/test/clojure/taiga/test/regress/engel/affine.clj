@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-04-11"
+      :date "2018-04-12"
       :doc "Engel data affine regression models." }
     
     taiga.test.regress.engel.affine
@@ -24,15 +24,18 @@
   (z/seconds 
     nss
     (let [options (assoc (engel/options)
+                         :minimize? true
                          :max-iterations 10000
-                         :relative-tolerance 1.0e-8
-                         :absolute-tolerance 1.0e-8
-                         :line-search-relative-tolerance 1.0e-6
-                         :line-search-absolute-tolerance 1.0e-6
-                         :huber-epsilon 1.0e-3
+                         :initial-bracket-range 1.0e-3
+                         :relative-tolerance 1.0e-6
+                         :absolute-tolerance 1.0e-6
+                         :line-search-relative-tolerance 1.0e-3
+                         :line-search-absolute-tolerance 1.0e-3
+                         :huber-epsilon 1.0e6
                          :quantile-p 0.5
-                         :start 
-                         [0.5 100.0]
+                         :start
+                         [0 0]
+                         #_[0.5601806 81.4822474]
                          #_[0.5 100.0]
                          #_[1.0 1.0]
                          :gradient-check (z/print-writer System/out))
