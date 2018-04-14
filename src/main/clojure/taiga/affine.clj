@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-04-02"
+      :date "2018-04-13"
       :doc 
       "Affine (aka linear) models." }
     
@@ -101,8 +101,10 @@
   (assert (instance? java.util.Map (:attributes options)) 
           (str ":attributes is not a map."
                (z/pprint-map-str options)))
-  (assert (< 0 (count (dissoc (:attributes options) 
-                              :ground-truth :prediction)))
+  ;; edge case: zero predictotrs means a constant model
+  ;; TODO: force constants to be different from affine?
+  (assert (<= 0 (count (dissoc (:attributes options) 
+                               :ground-truth :prediction)))
           (str ":no predictors:" options))
   (assert (every? ifn? (:attributes options)) 
           (str "One of the :attributes is not a function."

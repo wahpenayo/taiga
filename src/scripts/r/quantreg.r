@@ -11,18 +11,36 @@ if (file.exists('e:/porta/projects/taiga')) {
 library(quantreg)
 #example(rq)
 #-----------------------------------------------------------------
+fit.summary <- function(y,yhat) {
+  n <- length(yhat)
+  r <- y -yhat
+  rmean <- mean(r)
+  rmse <- sqrt(sum(r*r/n))
+  rmad <- sum(abs(r))/n
+  list(rmean=rmean,rmse=rmse,rmad=rmad)
+}
+#-----------------------------------------------------------------
 data(engel)
-model.l2 <- lm(foodexp~income,data=engel)
-model.l1 <- rq(foodexp~income,data=engel,tau=0.5) 
 y <- engel$foodexp
 x <- data.frame(income=engel$income)
+
+model.l2 <- lm(foodexp~income,data=engel)
+yhat <- predict(model.l2,newdata=x)
+print("l2 affine")
+print(fit.summary(y,yhat))
+
+model.l1 <- rq(foodexp~income,data=engel,tau=0.5) 
 yhat <- predict(model.l1,newdata=x)
-n <- length(yhat)
-r <- y -yhat
-rmean <- sum(r)/n
-r <- y-yhat
-rmse <- sqrt(sum(r*r/n))
-mad <- sum(abs(r))/n
+print("l1 affine")
+print(fit.summary(y,yhat))
+
+yhat <- rep_len(median(y),length(y))
+print("l1 constant")
+print(fit.summary(y,yhat))
+
+yhat <- rep_len(mean(y),length(y))
+print("l2 constant")
+print(fit.summary(y,yhat))
 #-----------------------------------------------------------------
 data(stackloss)
 yx <- data.frame(

@@ -31,7 +31,7 @@
                          :absolute-tolerance 1.0e-6
                          :line-search-relative-tolerance 1.0e-3
                          :line-search-absolute-tolerance 1.0e-3
-                         :huber-epsilon 1.0e6
+                         :huber-epsilon 1.0e0
                          :quantile-p 0.5
                          :start
                          [0 0]
