@@ -1,5 +1,5 @@
 # wahpenayo at gmail dot com
-# 2018-04-05
+# 2018-04-14
 #-----------------------------------------------------------------
 if (file.exists('e:/porta/projects/taiga')) {
   setwd('e:/porta/projects/taiga')
@@ -24,14 +24,21 @@ data(engel)
 y <- engel$foodexp
 x <- data.frame(income=engel$income)
 
-model.l2 <- lm(foodexp~income,data=engel)
-yhat <- predict(model.l2,newdata=x)
+affine.l2 <- lm(foodexp~income,data=engel)
+yhat <- predict(affine.l2,newdata=x)
 print("l2 affine")
 print(fit.summary(y,yhat))
 
-model.l1 <- rq(foodexp~income,data=engel,tau=0.5) 
-yhat <- predict(model.l1,newdata=x)
+affine.l1 <- rq(foodexp~income,data=engel,tau=0.5) 
+yhat <- predict(affine.l1,newdata=x)
 print("l1 affine")
+print(affine.l1)
+print(fit.summary(y,yhat))
+
+linear.l1 <- rq(foodexp~income - 1,data=engel,tau=0.5) 
+yhat <- predict(linear.l1,newdata=x)
+print("l1 linear")
+print(linear.l1)
 print(fit.summary(y,yhat))
 
 yhat <- rep_len(median(y),length(y))

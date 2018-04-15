@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-04-13"
+      :date "2018-04-14"
       :doc "data from R quantreg for regression tests." }
     
     taiga.test.regress.engel.engel
@@ -20,7 +20,7 @@
    :attributes {:income income
                 :ground-truth foodexp
                 :prediction predicted-foodexp}
-   :embedding (z/affine-embedding
+   :embedding (z/linear-embedding
                 "engel"
                 [[:income Double/TYPE]])
    :nterms 1023

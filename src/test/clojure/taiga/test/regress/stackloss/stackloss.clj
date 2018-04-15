@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-04-05"
+      :date "2018-04-14"
       :doc "data from R quantreg for regression tests." }
     
     taiga.test.regress.stackloss.stackloss
@@ -24,7 +24,7 @@
                 :watertemp watertemp
                 :ground-truth stackloss
                 :prediction predicted-stackloss}
-   :embedding (z/affine-embedding
+   :embedding (z/linear-embedding
                 "stackloss"
                 [[:acidconc Double/TYPE]
                  [:airflow Double/TYPE]

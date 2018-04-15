@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-02-12"
+      :date "2018-04-14"
       :doc "Artificial data for regression unit tests." }
     
     taiga.test.regress.data.record
@@ -50,8 +50,9 @@
         generate-kolor (kolor/generator seed06)
         generate-primate (primate/generator seed07)
         half-sigma (* 0.5 sigma)
-        ^IFn$D generate-dy (z/continuous-uniform-generator 
-                             (- half-sigma) half-sigma seed08)]
+        ^IFn$D generate-dy (when (< 0.0 sigma)
+                             (z/continuous-uniform-generator 
+                               (- half-sigma) half-sigma seed08))]
     (fn random-record ^Record [_]
       (let [x0 (.invokePrim generate-x0)
             x1 (.invokePrim generate-x1)
@@ -65,7 +66,9 @@
                            Double/NaN Double/NaN 
                            Double/NaN Double/NaN)
             mu (.invokePrim mean datum)
-            y  (+ mu (.invokePrim generate-dy))]
+            y  (if (< 0.0 sigma)
+                 (+ mu (.invokePrim generate-dy))
+                 mu)]
         (assoc datum :mean mu :y y)))))
 ;;----------------------------------------------------------------
 (defn make-pyramid-function [^double scale]
@@ -81,7 +84,7 @@
 (def xbindings 
   (into (sorted-map)
         (dissoc attributes :ground-truth :prediction)))
-(def embedding (z/affine-embedding
+(def embedding (z/linear-embedding
                     "affine-data"
                     [[:kolor (drop 1 kolor/kolors)]
                      [:primate (drop 1 primate/primates)]
@@ -107,4 +110,14 @@
                       scale))
         dim (z/embedding-dimension embedding)]
     (z/generate-affine-functional dim gl gt)))
+;;----------------------------------------------------------------
+(defn make-linear-functional ^IFn$OD [^double scale]
+  (let [^IFn$D gl (z/double-generator 
+                    (z/gaussian-distribution 
+                      (z/well44497b 
+                        "seeds/Well44497b-2017-11-05-00.edn") 
+                      scale 
+                      (* scale 10.0)))
+        dim (z/embedding-dimension embedding)]
+    (z/generate-linear-functional dim gl)))
 ;;----------------------------------------------------------------

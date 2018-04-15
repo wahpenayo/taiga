@@ -3,7 +3,7 @@
 (ns ^{:author ["John Alan McDonald"
                "Kristina Kilnkner"
                "wahpenayo at gmail dot com"]
-      :date "2018-04-06"
+      :date "2018-04-14"
       :doc 
       "Primary external interface to Taiga, providing a subset of
        the functions found in other taiga namespaces, created
@@ -19,7 +19,7 @@
     taiga.api
 
   (:require [potemkin.namespaces :as pn]
-            [taiga.affine :as a]
+            [taiga.flat :as flat]
             [taiga.tree.node :as node]
             [taiga.metrics :as m]
             [taiga.permutation :as p]
@@ -32,12 +32,16 @@
                 e/terms
                 e/nterms
                 e/take-terms
-                a/affine-l1
-                a/affine-l2-regression
-                a/affine-l2
-                a/affine-qr
-                a/embedding
-                a/functional
+                flat/affine-l1
+                flat/affine-l2-regression
+                flat/affine-l2
+                flat/affine-qr
+                flat/embedding
+                flat/functional
+                flat/linear-l1
+                flat/linear-l2-regression
+                flat/linear-l2
+                flat/linear-qr
                 f/majority-vote-classifier
                 f/majority-vote-probability
                 #_f/minimum-cost-classifier

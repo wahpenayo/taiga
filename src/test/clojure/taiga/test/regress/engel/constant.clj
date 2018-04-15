@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-04-13"
+      :date "2018-04-14"
       :doc "Engel data constant regression models." }
     
     taiga.test.regress.engel.constant
@@ -27,7 +27,7 @@
                     (engel/options)
                     :attributes {:ground-truth engel/foodexp
                                  :prediction engel/predicted-foodexp}
-                    :embedding (z/affine-embedding "engel" [])
+                    :embedding (z/linear-embedding "engel" [])
                     :minimize? true
                     :max-iterations 10000
                     :initial-bracket-range 1.0e-3

@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com" 
-      :date "2018-02-11"
+      :date "2018-04-14"
       :doc "Common definitions for unit tests." }
     
     taiga.test.regress.data.defs
@@ -77,6 +77,18 @@
         fname (last tokens)
         file (File/createTempFile 
                (str fname "-affine-")
+               ".edn" 
+               (io/file folder))]
+    (println (.getPath file))
+    file))
+;;----------------------------------------------------------------
+(defn linear-edn-file [nss]
+  (let [tokens (s/split nss #"\.")
+        ^File folder (apply io/file "tst" (butlast tokens))
+        _ (.mkdirs folder)
+        fname (last tokens)
+        file (File/createTempFile 
+               (str fname "-linear-")
                ".edn" 
                (io/file folder))]
     (println (.getPath file))

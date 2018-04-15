@@ -46,3 +46,6 @@
 /engel-affine.txt
 /engel-constant.txt
 /stackloss-l1.txt
+/linear-l2.txt
+/linear-qr.txt
+/engel-linear.txt
