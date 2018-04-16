@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com" 
-      :date "2018-04-14"
+      :date "2018-04-16"
       :doc "Common definitions for unit tests." }
     
     taiga.test.regress.data.defs
@@ -131,17 +131,22 @@
     predictions 
     (prediction-file nss options prefix model)))
 ;;----------------------------------------------------------------
-(defn print-residual-summary [^IFn$OD y ^IFn$OD yhat data]
-  (let [rmad (z/mean-absolute-difference y yhat data)
-        ^IFn$OD residual (fn residual ^double [datum] 
-                           (- (.invokePrim y datum) 
-                              (.invokePrim yhat datum)))
-        residuals (z/map-to-doubles residual data)
-        rmean (z/mean residuals)
-        n (z/count data)
-        rmse (Math/sqrt (/ (z/l2-norm residuals) n))]
-    (println rmean rmse rmad)
-    [rmean rmse rmad]))
+(defn print-residual-summary
+  ([^double p ^IFn$OD y ^IFn$OD yhat data]
+    (let [^IFn$OD residual (fn residual ^double [datum] 
+                             (- (.invokePrim y datum) 
+                                (.invokePrim yhat datum)))
+          residuals (z/map-to-doubles residual data)
+          n (z/count data)
+          results {:rmean (z/mean residuals)
+                   :rmse (Math/sqrt (/ (z/l2-norm residuals) n))
+                   :rmad (z/mean-absolute-difference y yhat data)
+                   :rmqr (z/mean-qr-cost p y yhat data)
+                   :rmrq (z/mean-rq-cost p y yhat data)}]
+      (pp/pprint results)
+      results))
+  ([^IFn$OD y ^IFn$OD yhat data]
+    (print-residual-summary 0.5 y yhat data)))
 ;;;----------------------------------------------------------------
 (defn by-nterms-file [nss options model]
   (let [tokens (s/split nss #"\.")

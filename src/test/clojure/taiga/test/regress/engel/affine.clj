@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-04-14"
+      :date "2018-04-16"
       :doc "Engel data affine regression models." }
     
     taiga.test.regress.engel.affine
@@ -91,47 +91,41 @@
           _ (println true-train-summary)
           est-functional (taiga/functional model)
           est-dual (z/dual (z/linear-part est-functional))
-          est-translation (z/translation est-functional)]
+          est-translation (z/translation est-functional)
+          ulps 1.0]
       (println "tru:" true-translation)
       (println "est:" est-translation)
       (println "true:\n" (z/pprint-str (into [] true-dual) 32))
       (println "est:\n" (z/pprint-str (into [] est-dual) 32))
       (test/is (z/approximately== 
-                 (* 1.0e-4 (Math/abs true-translation))
-                 true-translation est-translation)
-               (print-str "not ==\n"
-                          true-translation "\n"
-                          est-translation))
-      (z/mapc 
-        (fn [^double bi ^double bihat]
-          (test/is (z/approximately== (* 1.0e-4 (Math/abs bi))
-                                      bi bihat))
-          (print-str "not approximately==\n"
-                     (z/pprint-str (into [] true-dual) 32)
-                     "\n"
-                     (z/pprint-str (into [] est-dual) 32)))
-        (into [] true-dual) 
-        (into [] est-dual))
-      (z/mapc 
-        (fn [^double x0 ^double x1]
-          (test/is (z/approximately== (* 1.0e-4 (Math/abs x0)) 
-                                      x0 x1))) 
-        true-train-summary
-        train-summary))))
-;;----------------------------------------------------------------
-(test/deftest affine-l1 
-  (test0 taiga/affine-l1 81.4822474 (double-array [0.5601806])
-         [-7.694427 120.3293 74.72312]))
-;;----------------------------------------------------------------
-#_(test/deftest affine-l2 
-    (test0 taiga/affine-l2
-           147.4754
-           (double-array [0.4852])
-           [-1.2743E-8 113.6213 77.3475]))
-;;----------------------------------------------------------------
-#_(test/deftest affine-l2-regression 
-    (test0 taiga/affine-l2-regression
-           147.4754
-           (double-array [0.4852])
-           [-1.2743E-8 113.6213 77.3475]))
-;;----------------------------------------------------------------
+                 1.0e12 true-translation est-translation))
+      (test/is (z/doubles-approximately== 
+                 1.0e12 true-dual est-dual))
+      (test/is (z/maps-approximately== 
+                 ulps
+                 true-train-summary
+                 train-summary)))))
+  ;;----------------------------------------------------------------
+  (test/deftest affine-l1 
+    (test0 taiga/affine-l1 
+           81.4822474 
+           (double-array [0.5601806])
+           {:rmean -7.694427,
+ :rmse 120.3293,
+ :rmad 74.72312,
+ :rmqr 74.72312,
+ :rmrq 74.72312}))
+  ;;----------------------------------------------------------------
+  #_(test/deftest affine-l2 
+      (test0 taiga/affine-l2
+             147.4754
+             (double-array [0.4852])
+             [-1.2743E-8 113.6213 77.3475]))
+  ;;----------------------------------------------------------------
+  #_(test/deftest affine-l2-regression 
+      (test0 taiga/affine-l2-regression
+             147.4754
+             (double-array [0.4852])
+             [-1.2743E-8 113.6213 77.3475]))
+  ;;----------------------------------------------------------------
+  
