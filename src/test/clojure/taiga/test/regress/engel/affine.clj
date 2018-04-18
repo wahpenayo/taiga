@@ -1,7 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-04-16"
+      :date "2018-04-17"
       :doc "Engel data affine regression models." }
     
     taiga.test.regress.engel.affine
@@ -25,9 +25,89 @@
     (println :start beta)
     beta))
 ;;----------------------------------------------------------------
+(defn- coax-q75 [options]
+  (println :huber-epsilon (:huber-epsilon options))
+  (let [options (assoc options :quantile-p 0.75)
+        model (taiga/affine-qr options)
+        options (assoc options
+                       :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
+                       :start (params model))
+        #_(println :huber-epsilon (:huber-epsilon options))
+        model (taiga/affine-qr options) 
+        options (assoc options
+                       :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
+                       :start (params model))
+        #_(println :huber-epsilon (:huber-epsilon options))
+        model (taiga/affine-qr options) 
+        options (assoc options
+                       :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
+                       :start (params model))
+        #_(println :huber-epsilon (:huber-epsilon options))
+        model (taiga/affine-qr options) 
+        options (assoc options
+                       :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
+                       :start (params model))
+        #_(println :huber-epsilon (:huber-epsilon options))
+        model (taiga/affine-qr options) 
+        options (assoc options
+                       :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
+                       :start (params model))
+        #_(println :huber-epsilon (:huber-epsilon options))
+        model (taiga/affine-qr options) 
+        options (assoc options
+                       :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
+                       :start (params model))
+        #_(println :huber-epsilon (:huber-epsilon options))
+        model (taiga/affine-qr options) 
+        options (assoc options
+                       :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
+                       :start (params model))
+        #_(println :huber-epsilon (:huber-epsilon options))]
+    (taiga/affine-qr options))) 
+;;----------------------------------------------------------------
+(defn- coax-l1 [options]
+  (println :huber-epsilon (:huber-epsilon options))
+  (let [model (taiga/affine-l1  options)
+        options (assoc options
+                       :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
+                       :start (params model))
+        #_(println :huber-epsilon (:huber-epsilon options))
+        model (taiga/affine-l1  options) 
+        options (assoc options
+                       :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
+                       :start (params model))
+        #_(println :huber-epsilon (:huber-epsilon options))
+        model (taiga/affine-l1  options) 
+        options (assoc options
+                       :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
+                       :start (params model))
+        #_(println :huber-epsilon (:huber-epsilon options))
+        model (taiga/affine-l1  options) 
+        options (assoc options
+                       :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
+                       :start (params model))
+        #_(println :huber-epsilon (:huber-epsilon options))
+        model (taiga/affine-l1  options) 
+        options (assoc options
+                       :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
+                       :start (params model))
+        #_(println :huber-epsilon (:huber-epsilon options))
+        model (taiga/affine-l1  options) 
+        options (assoc options
+                       :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
+                       :start (params model))
+        #_(println :huber-epsilon (:huber-epsilon options))
+        model (taiga/affine-l1  options) 
+        options (assoc options
+                       :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
+                       :start (params model))
+        #_(println :huber-epsilon (:huber-epsilon options))]
+    (taiga/affine-l1  options))) 
+;;----------------------------------------------------------------
 (defn- test0 [^clojure.lang.IFn fit
-              ^double true-translation
-              ^doubles true-dual
+              ulps0 ulps1 ulps2 
+              true-translation
+              true-dual
               true-train-summary]
   (z/seconds 
     nss
@@ -42,43 +122,8 @@
                          :huber-epsilon 1.0e3
                          :quantile-p 0.5
                          ;;:gradient-check (z/print-writer System/out)
-                         :start
-                         [0 0]
-                         #_[0.5593288100991741 82.37058468462227]
-                         #_[0.5 100.0]
-                         #_[1.0 1.0])
-          _(println :huber-epsilon (:huber-epsilon options))
+                         :start [0 0])
           model (fit options)
-          options (assoc options
-                         :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
-                         :start (params model))
-          _(println :huber-epsilon (:huber-epsilon options))
-          model (fit options) 
-          options (assoc options
-                         :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
-                         :start (params model))
-          _(println :huber-epsilon (:huber-epsilon options))
-          model (fit options) 
-          options (assoc options
-                         :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
-                         :start (params model))
-          _(println :huber-epsilon (:huber-epsilon options))
-          model (fit options) 
-          options (assoc options
-                         :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
-                         :start (params model))
-          _(println :huber-epsilon (:huber-epsilon options))
-          model (fit options) 
-          options (assoc options
-                         :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
-                         :start (params model))
-          _(println :huber-epsilon (:huber-epsilon options))
-          model (fit options) 
-          options (assoc options
-                         :huber-epsilon (* 0.1 (double (:huber-epsilon options)))
-                         :start (params model))
-          _(println :huber-epsilon (:huber-epsilon options))
-          model (fit options) 
           _ (defs/edn-test model (defs/affine-edn-file nss))
           y (:ground-truth (:attributes options))
           xbindings (into (sorted-map)
@@ -87,45 +132,65 @@
           yhat (fn yhat ^double [datum] (model xbindings datum))
           _ (println "train:" )
           train-summary (defs/print-residual-summary 
-                          y yhat (:data options))
+                          0.75 y yhat (:data options))
           _ (println true-train-summary)
           est-functional (taiga/functional model)
           est-dual (z/dual (z/linear-part est-functional))
-          est-translation (z/translation est-functional)
-          ulps 1.0]
+          est-translation (z/translation est-functional)]
       (println "tru:" true-translation)
       (println "est:" est-translation)
       (println "true:\n" (z/pprint-str (into [] true-dual) 32))
       (println "est:\n" (z/pprint-str (into [] est-dual) 32))
       (test/is (z/approximately== 
-                 1.0e12 true-translation est-translation))
+                 ulps0 true-translation est-translation))
       (test/is (z/doubles-approximately== 
-                 1.0e12 true-dual est-dual))
+                 ulps1 true-dual est-dual))
       (test/is (z/maps-approximately== 
-                 ulps
+                 ulps2
                  true-train-summary
                  train-summary)))))
-  ;;----------------------------------------------------------------
-  (test/deftest affine-l1 
-    (test0 taiga/affine-l1 
-           81.4822474 
-           (double-array [0.5601806])
-           {:rmean -7.694427,
- :rmse 120.3293,
- :rmad 74.72312,
- :rmqr 74.72312,
- :rmrq 74.72312}))
-  ;;----------------------------------------------------------------
-  #_(test/deftest affine-l2 
-      (test0 taiga/affine-l2
-             147.4754
-             (double-array [0.4852])
-             [-1.2743E-8 113.6213 77.3475]))
-  ;;----------------------------------------------------------------
-  #_(test/deftest affine-l2-regression 
-      (test0 taiga/affine-l2-regression
-             147.4754
-             (double-array [0.4852])
-             [-1.2743E-8 113.6213 77.3475]))
-  ;;----------------------------------------------------------------
-  
+;;----------------------------------------------------------------
+(test/deftest affine-q75
+  (test0 coax-q75
+         2.0e13 5.0e11 1.0e12
+         62.39658552896441
+         (double-array [0.64401413936869])
+         {:rmean -70.97300609577452
+          :rmse 157.2250903172707
+          :rmad 91.05459057038878,
+          :rmqr 55.56808752250152,
+          :rmrq 74.09078336333536}))
+;;----------------------------------------------------------------
+(test/deftest affine-l1 
+  (test0 coax-l1
+         5.0e11 5.0e10 1.0e11
+         81.4822474169362181 
+         (double-array [0.5601805512094196])
+         {:rmean -7.694427436042407,
+          :rmse 120.3293287452608,
+          :rmad 74.72311764947104,
+          :rmqr 70.87590393144984,
+          :rmrq 94.50120524193312}))
+;;----------------------------------------------------------------
+(test/deftest affine-l2 
+  (test0 taiga/affine-l2
+         1.0e3 5.0e4 5.0e7
+         147.4753885237055044
+         (double-array [0.4851784236769233])
+         {:rmean 6.108458892370852e-14,
+          :rmse 113.6213303526584,
+          :rmad 77.34747450550505,
+          :rmqr 77.34747450550505,
+          :rmrq 103.1299660073401}))
+;;----------------------------------------------------------------
+(test/deftest affine-l2-regression 
+  (test0 taiga/affine-l2-regression
+         1.0e1 1.0e0 2.0e3
+         147.4753885237055044
+         (double-array [0.4851784236769233])
+         {:rmean 6.108458892370852e-14,
+          :rmse 113.6213303526584,
+          :rmad 77.34747450550505,
+          :rmqr 77.34747450550508,
+          :rmrq 103.1299660073401}))
+;;----------------------------------------------------------------

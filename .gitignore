@@ -49,3 +49,7 @@
 /linear-l2.txt
 /linear-qr.txt
 /engel-linear.txt
+/stackloss-affine.txt
+/stackloss-constant.txt
+/stackloss-linear.txt
+/taiga.txt

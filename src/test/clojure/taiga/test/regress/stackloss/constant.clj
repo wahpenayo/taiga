@@ -1,10 +1,10 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 (ns ^{:author "wahpenayo at gmail dot com"
-      :date "2018-04-14"
+      :date "2018-04-17"
       :doc "Engel data constant regression models." }
     
-    taiga.test.regress.engel.constant
+    taiga.test.regress.stackloss.constant
   
   (:require [clojure.java.io :as io]
             [clojure.test :as test]
@@ -12,8 +12,8 @@
             [taiga.api :as taiga]
             [taiga.test.tree :as tree]
             [taiga.test.regress.data.defs :as defs]
-            [taiga.test.regress.engel.engel :as engel]))
-;; mvn -Dtest=taiga.test.regress.engel.constant clojure:test > engel-constant.txt
+            [taiga.test.regress.stackloss.stackloss :as stackloss]))
+;; mvn -Dtest=taiga.test.regress.stackloss.constant clojure:test > stackloss-constant.txt
 ;;----------------------------------------------------------------
 (def nss (str *ns*))
 ;;----------------------------------------------------------------
@@ -111,10 +111,10 @@
   (z/seconds 
     nss
     (let [options (assoc
-                    (engel/options)
-                    :attributes {:ground-truth engel/foodexp
-                                 :prediction engel/predicted-foodexp}
-                    :embedding (z/linear-embedding "engel" [])
+                    (stackloss/options)
+                    :attributes {:ground-truth stackloss/stackloss
+                                 :prediction stackloss/predicted-stackloss}
+                    :embedding (z/linear-embedding "stackloss" [])
                     :minimize? true
                     :max-iterations 10000
                     :initial-bracket-range 1.0e-3
@@ -146,42 +146,46 @@
                  ulps1 true-train-summary train-summary)))))
 ;;----------------------------------------------------------------
 (test/deftest constant-l2-regression 
-    (test0 taiga/affine-l2-regression
-           1.0e0 2.0e3
-         624.1501113133555
-           {:rmean 3.388636888820791e-14
-            :rmse 275.8681638504783
-            :rmad 200.4251399540668
-            :rmqr 200.4251399540668
-            :rmrq 267.2335199387558}))
+  (test0 
+    taiga/affine-l2-regression
+    1.0e0 5.0e1
+    17.52380952380953
+    {:rmean -1.691148874377866e-15
+     :rmse 9.926487162752505
+     :rmad 7.505668934240363
+     :rmqr 7.505668934240362
+     :rmrq 10.00755857898715}))
 ;;----------------------------------------------------------------
 (test/deftest constant-l2 
-  (test0 taiga/affine-l2
-         1.0e0 2.0e3
-           624.1501113133555
-         {:rmean 3.388636888820791e-14
-          :rmse 275.8681638504783
-          :rmad 200.4251399540668
-          :rmqr 200.4251399540668
-          :rmrq 267.2335199387558}))
+  (test0 
+    taiga/affine-l2
+    1.0e2 5.0e3
+    17.52380952380953
+    {:rmean -1.691148874377866e-15
+     :rmse 9.926487162752505
+     :rmad 7.505668934240363
+     :rmqr 7.505668934240362
+     :rmrq 10.00755857898715}))
 ;;----------------------------------------------------------------
 (test/deftest constant-l1 
-   (test0 coax-l1
-          1.0e0 2.0e3
-           582.54125094185
-          {:rmean 41.60886037150559
-           :rmse 278.9884246481381
-           :rmad 196.92790017903
-           :rmqr 217.7323303647828
-           :rmrq 290.3097738197104}))
+  (test0 
+    coax-l1
+    2.0e10 1.0e11
+    15
+    {:rmean 2.523809523809524
+     :rmse 10.24230256850294
+     :rmad 6.904761904761905
+     :rmqr 8.166666666666666
+     :rmrq 10.88888888888889}))
 ;;----------------------------------------------------------------
 (test/deftest constant-q75
-  (test0 coax-q75
-         1.0e13 5.0e13
-         743.8814317451735
-         {:rmean -119.7313204318179
-          :rmse 300.7304988167662
-          :rmad 243.0007504635849
-          :rmqr 183.1350902476759
-          :rmrq 244.1801203302346}))
+   (test0 
+     coax-q75
+     1.0e3 5.0e3
+      19
+     {:rmean -1.476190476190476
+      :rmse 10.03565073696199
+      :rmad 8.047619047619047
+      :rmqr 7.309523809523809
+      :rmrq 9.746031746031745}))
 ;;----------------------------------------------------------------

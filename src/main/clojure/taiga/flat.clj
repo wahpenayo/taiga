@@ -117,31 +117,6 @@
           (str "No :ground-truth!"
                (z/pprint-map-str options))))
 ;;----------------------------------------------------------------
-#_(defn- affinate
-  
-  "Convert the general prediction problem to affine form
-   (aka linear with intercept)."
-  
-  [options]
-  
-  (let [^IFn$OD y (:ground-truth (:attributes options))
-        data (z/drop-missing y (:data options))
-        _ (assert (not (z/empty? data)))
-        datum-name (.getSimpleName (class (z/first data)))
-        ^doubles ys (z/map-to-doubles y data)
-        ;; TODO: can we be sure the order of bindings and
-         ;; (vals bindings) would be the same?
-         bindings (into (sorted-map)
-                       (dissoc (:attributes options) 
-                               :ground-truth 
-                               :prediction))
-        xs (vals bindings)
-        ;; need affine embedding for predictions later
-         ae (:embedding 
-             options
-             (z/affine-embedding (str datum-name "->En") xs data))]
-    [ys ae bindings data]))
-;;----------------------------------------------------------------
 (defn- linearize
   
   "Convert the general prediction problem to pure (no intercept) 
