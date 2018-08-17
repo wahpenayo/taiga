@@ -1,6 +1,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* false)
-(ns ^{:author "John Alan McDonald, Kristina Lisa Klinkner" :date "2016-12-21"
+(ns ^{:author ["John Alan McDonald" "Kristina Lisa Klinkner"] 
+      :date "2018-08-17"
       :doc "Greedy decision tree splitting." }
     
     taiga.tree.split.numericalleft
@@ -8,12 +9,12 @@
   (:require [clojure.string :as s]
             [cheshire.generate]
             [zana.api :as z]
+            [taiga.utils :as utils]
             [taiga.tree.node :as node]))
 (set! *unchecked-math* :warn-on-boxed)
 ;;------------------------------------------------------------------------------
-;; NaN (missing) will go to the > direction
-;; TODO: ??? is that right? Naming is confusing.
-;; Sure would be nice to inherit from an abstract NumericalSplit
+;; NaN (missing) will go to the true child
+
 (deftype NumericalSplitDefaultLeft [^clojure.lang.Keyword k 
                                     ^double splitx
                                     ^taiga.tree.node.Node true-child
@@ -24,11 +25,25 @@
   (falseChild [this] false-child)
   (child [this predictors datum]
     (let [^java.util.Map p predictors
-          ^clojure.lang.IFn$OD x (.get p k)]
-      (assert x (print-str "predictor" k "not found in\n" 
-                           (str (into {} (map (fn [[k v]] [k (z/name v)]) p)))))
-      ;; (not (<= ...)) to handle NaN
-      (if (not (<= (.invokePrim x datum) splitx)) true-child false-child)))
+          ^clojure.lang.IFn$OD x (.get p k)
+          _ (assert x (print-str 
+                        "predictor" k "not found in\n" 
+                        (str (into {} 
+                                   (map (fn [[k v]] [k (z/name v)]) 
+                                        p)))))
+          xi (x datum)
+          ;; (not (<= ...)) to handle NaN
+          direction (not (<= (.invokePrim x datum) splitx))]
+      
+      (when utils/*debug*
+        (println "-------------------------")
+        (println (.getSimpleName (class this)))
+        (println "on" k "->" (z/name x) "->" xi)
+        (println "(not (<=" xi splitx "))")
+        (println "branch:" direction)
+        (println))
+      
+      (if direction true-child false-child)))
   
   (^clojure.lang.IFn extract [this ^java.util.Map predictors]
     (let [^clojure.lang.IFn$OD x (.get predictors k)]
@@ -51,7 +66,7 @@
   (invokePrim [this predictors datum] 
     (let [^clojure.lang.IFn$OOD leaf (node/leaf this predictors datum)] 
       (.invokePrim leaf predictors datum)))
-
+  
   clojure.lang.IFn
   (invoke [this predictors datum] 
     (let [^clojure.lang.IFn leaf (node/leaf this predictors datum)] 

@@ -1,6 +1,9 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* false)
-(ns ^{:author "John Alan McDonald, Kristina Lisa Klinkner" :date "2016-11-29"
+(ns ^{:author ["wahpenayo at gmail dot com"
+               "John Alan McDonald" 
+               "Kristina Lisa Klinkner"] 
+      :date "2018-08-17"
       :doc "Greedy decision tree splitting." }
     
     taiga.tree.split.categorical
@@ -21,11 +24,25 @@
   (trueChild [this] true-child)
   (falseChild [this] false-child)
   (child [this predictors datum]
-    (let [^clojure.lang.IFn x (.get ^java.util.Map predictors k)]
-      (assert x (print-str "predictor" k "not found in\n" 
-                           (str (into {} (map (fn [[k v]] [k (z/name v)])
-                                              predictors)))))
-      (if (.contains categories (x datum))
+    (let [^clojure.lang.IFn x (.get ^java.util.Map predictors k)
+          _ (assert x (print-str 
+                        "predictor" k "not found in\n" 
+                        (str (into {} 
+                                   (map (fn [[k v]] [k (z/name v)])
+                                        predictors)))))
+          xi (x datum)
+          contained? (.contains categories xi)] 
+      
+      (when utils/*debug*
+        (println "-------------------------")
+        (println (.getSimpleName (class this)))
+        (println "on" k "->" (z/name x) "->" xi)
+        (println "branch:" contained?)
+        (println "categories:")
+        (println categories)
+        (println))
+      
+      (if contained?
         true-child 
         false-child)))
   
@@ -39,7 +56,7 @@
   
   (withChildren [this child0 child1]
     (CategoricalSplit. k categories child0 child1))
-
+  
   (withChildren [this children] 
     (.withChildren this (first children) (second children)))
   (isFertile [this] true)
@@ -49,7 +66,7 @@
   (invokePrim [this predictors datum] 
     (let [^clojure.lang.IFn$OOD leaf (node/leaf this predictors datum)] 
       (.invokePrim leaf predictors datum)))
-
+  
   clojure.lang.IFn
   (invoke [this predictors datum] 
     (let [^clojure.lang.IFn leaf (node/leaf this predictors datum)] 
@@ -89,9 +106,9 @@
     (do
       (.write w " #taiga.tree.split.categorical.CategoricalSplit{:k ")
       (.write w (.toString (.k this)))
-;      (.write w " :categories #{")
-;      (.write w (s/join " " (.categories this)))
-;      (.write w "} ")
+      ;      (.write w " :categories #{")
+      ;      (.write w (s/join " " (.categories this)))
+      ;      (.write w "} ")
       (.write w " :categories ")
       (.write w (pr-str (.categories this)))
       (.write w " :true-child ")

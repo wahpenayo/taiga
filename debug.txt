@@ -1,0 +1,1 @@
+"C:\Program Files\Java\jdk-10.0.2\bin\java" -server -XX:+AggressiveOpts -ea -XX:+AggressiveHeap -XX:NewRatio=2   -Xms12g -Xmx12g -cp ./src/scripts/clojure;./src/test/java;./src/test/clojure;lib/* clojure.main src/scripts/clojure/taiga/scripts/debug/pyramid.clj

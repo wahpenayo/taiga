@@ -1,6 +1,6 @@
-@echo off
+clj src/scripts/clojure/taiga/scripts/debug/pyramid.clj > debug.txt@echo off
 :: wahpenayo (at) gmail (dot) com
-:: 2017-10-31
+:: 2018-08-17
 
 ::set GC=-XX:+AggressiveHeap -XX:+UseStringDeduplication 
 set GC=
@@ -24,7 +24,7 @@ set XMX=-Xms12g -Xmx12g -Xmn5g
 set OPENS=--add-opens java.base/java.lang=ALL-UNNAMED
 set CP=-cp ./src/scripts/clojure;lib/*
 
-set JAVA_HOME=%JAVA9%
+set JAVA_HOME=%JAVA10%
 set JAVA="%JAVA_HOME%\bin\java"
 
 set CMD=%JAVA% %THRUPUT% -ea -dsa -Xbatch %GC% %PROF% %XMX% %COMPRESSED% %TRACE% %OPENS% %CP% clojure.main %*
