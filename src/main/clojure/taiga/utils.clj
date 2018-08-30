@@ -1,6 +1,9 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
-(ns ^{:author "John Alan McDonald, Kristina Lisa Klinkner" :date "2016-11-11"
+(ns ^{:author ["wahpenayo at gmail dot com"
+               "John Alan McDonald" 
+               "Kristina Lisa Klinkner"] 
+      :date "2018-08-30"
       :doc "Greedy decision tree splitting." }
     
     taiga.utils

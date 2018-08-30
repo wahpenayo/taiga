@@ -1,35 +1,32 @@
-@echo off
-:: wahpenayo at gmail dot com
-:: 2017-10-24
+clj src/scripts/clojure/taiga/scripts/debug/pyramid.clj > debug.txt@echo off
+:: wahpenayo (at) gmail (dot) com
+:: 2018-08-17
 
-::set GC=-XX:-UseParallelGC -XX:+UseSerialGC
-set GC=-XX:+AggressiveHeap -XX:NewRatio=2
+::set GC=-XX:+AggressiveHeap -XX:+UseStringDeduplication 
+set GC=
 
+set COMPRESSED=
+::set COMPRESSED=-XX:CompressedClassSpaceSize=3g 
 
-::set SAFE=-XX:+PrintSafepointStatistics -XX:+PrintGCApplicationStoppedTime -XX:PrintSafepointStatisticsCount=1
-set SAFE=
+set TRACE=
+::set TRACE=-XX:+PrintGCDetails -XX:+TraceClassUnloading -XX:+TraceClassLoading
 
-::set PROF=-Xrunhprof:cpu=samples,depth=64,thread=y,doe=y
 set PROF=
+::set PROF=-Xrunhprof:cpu=samples,depth=128,thread=y,doe=y
 
+::set THRUPUT=-d64 -server -XX:+AggressiveOpts 
+set THRUPUT=-d64 -server
+::set THRUPUT=
 
-::set THRUPUT=-d64 -server -XX:+AggressiveOpts -XX:+UseLargePages -Xmn12g
-set THRUPUT=-d64 -server -XX:+AggressiveOpts -Xmn12g
+::set XMX=-Xms29g -Xmx29g -Xmn11g 
+set XMX=-Xms12g -Xmx12g -Xmn5g 
 
-:: Leave a couple gb for Windows, Xmx about 2 times Xmn
-::set SIZE=30g
-set SIZE=26g
-::set SIZE=14g
-::set SIZE=8g
+set OPENS=--add-opens java.base/java.lang=ALL-UNNAMED
+set CP=-cp ./src/scripts/clojure;lib/*
 
-set XMX=-Xms%SIZE% -Xmx%SIZE%
-
-::set CP=-cp ./src/scripts/clojure;./src/main/clojure;./src/test/clojure;lib/*
-set CP=-cp ./src/scripts/clojure;./src/test/java;./src/test/clojure;lib/*
-
-set JAVA_HOME=%JAVA8%
+set JAVA_HOME=%JAVA10%
 set JAVA="%JAVA_HOME%\bin\java"
 
-set CMD=%JAVA% %THRUPUT% -ea %GC% %SAFE% %PROF% %XMX% %CP% clojure.main %*
+set CMD=%JAVA% %THRUPUT% -ea -dsa -Xbatch %GC% %PROF% %XMX% %COMPRESSED% %TRACE% %OPENS% %CP% clojure.main %*
 ::echo %CMD%
 %CMD%
