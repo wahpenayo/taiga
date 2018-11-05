@@ -31,6 +31,7 @@
 *.xdy
 *.ist
 *syntex*
+*.pdf
 /.externalToolBuilders/
 /.settings/
 /.README.md.html
@@ -53,3 +54,4 @@
 /stackloss-constant.txt
 /stackloss-linear.txt
 /taiga.txt
+/docs/

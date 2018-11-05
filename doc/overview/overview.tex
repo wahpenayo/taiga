@@ -1,10 +1,10 @@
 % !TEX TS-program = arara
-% arara: xelatex: { synctex: on, options: '-halt-on-error'}
+% arara: xelatex: { synctex: on, options: [-halt-on-error]}
 % arara: biber
 % skip-arara: makeglossaries
 % skip-arara: makeindex
-% arara: xelatex: { synctex: on, options: '-halt-on-error'}
-% arara: xelatex: { synctex: on, options: '-halt-on-error'}
+% arara: xelatex: { synctex: on, options: [-halt-on-error]}
+% arara: xelatex: { synctex: on, options: [-halt-on-error]}
 % arara: clean: { files: [ overview.aux, overview.bbl] }
 % arara: clean: { files: [ overview.bcf, overview.blg] }
 % arara: clean: { files: [ overview.glg, overview.glo] }
@@ -20,7 +20,7 @@
 %-----------------------------------------------------------------
 \documentclass[10pt,openany]{article}
 \input{../tex/head}
-\input{../tex/landscape-2col-header}
+\input{../tex/landscape-2col}
 \input{../tex/clj-listings}
 \input{../tex/symbols}
 

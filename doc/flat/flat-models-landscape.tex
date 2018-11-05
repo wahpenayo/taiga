@@ -1,12 +1,12 @@
 % !TEX TS-program = arara
-% arara: xelatex: { synctex: on, options: '-halt-on-error' } 
+% arara: xelatex: { synctex: on, options: [-halt-on-error] } 
 % arara: biber
 % skip-arara: makeglossaries
 % skip-arara: makeindex
-% arara: xelatex: { synctex: on, options: '-halt-on-error'  } 
-% arara: xelatex: { synctex: on, options: '-halt-on-error'   } 
-% arara: xelatex: { synctex: on, options: '-halt-on-error'  } 
-% arara: xelatex: { synctex: on, options: '-halt-on-error'   } 
+% arara: xelatex: { synctex: on, options: [-halt-on-error]  } 
+% arara: xelatex: { synctex: on, options: [-halt-on-error]   } 
+% arara: xelatex: { synctex: on, options: [-halt-on-error]  } 
+% arara: xelatex: { synctex: on, options: [-halt-on-error]   } 
 % arara: clean: { files: [flat-models-landscape.aux] }
 % arara: clean: { files: [flat-models-landscape.bbl] }
 % arara: clean: { files: [flat-models-landscape.bcf] } 
@@ -29,7 +29,7 @@
 %-----------------------------------------------------------------
 \documentclass[10pt,openany]{article}
 \input{../tex/head}
-\input{../tex/landscape-2col-header}
+\input{../tex/landscape-2col}
 \input{../tex/clj-listings}
 \input{../tex/symbols}
 \input{flat-models-body}

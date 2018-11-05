@@ -1,10 +1,10 @@
 % !TEX TS-program = arara
-% arara: xelatex: { synctex: on, options: '-halt-on-error' } 
+% arara: xelatex: { synctex: on, options: [-halt-on-error] } 
 % arara: biber
 % skip-arara: makeglossaries
 % skip-arara: makeindex
-% arara: xelatex: { synctex: on, options: '-halt-on-error'  } 
-% arara: xelatex: { synctex: on, options: '-halt-on-error'   } 
+% arara: xelatex: { synctex: on, options: [-halt-on-error]  } 
+% arara: xelatex: { synctex: on, options: [-halt-on-error]   } 
 % arara: clean: { files: [regression-cost-kindle.aux] }
 % arara: clean: { files: [regression-cost-kindle.bbl] }
 % arara: clean: { files: [regression-cost-kindle.bcf] } 
@@ -27,7 +27,7 @@
 %-----------------------------------------------------------------
 \documentclass[10pt,openany]{article}
 \input{../tex/head}
-\input{../tex/kindle-paperwhite-header}
+\input{../tex/kindle-paperwhite}
 \input{../tex/clj-listings}
 \input{../tex/symbols}
 
