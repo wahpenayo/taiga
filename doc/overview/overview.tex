@@ -564,8 +564,8 @@ At this point, we are looking for simplicity and generality, rather
 than speed. The resulting code should be not much longer than the
 high level description in Algorithm \ref{thm:Random-Forests-for}
 (essentially Algorithm 15.1 from \cite{hastie-tibshirani-friedman-2009}),
-except for steps 2b (section \ref{sub:Split-optimization}) and 2c
-(section \ref{sub:Decision-trees}), where the details have obviously
+except for steps 2b (\autoref{sub:Split-optimization}) and 2c
+(\autoref{sub:Decision-trees}), where the details have obviously
 been omitted.
 \begin{algorithm}
 \label{thm:Random-Forests-for}Random Forests for Regression or Classification. 
@@ -926,7 +926,7 @@ in pairs, and \texttt{(constantly~z)} returns a constant function,
 that is \texttt{((constantly~z)~x)} is \texttt{z} regardless of
 \texttt{x}.
 \item [{\texttt{split-learner}:}] A function that returns a split predicate
-function given a set of training pairs. More detail in section \ref{sub:Split-optimization}.
+function given a set of training pairs. More detail in \autoref{sub:Split-optimization}.
 \item [{\texttt{pairs}:}] A collection of \texttt{RegressionPairs}.
 \end{description}
 Functions that operate on \texttt{Bud}s:
@@ -1428,7 +1428,7 @@ brother, while an undergraduate. He's since gone on to bigger and
 better things \cite{BostonHousing}.}, though tiny (506x19) by contemporary standards, has been a standard
 test set for regression since the 1970s. Code that parses a tab-separated
 file containing the data into appropriate regression training pairs,
-using the tsv library described in section \ref{sub:util.tsv}, is
+using the tsv library described in \autoref{sub:util.tsv}, is
 in listing \ref{lis:Reading-the-Boston}.
 
 \begin{minipage}[t]{1\columnwidth}%
