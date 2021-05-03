@@ -3,7 +3,7 @@
 (ns ^{:author "John Alan McDonald, Kristina Lisa Klinkner" :date "2016-12-19"
       :doc 
       "Use min cost increase hierarchical clustering to generate a binary tree 
-       of categories. THe heuristic split is the 2 children of the root." }
+       of categories. The heuristic split is the 2 children of the root." }
     
     taiga.split.object.categorical.bottom-up
   
