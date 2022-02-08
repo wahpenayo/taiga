@@ -8,11 +8,11 @@
  <groupId>wahpenayo</groupId>
  <artifactId>taiga</artifactId>
  <description>A random forest kit.</description>
- <version>4.1.0-SNAPSHOT</version>
+ <version>4.1.1-SNAPSHOT</version>
  <parent>
   <groupId>wahpenayo</groupId>
   <artifactId>wahpenayo-parent</artifactId>
-  <version>4.1.0-SNAPSHOT</version>
+  <version>4.1.1-SNAPSHOT</version>
  </parent>
  <build>
   <plugins>
@@ -61,7 +61,7 @@
   <dependency>
    <groupId>wahpenayo</groupId>
    <artifactId>zana</artifactId>
-   <version>4.1.0-SNAPSHOT</version>
+   <version>4.1.1-SNAPSHOT</version>
   </dependency>
  </dependencies>
 
